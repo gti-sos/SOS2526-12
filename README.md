@@ -20,9 +20,10 @@ The project relies on Open Data from international census records (Kaggle/Census
 
 ## Repository & URL
 * https://github.com/gti-sos/SOS2526-12
-* https://github.com/gti-sos/SOS2526-12
+* https://sos2526-12.onrender.com
 
 ---
 *Repository for the Service-Oriented Systems course (2025/2026).*
+
 
 
