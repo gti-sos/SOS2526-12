@@ -18,6 +18,11 @@ Our project analyzes the correlation between population growth and social struct
 ## Sources & Data
 The project relies on Open Data from international census records (Kaggle/Census Bureau), specifically tracking vital statistics and population breakdowns.
 
+## Repository & URL
+* https://github.com/gti-sos/SOS2526-12
+* https://github.com/gti-sos/SOS2526-12
+
 ---
 *Repository for the Service-Oriented Systems course (2025/2026).*
-https://github.com/gti-sos/SOS2526-12
+
+
