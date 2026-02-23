@@ -1,4 +1,7 @@
-// 1. Datos inicializados desde tu ficha de trabajo
+const express = require('express');
+const app = express();
+
+
 const data = [
     { country_name: "Afghanistan", year: 1979, sex: "Male", population_age_100: 2 },
     { country_name: "Azerbaijan", year: 1992, sex: "Female", population_age_100: 3 },
@@ -12,18 +15,29 @@ const data = [
     { country_name: "Bahamas The", year: 1980, sex: "Male", population_age_100: 0 }
 ];
 
-// 2. Algoritmo con iteradores
-const geoFilter = "Azerbaijan"; // Filtro geográfico
 
-// Usamos .filter() para obtener solo las filas de Azerbaijan
+const geoFilter = "Azerbaijan";
+
 const filteredRows = data.filter(row => row.country_name === geoFilter);
-
-// Usamos .map() para extraer solo los valores numéricos y luego calculamos la suma
 const values = filteredRows.map(row => row.population_age_100);
 const total = values.reduce((acc, current) => acc + current, 0);
-
-// Calculamos la media
 const average = filteredRows.length > 0 ? total / filteredRows.length : 0;
 
-// 3. Resultado por consola
-console.log(`Media de population_age_100 para ${geoFilter}: ${average}`);
+
+const textoResultado = `Media de population_age_100 para ${geoFilter}: ${average}`;
+
+
+app.use("/", express.static("./static"));
+
+
+app.get('/resultado', (req, res) => {
+   
+    res.send(`<html><body><h1>${textoResultado}</h1></body></html>`);
+});
+
+
+app.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
+    
+    console.log(textoResultado); 
+});
