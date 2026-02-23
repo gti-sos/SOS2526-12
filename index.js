@@ -1,9 +1,11 @@
 let cool = require("cool-ascii-faces");
+let express = require("express");
+let PORT = process.env.PORT || 3000;
 
 const app = express();
-app.use("/",express.static("./static"));
+app.use("/",express.static("./static", {extensions: ["html"]}));
 
-app.get(BASE_URL_API+"/contacts", (req,res)=>{
+app.get("/", (req,res)=>{
   res.send(`<html><body><h1>
             ${cool()}
             <h1><body><html></html>`)
