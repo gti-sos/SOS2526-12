@@ -67,7 +67,7 @@ app.post("/api/v1/birth-death-growth-rates", (req, res) => {
 
     const exists = birthDeathData.find(d => d.country_code === newRecord.country_code && d.year === newRecord.year);
     if (exists) {
-        return res.status(400).json({ message: "Record already exists" });
+        return res.status(409).json({ message: "Record already exists" });
     }
 
     birthDeathData.push(newRecord);
@@ -96,6 +96,11 @@ app.delete("/api/v1/birth-death-growth-rates/:country_code/:year", (req, res) =>
 
     birthDeathData.splice(index, 1);
     res.status(200).json({ message: "Record deleted successfully" });
+});
+
+app.delete("/api/v1/birth-death-growth-rates", (req, res) => {
+    birthDeathData = [];
+    res.status(200).json({ message: "All records deleted successfully" });
 });
 
 app.get("/", (req, res) => {
