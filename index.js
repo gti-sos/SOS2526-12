@@ -70,7 +70,7 @@ app.get("/samples/JJG", (req, res) => {
                 <title>Sample JJG</title>
             </head>
             <body>
-                <h1>Algoritmo de JJG (Juan José García)</h1>
+                <h1>Algoritmo de JJG (Javier Jimenez Garcia)</h1>
                 <p><strong>Filtro geográfico:</strong> ${geoFilter}</p>
                 <p><strong>Cálculo:</strong> Media de population_age_100</p>
                 <hr>
