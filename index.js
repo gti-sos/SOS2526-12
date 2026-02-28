@@ -10,6 +10,9 @@ app.use(express.json());
 const birthDeathRouter = require("./routes/birth-death-growth-rates");
 app.use("/api/v1", birthDeathRouter);
 
+const populationRouter = require("./routes/mid-population-ages");
+app.use("/api/v1", populationRouter);
+
 // Página principal
 app.get("/", (req, res) => {
     res.send(`<html><body><h1>${cool()}<h1><body><html>`);
