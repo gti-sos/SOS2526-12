@@ -13,6 +13,10 @@ app.use("/api/v1", birthDeathRouter);
 const populationRouter = require("./routes/mid-population-ages");
 app.use("/api/v1", populationRouter);
 
+
+const fertilityRouter = require("./routes/age-specific-fertility-rates");
+app.use("/api/v1", fertilityRouter);
+
 // Página principal
 app.get("/", (req, res) => {
     res.send(`<html><body><h1>${cool()}<h1><body><html>`);
