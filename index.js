@@ -67,8 +67,27 @@ app.get("/samples/JJG", (req, res) => {
     const total = filteredRows.map(row => row.population_age_100).reduce((acc, current) => acc + current, 0);
     const average = filteredRows.length > 0 ? total / filteredRows.length : 0;
 
+    res.send(`
+        <html>
+            <head>
+                <title>Sample JJG</title>
+            </head>
+            <body>
+                <h1>Algoritmo de JJG (Javier Jimenez Garcia)</h1>
+                <p><strong>Filtro geográfico:</strong> ${geoFilter}</p>
+                <p><strong>Cálculo:</strong> Media de population_age_100</p>
+                <hr>
+                <h2>Resultado: ${average.toFixed(2)}</h2>
+                <br>
+                <a href="/">Volver al inicio</a>
+            </body>
+        </html>
+    `);
+});
 
-    app.get("/samples/FMG", (req, res) => {
+
+
+app.get("/samples/FMG", (req, res) => {
     const data = [
         { country_code: "SI", country_name: "Slovenia", year: 2022, fert_15_19: 7.5, fert_20_24: 56.4 },
         { country_code: "SI", country_name: "Slovenia", year: 2021, fert_15_19: 8.1, fert_20_24: 55.2 },
@@ -91,30 +110,26 @@ app.get("/samples/JJG", (req, res) => {
             .reduce((acc, current) => acc + current, 0);
 
         const average = sum / countryData.length;
+
+        res.send(`
+            <html>
+                <head><title>Sample FMG</title></head>
+                <body>
+                    <h1>Algoritmo de FMG (Francisco)</h1>
+                    <p><strong>Filtro geográfico:</strong> ${countryToAnalyze}</p>
+                    <p><strong>Campo analizado:</strong> fert_15_19</p>
+                    <hr>
+                    <h2>Media calculada: ${average.toFixed(2)}</h2>
+                    <br>
+                    <a href="/">Volver al inicio</a>
+                </body>
+            </html>
+        `);
     } else {
         res.status(404).send(`No se encontraron datos para ${countryToAnalyze}`);
     }
 });
 
-
-
-    res.send(`
-        <html>
-            <head>
-                <title>Sample JJG</title>
-            </head>
-            <body>
-                <h1>Algoritmo de JJG (Javier Jimenez Garcia)</h1>
-                <p><strong>Filtro geográfico:</strong> ${geoFilter}</p>
-                <p><strong>Cálculo:</strong> Media de population_age_100</p>
-                <hr>
-                <h2>Resultado: ${average.toFixed(2)}</h2>
-                <br>
-                <a href="/">Volver al inicio</a>
-            </body>
-        </html>
-    `);
-});
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);
