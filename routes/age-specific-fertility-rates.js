@@ -4,7 +4,7 @@ const router = express.Router();
 // 1. Inicializamos el array vacío (así empieza al arrancar el servidor)
 let fertilityData = [];
 
-// 2. Ruta para cargar los datos iniciales
+// 2. Ruta para cargar los datos iniciales p
 router.get("/age-specific-fertility-rates/loadInitialData", (req, res) => {
     
     // REQUISITO: Solo creamos los datos si el array está vacío
