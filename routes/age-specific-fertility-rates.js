@@ -70,13 +70,16 @@ router.get("/age-specific-fertility-rates/:country_code/:year", (req, res) => {
 router.post("/age-specific-fertility-rates", (req, res) => {
     const newRecord = req.body;
 
-    if (!newRecord.country_code || !newRecord.country_name || !newRecord.year) {
-        return res.status(400).json({ message: "Missing required fields" });
+    // Comprobar campos obligatorios
+    if (!newRecord.country_code || !newRecord.country_name || !newRecord.year || 
+        newRecord.fert_15_19 === undefined || newRecord.fert_20_24 === undefined) {
+        return res.status(400).json({ message: "Bad Request: Missing or incorrect fields" });
     }
 
-    const exists = fertilityData.find(d => d.country_code === newRecord.country_code && d.year === newRecord.year);
+    // Comprobar duplicados
+    const exists = fertilityData.find(d => d.country_code === newRecord.country_code && d.year === parseInt(newRecord.year));
     if (exists) {
-        return res.status(409).json({ message: "Record already exists" });
+        return res.status(409).json({ message: "Conflict: Record already exists" });
     }
 
     fertilityData.push(newRecord);
@@ -114,5 +117,17 @@ router.delete("/age-specific-fertility-rates/:country_code/:year", (req, res) =>
     fertilityData.splice(index, 1);
     res.status(200).json({ message: "Record deleted successfully" });
 });
+
+
+// POST a un recurso concreto (Error 405 - Method Not Allowed)
+router.post("/age-specific-fertility-rates/:country_code/:year", (req, res) => {
+    res.status(405).send("Method Not Allowed: Use POST on the base collection, not on a specific resource");
+});
+
+// PUT a la lista general (Error 405 - Method Not Allowed)
+router.put("/age-specific-fertility-rates", (req, res) => {
+    res.status(405).send("Method Not Allowed: Use PUT on a specific resource, not on the base collection");
+});
+
 
 module.exports = router;
