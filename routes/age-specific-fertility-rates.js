@@ -1,27 +1,38 @@
 const express = require("express");
 const router = express.Router();
 
-// Array en memoria para almacenar tus datos
+// 1. Inicializamos el array vacío (así empieza al arrancar el servidor)
 let fertilityData = [];
 
-// 1. Carga de datos iniciales (loadInitialData)
+// 2. Ruta para cargar los datos iniciales
 router.get("/age-specific-fertility-rates/loadInitialData", (req, res) => {
+    
+    // REQUISITO: Solo creamos los datos si el array está vacío
     if (fertilityData.length === 0) {
         fertilityData = [
-            { country_code: "SI", country_name: "Slovenia", year: 2022, fertility_rate_15_19: 7.5, fertility_rate_20_24: 56.4, fertility_rate_25_29: 106.1 },
-            { country_code: "LG", country_name: "Latvia", year: 2022, fertility_rate_14: 14, fertility_rate_20_24: 54, fertility_rate_25_29: 95 },
-            { country_code: "MG", country_name: "Mongolia", year: 2022, fertility_rate_15_19: 14.7, fertility_rate_20_24: 101, fertility_rate_25_29: 115.9 },
-            { country_code: "MR", country_name: "Mauritania", year: 2022, fertility_rate_15_19: 57.4, fertility_rate_20_24: 129.7, fertility_rate_25_29: 168.2 },
-            { country_code: "LI", country_name: "Liberia", year: 2022, fertility_rate_15_19: 85.5, fertility_rate_20_24: 167.9, fertility_rate_25_29: 186.9 },
-            { country_code: "TB", country_name: "Saint Barthelemy", year: 2022, fertility_rate_15_19: 14.3, fertility_rate_20_24: 67, fertility_rate_25_29: 110.6 },
-            { country_code: "UP", country_name: "Ukraine", year: 2022, fertility_rate_15_19: 25.9, fertility_rate_20_24: 89.1, fertility_rate_25_29: 120.5 },
-            { country_code: "CD", country_name: "Chad", year: 2022, fertility_rate_15_19: 153.8, fertility_rate_20_24: 247.6, fertility_rate_25_29: 230.1 },
-            { country_code: "ES", country_name: "Spain", year: 2022, fertility_rate_15_19: 7.0, fertility_rate_20_24: 24.5, fertility_rate_25_29: 50.2 },
-            { country_code: "IT", country_name: "Italy", year: 2022, fertility_rate_15_19: 6.1, fertility_rate_20_24: 22.4, fertility_rate_25_29: 48.9 }
+            { country_code: "SI", country_name: "Slovenia", year: 2022, fert_15_19: 7.5, fert_20_24: 56.4 },
+            { country_code: "SI", country_name: "Slovenia", year: 2021, fert_15_19: 8.1, fert_20_24: 55.2 },
+            { country_code: "SI", country_name: "Slovenia", year: 2020, fert_15_19: 7.8, fert_20_24: 54.9 },
+            { country_code: "LG", country_name: "Latvia", year: 2022, fert_15_19: 14, fert_20_24: 54 },
+            { country_code: "MG", country_name: "Mongolia", year: 2022, fert_15_19: 14.7, fert_20_24: 101 },
+            { country_code: "MR", country_name: "Mauritania", year: 2022, fert_15_19: 57.4, fert_20_24: 129.7 },
+            { country_code: "LI", country_name: "Liberia", year: 2022, fert_15_19: 85.5, fert_20_24: 167.9 },
+            { country_code: "TB", country_name: "Saint Barthelemy", year: 2022, fert_15_19: 14.3, fert_20_24: 67 },
+            { country_code: "UP", country_name: "Ukraine", year: 2022, fert_15_19: 25.9, fert_20_24: 89.1 },
+            { country_code: "CD", country_name: "Chad", year: 2022, fert_15_19: 153.8, fert_20_24: 247.6 }
         ];
-        res.status(200).json({ message: "Fertility data loaded successfully", count: fertilityData.length });
+        
+        // Respuesta cuando se cargan por primera vez
+        res.status(201).json({
+            message: "Data initialized successfully",
+            count: fertilityData.length
+        });
     } else {
-        res.status(200).json({ message: "Data already loaded", count: fertilityData.length });
+        // Respuesta si ya había datos (no hace nada)
+        res.status(200).json({
+            message: "Data already contains records",
+            count: fertilityData.length
+        });
     }
 });
 
