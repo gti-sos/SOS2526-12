@@ -19,7 +19,7 @@ const fertilityRouter = require("./routes/age-specific-fertility-rates");
 app.use("/api/v1", fertilityRouter);
 
 // Página principal
-app.get("/", (req, res) => {
+app.get("/cool", (req, res) => {
     res.send(`<html><body><h1>${cool()}<h1><body><html>`);
 });
 
