@@ -4,7 +4,7 @@ const router = express.Router();
 
 let populationData = [];
 
-router.get("/population-stats/loadInitialData", (req, res) => {
+router.get("/mid-population-ages/loadInitialData", (req, res) => {
     if (populationData.length === 0) {
         populationData = [
             { country_name: "afghanistan", year: 1979, sex: "male", population_age_100: 2 },
@@ -26,12 +26,12 @@ router.get("/population-stats/loadInitialData", (req, res) => {
 });
 
 
-router.get("/population-stats", (req, res) => {
+router.get("/mid-population-ages", (req, res) => {
     res.status(200).json(populationData);
 });
 
 
-router.post("/population-stats", (req, res) => {
+router.post("/mid-population-ages", (req, res) => {
     const newData = req.body;
 
     
@@ -49,7 +49,7 @@ router.post("/population-stats", (req, res) => {
     res.status(201).json(newData);
 });
 
-router.get("/population-stats/:country_name/:year", (req, res) => {
+router.get("/mid-population-ages/:country_name/:year", (req, res) => {
     const { country_name, year } = req.params;
     const resource = populationData.find(d => d.country_name === country_name && d.year === parseInt(year));
 
@@ -60,7 +60,7 @@ router.get("/population-stats/:country_name/:year", (req, res) => {
     }
 });
 
-router.put("/population-stats/:country_name/:year", (req, res) => {
+router.put("/mid-population-ages/:country_name/:year", (req, res) => {
     const { country_name, year } = req.params;
     const index = populationData.findIndex(d => d.country_name === country_name && d.year === parseInt(year));
 
@@ -78,7 +78,7 @@ router.put("/population-stats/:country_name/:year", (req, res) => {
 });
 
 
-router.delete("/population-stats/:country_name/:year", (req, res) => {
+router.delete("/mid-population-ages/:country_name/:year", (req, res) => {
     const { country_name, year } = req.params;
     const initialLength = populationData.length;
     populationData = populationData.filter(d => !(d.country_name === country_name && d.year === parseInt(year)));
@@ -91,17 +91,17 @@ router.delete("/population-stats/:country_name/:year", (req, res) => {
 });
 
 
-router.delete("/population-stats", (req, res) => {
+router.delete("/mid-population-ages", (req, res) => {
     populationData = [];
     res.status(200).json({ message: "All resources deleted" });
 });
 
 
-router.post("/population-stats/:country_name/:year", (req, res) => {
+router.post("/mid-population-ages/:country_name/:year", (req, res) => {
     res.status(405).json({ message: "Method not allowed on specific resource" });
 });
 
-router.put("/population-stats", (req, res) => {
+router.put("/mid-population-ages", (req, res) => {
     res.status(405).json({ message: "Method not allowed on base collection" });
 });
 
