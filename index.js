@@ -11,7 +11,7 @@ const birthDeathRouter = require("./routes/birth-death-growth-rates");
 app.use("/api/v1", birthDeathRouter);
 
 // Página principal
-app.get("/", (req, res) => {
+app.get("/cool", (req, res) => {
     res.send(`<html><body><h1>${cool()}<h1><body><html>`);
 });
 
