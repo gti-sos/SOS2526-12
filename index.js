@@ -14,7 +14,7 @@ const populationRouter = require("./routes/mid-population-ages");
 app.use("/api/v1", populationRouter);
 
 // Página principal
-app.get("/", (req, res) => {
+app.get("/cool", (req, res) => {
     res.send(`<html><body><h1>${cool()}<h1><body><html>`);
 });
 
