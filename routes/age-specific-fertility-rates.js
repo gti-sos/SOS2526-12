@@ -121,13 +121,12 @@ router.delete("/age-specific-fertility-rates/:country_code/:year", (req, res) =>
 
 // POST a un recurso concreto (Error 405 - Method Not Allowed)
 router.post("/age-specific-fertility-rates/:country_code/:year", (req, res) => {
-    res.status(405).send("Method Not Allowed: Use POST on the base collection, not on a specific resource");
+    res.status(405).json({ message: "Method Not Allowed: Use POST on the base collection, not on a specific resource" });
 });
 
 // PUT a la lista general (Error 405 - Method Not Allowed)
 router.put("/age-specific-fertility-rates", (req, res) => {
-    res.status(405).send("Method Not Allowed: Use PUT on a specific resource, not on the base collection");
+    res.status(405).json({ message: "Method Not Allowed: Use PUT on a specific resource, not on the base collection" });
 });
-
 
 module.exports = router;
