@@ -1,3 +1,4 @@
+
 let cool = require("cool-ascii-faces");
 let express = require("express");
 let PORT = process.env.PORT || 3000;
@@ -12,6 +13,10 @@ app.use("/api/v1", birthDeathRouter);
 
 const populationRouter = require("./routes/mid-population-ages");
 app.use("/api/v1", populationRouter);
+
+
+const fertilityRouter = require("./routes/age-specific-fertility-rates");
+app.use("/api/v1", fertilityRouter);
 
 // Página principal
 app.get("/cool", (req, res) => {
@@ -84,6 +89,52 @@ app.get("/samples/JJG", (req, res) => {
         </html>
     `);
 });
+
+
+
+app.get("/samples/FMG", (req, res) => {
+    const data = [
+        { country_code: "SI", country_name: "Slovenia", year: 2022, fert_15_19: 7.5, fert_20_24: 56.4 },
+        { country_code: "SI", country_name: "Slovenia", year: 2021, fert_15_19: 8.1, fert_20_24: 55.2 },
+        { country_code: "SI", country_name: "Slovenia", year: 2020, fert_15_19: 7.8, fert_20_24: 54.9 },
+        { country_code: "LG", country_name: "Latvia", year: 2022, fert_15_19: 14, fert_20_24: 54 },
+        { country_code: "MG", country_name: "Mongolia", year: 2022, fert_15_19: 14.7, fert_20_24: 101 },
+        { country_code: "MR", country_name: "Mauritania", year: 2022, fert_15_19: 57.4, fert_20_24: 129.7 },
+        { country_code: "LI", country_name: "Liberia", year: 2022, fert_15_19: 85.5, fert_20_24: 167.9 },
+        { country_code: "TB", country_name: "Saint Barthelemy", year: 2022, fert_15_19: 14.3, fert_20_24: 67 },
+        { country_code: "UP", country_name: "Ukraine", year: 2022, fert_15_19: 25.9, fert_20_24: 89.1 },
+        { country_code: "CD", country_name: "Chad", year: 2022, fert_15_19: 153.8, fert_20_24: 247.6 }
+    ];
+
+    const countryToAnalyze = "Slovenia";
+    const countryData = data.filter(item => item.country_name === countryToAnalyze);
+
+    if (countryData.length > 0) {
+        const sum = countryData
+            .map(item => item.fert_15_19)
+            .reduce((acc, current) => acc + current, 0);
+
+        const average = sum / countryData.length;
+
+        res.send(`
+            <html>
+                <head><title>Sample FMG</title></head>
+                <body>
+                    <h1>Algoritmo de FMG (Francisco)</h1>
+                    <p><strong>Filtro geográfico:</strong> ${countryToAnalyze}</p>
+                    <p><strong>Campo analizado:</strong> fert_15_19</p>
+                    <hr>
+                    <h2>Media calculada: ${average.toFixed(2)}</h2>
+                    <br>
+                    <a href="/">Volver al inicio</a>
+                </body>
+            </html>
+        `);
+    } else {
+        res.status(404).send(`No se encontraron datos para ${countryToAnalyze}`);
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);
