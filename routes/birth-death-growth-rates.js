@@ -69,16 +69,34 @@ router.post("/birth-death-growth-rates", (req, res) => {
     res.status(201).json(newRecord);
 });
 
+router.post("/birth-death-growth-rates/:country_code/:year", (req, res) => {
+    res.status(405).json({ message: "Method Not Allowed" });
+});
+
 router.put("/birth-death-growth-rates/:country_code/:year", (req, res) => {
     const { country_code, year } = req.params;
+    const updatedRecord = req.body;
+
+    if (!updatedRecord.country_code || !updatedRecord.country_name || !updatedRecord.year) {
+        return res.status(400).json({ message: "Missing required fields: country_code, country_name, year" });
+    }
+
+    if (updatedRecord.country_code !== country_code || updatedRecord.year !== parseInt(year)) {
+        return res.status(400).json({ message: "country_code and year in body must match the URL" });
+    }
+
     const index = birthDeathData.findIndex(d => d.country_code === country_code && d.year === parseInt(year));
 
     if (index === -1) {
         return res.status(404).json({ message: "Record not found" });
     }
 
-    birthDeathData[index] = { ...birthDeathData[index], ...req.body };
+    birthDeathData[index] = { ...birthDeathData[index], ...updatedRecord };
     res.status(200).json(birthDeathData[index]);
+});
+
+router.put("/birth-death-growth-rates", (req, res) => {
+    res.status(405).json({ message: "Method Not Allowed" });
 });
 
 router.delete("/birth-death-growth-rates", (req, res) => {
