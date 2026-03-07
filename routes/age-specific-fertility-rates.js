@@ -129,4 +129,29 @@ router.put("/age-specific-fertility-rates", (req, res) => {
     res.status(405).json({ message: "Method Not Allowed: Use PUT on a specific resource, not on the base collection" });
 });
 
+let BASE_URL = "/api/v1"
+
+let contacts= [
+    {
+        name: "peter",
+        phone: 3333333
+    },
+    {
+        name: "jhonny",
+        phone: 929299
+    }
+
+
+
+];
+
+application.get(BASE_URL + "/contacts-FMG", (req,res) => {
+    res.send(JSON.stringify(contacts));
+});
+
+
+
+
+
+
 module.exports = router;
