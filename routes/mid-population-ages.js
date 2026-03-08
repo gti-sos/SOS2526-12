@@ -98,8 +98,9 @@ router.delete("/mid-population-ages", (req, res) => {
 
 
 router.post("/mid-population-ages/:country_name/:year", (req, res) => {
-    res.status(405).json({ message: "Method not allowed on specific resource" });
+    res.status(405).json({ message: "Method not allowed on specific resource" });
 });
+
 
 router.put("/mid-population-ages", (req, res) => {
     res.status(405).json({ message: "Method not allowed on base collection" });
