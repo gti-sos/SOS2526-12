@@ -89,13 +89,25 @@ router.post("/age-specific-fertility-rates", (req, res) => {
 // 5. PUT para actualizar un recurso existente
 router.put("/age-specific-fertility-rates/:country_code/:year", (req, res) => {
     const { country_code, year } = req.params;
+    const updatedRecord = req.body;
+
+    // Validación de seguridad para que el 500 no ocurra si el body viene vacío
+    if (!updatedRecord || !updatedRecord.country_code || updatedRecord.year === undefined) {
+        return res.status(400).json({ message: "Bad Request: Missing fields in body" });
+    }
+
+    // ERROR 400: El ID de la URL y el del cuerpo deben coincidir
+    if (country_code !== updatedRecord.country_code || parseInt(year) !== parseInt(updatedRecord.year)) {
+        return res.status(400).json({ message: "Bad Request: URL ID and Body ID mismatch" });
+    }
+
     const index = fertilityData.findIndex(d => d.country_code === country_code && d.year === parseInt(year));
 
     if (index === -1) {
         return res.status(404).json({ message: "Record not found" });
     }
 
-    fertilityData[index] = { ...fertilityData[index], ...req.body };
+    fertilityData[index] = { ...fertilityData[index], ...updatedRecord };
     res.status(200).json(fertilityData[index]);
 });
 
