@@ -8,10 +8,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-    "type": "git",
+    "type": "module",
     "url": "(https://github.com/gti-sos/SOS2526-12)"
   },
-  "author": "",
+  "author": "SOS2526-12",
   "license": "ISC",
   "dependencies": {
     "cool-ascii-faces": "^1.3.4",
