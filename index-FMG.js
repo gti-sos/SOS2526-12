@@ -1,8 +1,3 @@
-/**
- * index-YYY.js (Sustituye YYY por tus siglas)
- * Algoritmo: Media de fertilidad (rango 15-19 años) para un país específico.
- * Fuente: Datos extraídos de SOS2526-12-Propuesta - Francisco.csv
- */
 
 // 1. Inicialización del array con los datos de tu ficha de trabajo
 // Requisito L02: Al menos 10 filas y un valor geográfico que se repita.
