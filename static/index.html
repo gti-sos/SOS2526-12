@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOS2526-12 - Inicio</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 600px; }
+        h1 { color: #1a1a2e; }
+        p { color: #555; font-size: 1.1em; }
+        .links-container { margin-top: 25px; display: grid; gap: 10px; }
+        .btn { display: block; padding: 12px; text-decoration: none; color: white; border-radius: 8px; font-weight: bold; transition: opacity 0.3s; }
+        .btn-about { background-color: #16213e; }
+        .btn-api { background-color: #e94560; }
+        .btn-sample { background-color: #0f3460; }
+        .btn:hover { opacity: 0.85; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Proyecto SOS2526-12</h1>
+        <p>Análisis de Dinámicas de Población Internacional</p>
+        
+        <div class="links-container">
+            <a href="/about" class="btn btn-about">ℹ️ Sobre nosotros (About)</a>
+
+            <a href="/api/v1/age-specific-fertility-rates" class="btn btn-api">📊 API: Tasas de Fertilidad (FMG)</a>
+            <a href="/api/v1/birth-death-growth-rates" class="btn btn-api">📈 API: Natalidad y Mortalidad (LPH)</a>
+            <a href="/api/v1/mid-population-ages" class="btn btn-api">👥 API: Población por Edades (JJG)</a>
+
+            <p>Samples de algoritmos:</p>
+            <a href="/samples/FMG" class="btn btn-sample">Código FMG</a>
+            <a href="/samples/LPH" class="btn btn-sample">Código LPH</a>
+            <a href="/samples/JJG" class="btn btn-sample">Código JJG</a>
+        </div>
+    </div>
+</body>
+</html>
