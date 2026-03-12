@@ -1,4 +1,4 @@
-import dataStore from 'neapp';
+import dataStore from 'nedb';
 
 let BASE_URL_API = "/api/v1/";
 //create database:
