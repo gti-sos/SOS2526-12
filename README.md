@@ -18,12 +18,20 @@ Our project analyzes the correlation between population growth and social struct
 ## Sources & Data
 The project relies on Open Data from international census records (Kaggle/Census Bureau), specifically tracking vital statistics and population breakdowns.
 
-## Repository & URL
+## Repository
 * https://github.com/gti-sos/SOS2526-12
+
+## URL
 * https://sos2526-12.onrender.com
+
+## APIs:
+- https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/ (Developed by Francisco de Paula Mediavilla García)
+- --------- (Developed by Lucca Pereira)
+- ----------- (Developed by Javier Jiménez)
 
 ---
 *Repository for the Service-Oriented Systems course (2025/2026).*
+
 
 
 
