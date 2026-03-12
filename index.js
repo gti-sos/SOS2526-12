@@ -1,44 +1,55 @@
-const cool = require("cool-ascii-faces");
-const express = require("express");
 
-const birthDeathRouter = require("./routes/birth-death-growth-rates.js");
-const populationRouter = require("./routes/mid-population-ages.js");
-const fertilityRouter = require("./routes/age-specific-fertility-rates.js");
 
-const PORT = process.env.PORT || 3000;
+
+import express from 'express';
+import bodyParser from 'body-parser';
+import {loadBackend} from './src/back/index.js';
+
+let PORT = process.env.PORT || 3000;
+
 const app = express();
 
-// Configuración básica (El traductor de JSON va aquí)
-app.use("/", express.static("./static", { extensions: ["html"] }));
-app.use(express.json()); 
+app.use("/",express.static("./static"));
+app.use(bodyParser.json());
+
+loadBackend(app);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// LoadInit -- hay que quitar las rutas y cambiar por NeDB
+const populationRouter = require("./routes/mid-population-ages.js");
+const fertilityRouter = require("./routes/age-specific-fertility-rates.js");
 
 // --- APIs (Rutas externas) ---
 app.use("/api/v1", birthDeathRouter);
 app.use("/api/v1", populationRouter);
 app.use("/api/v1", fertilityRouter);
 
-// --- Página Principal / Cool ---
-app.get("/cool", (req, res) => {
-    res.send(`<html><body><h1>${cool()}</h1></body></html>`);
-});
 
-// --- SAMPLE LPH ---
-app.get("/samples/LPH", (req, res) => {
-    const data = [
-        { country_code: "SI", country_name: "Slovenia", year: 2022, crude_birth_rate: 7.52, crude_death_rate: 12.28 },
-        { country_code: "LG", country_name: "Latvia", year: 2022, crude_birth_rate: 8.7, crude_death_rate: 14.73 }
-    ];
-    const pais = "Slovenia";
-    const paisData = data.filter(item => item.country_name === pais);
 
-    if (paisData.length > 0) {
-        const sum = paisData.map(item => item.crude_birth_rate).reduce((acc, current) => acc + current, 0);
-        const media = sum / paisData.length;
-        res.send(`<html><body><h2>Datos de ${pais}: </h2><p>Media de crude_birth_rate: ${media.toFixed(2)}</p></body></html>`);
-    } else {
-        res.send(`No hay datos para: ${pais}`);
-    }
-});
 
 // --- SAMPLE JJG ---
 app.get("/samples/JJG", (req, res) => {
