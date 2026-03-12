@@ -1,9 +1,6 @@
-
-
-
 import express from 'express';
 import bodyParser from 'body-parser';
-import {loadBackend} from './src/back/index.js';
+import {loadBackend} from './src/back/index-LPH.js';
 
 let PORT = process.env.PORT || 3000;
 
@@ -12,9 +9,12 @@ const app = express();
 app.use("/",express.static("./static"));
 app.use(bodyParser.json());
 
-loadBackend(app);
+loadBackend(appLPH);
 
-
+// --- Iniciar Servidor ---
+app.listen(PORT, () => {
+    console.log(`Server is running on ${PORT}`);
+});
 
 
 
@@ -112,7 +112,3 @@ app.get("/samples/FMG", (req, res) => {
     }
 });
 
-// --- Iniciar Servidor ---
-app.listen(PORT, () => {
-    console.log(`Server is running on ${PORT}`);
-});
