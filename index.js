@@ -19,6 +19,8 @@ export function loadBackend(app) {
     loadFMG(app);
 }
 
+loadBackend(app);
+
 // --- Iniciar Servidor ---
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);
