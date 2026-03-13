@@ -1,0 +1,16 @@
+{
+	"id": "5cd200b9-ce50-4419-87dc-aeae37d98438",
+	"name": "Local",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-03-13T11:23:09.226Z",
+	"_postman_exported_using": "Postman/12.1.4-260313-0232"
+}
