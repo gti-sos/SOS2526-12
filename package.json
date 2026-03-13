@@ -6,7 +6,12 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test-api-local": "npx newman run tests/api/api-tests.json -e tests/api/api-test-env-local.json",
+    "test-api-online": "npx newman run tests/api/api-tests.json -e tests/api/api-test-env-online.json",
+    "test-local": "start-server-and-test start http://localhost:3000 test-api-local",
+    "test-online": "start-server-and-test start http://localhost:3000 test-api-online",
+    "test": "npm run test-local" 
+  
   },
   "repository": {
     "type": "git",
