@@ -9,4 +9,5 @@ jobs:
       - name: Install dependencies      
         run: npm install
       - name: Test
-        run: npm test-LPH
+
+        run: npm test-PLH
