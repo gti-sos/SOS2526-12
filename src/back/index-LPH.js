@@ -1,15 +1,13 @@
 import dataStore from 'nedb';
 
-let BASE_URL_API = "/api/v1/";
-//create database:
+let BASE_URL_API = "/api/v1";   // FIXED: removed trailing slash
 let db = new dataStore();
 
+export function loadBackend(app) {
 
-export function loadBackend(appLPH) {
-
-    let records = [
+    const records = [
         { country_code: "SI", country_name: "Slovenia", year: 2022, crude_birth_rate: 7.52, crude_death_rate: 12.28, net_migration: 0.32, rate_natural_increase: -0.476, growth_rate: -0.444 },
-        { country_code: "SI", country_name: "Slovenia", year: 2026, crude_birth_rate: 7.26, crude_death_rate: 12.84, net_migration: 0.30, rate_natural_increase: -0.558, growth_rate: -0.529 },
+        { country_code: "SI", country_name: "Slovenia", year: 2022, crude_birth_rate: 7.26, crude_death_rate: 12.84, net_migration: 0.30, rate_natural_increase: -0.558, growth_rate: -0.529 },
         { country_code: "LG", country_name: "Latvia", year: 2022, crude_birth_rate: 8.70, crude_death_rate: 14.73, net_migration: -5.71, rate_natural_increase: -0.603, growth_rate: -1.174 },
         { country_code: "MG", country_name: "Mongolia", year: 2022, crude_birth_rate: 15.60, crude_death_rate: 6.36, net_migration: -0.78, rate_natural_increase: 0.924, growth_rate: 0.847 },
         { country_code: "MR", country_name: "Mauritania", year: 2022, crude_birth_rate: 28.11, crude_death_rate: 7.29, net_migration: -0.72, rate_natural_increase: 2.082, growth_rate: 2.01 },
@@ -25,50 +23,65 @@ export function loadBackend(appLPH) {
     db.insert(records);
 
     app.get(BASE_URL_API + "/birth-death-growth-rates/loadInitialData", (req, res) => {
-
         db.find({}, (err, records) => {
-            let jsonData = JSON.stringify(records.map((c) => {
-                delete c._id; return c;
-            }), null, 2);
-            console.log(`JSON Data to be sent: ${jsonData}`);
-            res.send(jsonData);
+            res.json({ count: records.length });
         });
-
     });
 
-    appLPH.get(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
-        let { ...filters } = req.query;
-        let query = {};
-        Object.keys(filters).forEach(key => {
-            query[key] = filters[key];
-        });
+app.get(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+    const filters = req.query;
+    const query = {};
 
-        db.find({}, (err, records) => {
-            if (records.length === 0) {
-                res.status(404).json({ message: "Record not found" });
-            } else {
-                delete records[0]._id;
-                res.status(200).json(records[0]);
+    const operatorMap = {
+        ">": "$gt",
+        "<": "$lt",
+        ">=": "$gte",
+        "<=": "$lte"
+    };
+
+    // IMPORTANT: longest operators first so >= is matched before >
+    const operators = [">=", "<=", ">", "<"];
+
+    Object.keys(filters).forEach(key => {
+        const value = filters[key];
+
+        // 1. RANGE USING DASH (e.g., "7-10")
+        if (typeof value === "string" && value.includes("-")) {
+            const [min, max] = value.split("-");
+            query[key] = {};
+            if (min !== "") query[key]["$gte"] = Number(min);
+            if (max !== "") query[key]["$lte"] = Number(max);
+            return;
+        }
+
+        // 2. RANGE USING OPERATORS (>, <, >=, <=)
+        for (const op of operators) {
+            if (value.startsWith(op)) {
+                const num = Number(value.slice(op.length));
+                if (!query[key]) query[key] = {};
+                query[key][operatorMap[op]] = num;
+                return;
             }
-        });
+        }
+
+        // 3. EXACT MATCH
+        query[key] = isNaN(value) ? value : Number(value);
     });
 
-    appLPH.get(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
-        let country_code = req.params.country_code;
-        let year = parseInt(req.params.year);
+    db.find(query, (err, records) => {
+        if (records.length === 0) {
+            return res.status(404).json({ message: "Record not found" });
+        }
 
-        db.find({ country_code: country_code, year: year }, (err, records) => {
-            if (records.length === 0) {
-                res.status(404).json({ message: "Record not found" });
-            } else {
-                delete records[0]._id;
-                res.status(200).json(records[0]);
-            }
-        });
+        const clean = records.map(({ _id, ...rest }) => rest);
+        res.status(200).json(clean);
     });
+});
 
-    appLPH.post(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
-        let newRecord = req.body;
+
+
+    app.post(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+        const newRecord = req.body;
 
         if (!newRecord.country_code || !newRecord.country_name || !newRecord.year) {
             return res.status(400).json({ message: "Missing required fields: country_code, country_name, year" });
@@ -83,14 +96,14 @@ export function loadBackend(appLPH) {
         });
     });
 
-    appLPH.post(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
+    app.post(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
         res.status(405).json({ message: "Method Not Allowed" });
     });
 
-    appLPH.put(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
-        let country_code = req.params.country_code;
-        let year = parseInt(req.params.year);
-        let updatedRecord = req.body;
+    app.put(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
+        const country_code = req.params.country_code;
+        const year = Number(req.params.year);
+        const updatedRecord = req.body;
 
         if (!updatedRecord.country_code || !updatedRecord.country_name || !updatedRecord.year) {
             return res.status(400).json({ message: "Missing required fields: country_code, country_name, year" });
@@ -100,52 +113,42 @@ export function loadBackend(appLPH) {
             return res.status(400).json({ message: "country_code and year in body must match the URL" });
         }
 
-        db.find({ country_code: country_code, year: year }, (err, records) => {
+        db.find({ country_code, year }, (err, records) => {
             if (records.length === 0) {
                 return res.status(404).json({ message: "Record not found" });
             }
 
-            db.update({ country_code: country_code, year: year }, updatedRecord, {}, (err) => {
-                if (err) {
-                    res.status(500).json({ message: "Database error" });
-                } else {
-                    res.status(200).json(updatedRecord);
-                }
+            db.update({ country_code, year }, updatedRecord, {}, (err) => {
+                if (err) return res.status(500).json({ message: "Database error" });
+                res.status(200).json(updatedRecord);
             });
         });
     });
 
-    appLPH.put(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+    app.put(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
         res.status(405).json({ message: "Method Not Allowed" });
     });
 
-    appLPH.delete(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+    app.delete(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
         db.remove({}, { multi: true }, (err) => {
-            if (err) {
-                res.status(500).json({ message: "Database error" });
-            } else {
-                res.status(200).json({ message: "All records deleted successfully" });
-            }
+            if (err) return res.status(500).json({ message: "Database error" });
+            res.status(200).json({ message: "All records deleted successfully" });
         });
     });
 
-    appLPH.delete(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
-        let country_code = req.params.country_code;
-        let year = parseInt(req.params.year);
+    app.delete(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
+        const country_code = req.params.country_code;
+        const year = Number(req.params.year);
 
-        db.find({ country_code: country_code, year: year }, (err, records) => {
+        db.find({ country_code, year }, (err, records) => {
             if (records.length === 0) {
                 return res.status(404).json({ message: "Record not found" });
             }
 
-            db.remove({ country_code: country_code, year: year }, {}, (err) => {
-                if (err) {
-                    res.status(500).json({ message: "Database error" });
-                } else {
-                    res.status(200).json({ message: "Record deleted successfully" });
-                }
+            db.remove({ country_code, year }, {}, (err) => {
+                if (err) return res.status(500).json({ message: "Database error" });
+                res.status(200).json({ message: "Record deleted successfully" });
             });
         });
     });
-
 }
