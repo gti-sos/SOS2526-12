@@ -10,7 +10,7 @@
     "test-api-online": "npx newman run test/api/api-test.json -e test/api/api-env-render.json",
     "test-local": "start-server-and-test start http://localhost:3000 test-api-local",
     "test-online": "start-server-and-test start http://localhost:3000 test-api-online",
-    "test": "npm run test-local"
+    "test-": "npm run test-local"
   },
   "repository": {
     "type": "git",
