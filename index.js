@@ -1,6 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import {loadBackend} from './src/back/index-LPH.js';
+import { loadBackend as loadLHP } from "./src/back/index-LHP.js";
+import { loadBackend as loadHDG } from "./src/back/index-JJF.js";
+import { loadBackend as loadAUS } from "./src/back/index-FMG.js";
 
 let PORT = process.env.PORT || 3000;
 
@@ -11,15 +13,16 @@ loadBackend(app);
 app.use("/",express.static("./static"));
 app.use(bodyParser.json());
 
+export function loadBackend(app) {
+    loadLHP(app);
+    loadJJF(app);
+    loadFMG(app);
+}
+
 // --- Iniciar Servidor ---
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);
 });
-
-
-
-
-
 
 
 
