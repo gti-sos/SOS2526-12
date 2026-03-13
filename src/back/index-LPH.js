@@ -1,11 +1,11 @@
 import dataStore from 'nedb';
 
-let BASE_URL_API = "/api/v1/";
+let BASE_URL_API = "/api/v1";
 //create database:
 let db = new dataStore();
 
 
-export function loadBackend(appLPH) {
+export function loadBackend(app) {
 
     let records = [
         { country_code: "SI", country_name: "Slovenia", year: 2022, crude_birth_rate: 7.52, crude_death_rate: 12.28, net_migration: 0.32, rate_natural_increase: -0.476, growth_rate: -0.444 },
@@ -27,47 +27,49 @@ export function loadBackend(appLPH) {
     app.get(BASE_URL_API + "/birth-death-growth-rates/loadInitialData", (req, res) => {
 
         db.find({}, (err, records) => {
-            let jsonData = JSON.stringify(records.map((c) => {
-                delete c._id; return c;
-            }), null, 2);
-            console.log(`JSON Data to be sent: ${jsonData}`);
-            res.send(jsonData);
+            console.log(`JSON Data to be sent: ${records.length}`);
+            res.json({ count: records.length });
         });
 
     });
 
-    appLPH.get(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
-        let { ...filters } = req.query;
-        let query = {};
-        Object.keys(filters).forEach(key => {
-            query[key] = filters[key];
-        });
+    app.get(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+        const filters = req.query;  // captures ANY variable sent in URL
 
-        db.find({}, (err, records) => {
+        db.find(filters, (err, records) => {
             if (records.length === 0) {
-                res.status(404).json({ message: "Record not found" });
-            } else {
-                delete records[0]._id;
-                res.status(200).json(records[0]);
+                return res.status(404).json({ message: "Record not found" });
             }
+
+            const clean = records.map(r => {
+                const { _id, ...rest } = r;
+                return rest;
+            });
+
+            res.status(200).json(clean);
         });
     });
 
-    appLPH.get(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
+
+    app.get(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
         let country_code = req.params.country_code;
         let year = parseInt(req.params.year);
 
         db.find({ country_code: country_code, year: year }, (err, records) => {
             if (records.length === 0) {
                 res.status(404).json({ message: "Record not found" });
-            } else {
-                delete records[0]._id;
-                res.status(200).json(records[0]);
             }
+            const clean = records.map(r => {
+                const { _id, ...rest } = r;
+                return rest;
+            });
+            
+            res.status(200).json(clean);
+
         });
     });
 
-    appLPH.post(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+    app.post(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
         let newRecord = req.body;
 
         if (!newRecord.country_code || !newRecord.country_name || !newRecord.year) {
@@ -83,11 +85,11 @@ export function loadBackend(appLPH) {
         });
     });
 
-    appLPH.post(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
+    app.post(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
         res.status(405).json({ message: "Method Not Allowed" });
     });
 
-    appLPH.put(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
+    app.put(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
         let country_code = req.params.country_code;
         let year = parseInt(req.params.year);
         let updatedRecord = req.body;
@@ -115,11 +117,11 @@ export function loadBackend(appLPH) {
         });
     });
 
-    appLPH.put(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+    app.put(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
         res.status(405).json({ message: "Method Not Allowed" });
     });
 
-    appLPH.delete(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+    app.delete(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
         db.remove({}, { multi: true }, (err) => {
             if (err) {
                 res.status(500).json({ message: "Database error" });
@@ -129,7 +131,7 @@ export function loadBackend(appLPH) {
         });
     });
 
-    appLPH.delete(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
+    app.delete(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
         let country_code = req.params.country_code;
         let year = parseInt(req.params.year);
 
