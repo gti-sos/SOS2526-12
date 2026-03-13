@@ -1,4 +1,3 @@
-
 {
   "info": {
     "_postman_id": "432b26a5-8f2c-49eb-8d44-0d1bffe5b2b0",
@@ -187,76 +186,6 @@
           },
           "response": []
         },
-        {
-          "name": "Delete Especifico",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/ES/2024",
-              "protocol": "https",
-              "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "age-specific-fertility-rates",
-                "ES",
-                "2024"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete All",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/",
-              "protocol": "https",
-              "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "age-specific-fertility-rates",
-                ""
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "F05 Errores",
-      "item": [
         {
           "name": "Error campos faltantes",
           "request": {
@@ -451,9 +380,73 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Delete Especifico",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/ES/2024",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates",
+                "ES",
+                "2024"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete All",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates",
+                ""
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }
   ]
 }
-
