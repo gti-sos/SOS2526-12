@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { loadBackend as loadLHP } from "./src/back/index-LHP.js";
+import { loadBackend as loadLHP } from "./src/back/index-LPH.js";
 import { loadBackend as loadHDG } from "./src/back/index-JJF.js";
 import { loadBackend as loadAUS } from "./src/back/index-FMG.js";
 
