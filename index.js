@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import path from 'path';
 
 import { loadBackend as loadLHP } from "./src/back/index-LPH.js";
 //import { loadBackend as loadJJF } from "./src/back/index-JJG.js";
@@ -11,6 +12,7 @@ const app = express();
 
 app.use("/", express.static("./static"));
 app.use(bodyParser.json());
+
 
 
 export function loadBackend(app) {
@@ -26,7 +28,9 @@ app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);
 });
 
-
+app.get('/about', (req, res) => {
+    res.sendFile(path.resolve('./static/about.html'));
+});
 // --- SAMPLE JJG ---
 app.get("/samples/JJG", (req, res) => {
     const data = [
