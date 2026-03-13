@@ -113,3 +113,23 @@ export function loadBackendFMG(app) {
         });
     });
 }
+
+// 2. Algoritmo usando iteradores
+const countryToAnalyze = "Slovenia";
+
+// Filtrar por el campo de información geográfica
+const countryData = data.filter(item => item.country_name === countryToAnalyze);
+
+if (countryData.length > 0) {
+    // Calcular la media del campo numérico 'fert_15_19'
+    const sum = countryData
+        .map(item => item.fert_15_19)
+        .reduce((acc, current) => acc + current, 0);
+
+    const average = sum / countryData.length;
+
+    // 3. Resultado por consola
+    console.log(`La media de fertilidad (15-19 años) es: ${average.toFixed(2)}`);
+} else {
+    console.log(`No se encontraron datos para ${countryToAnalyze}`);
+}
