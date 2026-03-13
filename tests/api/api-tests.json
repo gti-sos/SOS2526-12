@@ -16,12 +16,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/loadinitialData",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates/loadinitialData",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -39,12 +36,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -73,12 +67,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/SI/2022",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates/SI/2022",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -106,12 +97,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -137,12 +125,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -168,12 +153,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/SI/2022",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates/SI/2022",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -201,12 +183,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -232,12 +211,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/SI/2022",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates/SI/2022",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -265,12 +241,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -299,12 +272,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/SI/2029",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates/SI/2029",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -332,12 +302,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/SI/2022",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates/SI/2022",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -365,12 +332,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -396,12 +360,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/ES/2024",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates/ES/2024",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -429,12 +390,9 @@
               }
             },
             "url": {
-              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/",
-              "protocol": "https",
+              "raw": "{{base_url}}/api/v1/age-specific-fertility-rates/",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
