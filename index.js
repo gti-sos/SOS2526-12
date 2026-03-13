@@ -1,33 +1,24 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import {loadBackend} from './src/back/index-LPH.js';
+import { loadBackend } from './src/back/index-LPH.js'; 
+import { loadBackendFMG } from './src/back/index-FMG.js'; 
 
 let PORT = process.env.PORT || 3000;
-
 const app = express();
 
-loadBackend(app);
-
-app.use("/",express.static("./static"));
+app.use("/", express.static("./static"));
 app.use(bodyParser.json());
 
-// --- Iniciar Servidor ---
+// Cargar las APIs
+loadBackend(app);     
+loadBackendFMG(app);  
+
+
+
+
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -93,6 +84,3 @@ app.get("/samples/FMG", (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on ${PORT}`);
-});
