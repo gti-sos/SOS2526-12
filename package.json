@@ -13,7 +13,7 @@
     "test-local-LPH": "start-server-and-test start http://localhost:3000 test-api-local-LPH",
     "test-online-LPH": "start-server-and-test start http://localhost:3000 test-api-online-LPH",
 
-    "test-LPH": "npm run test-local-LPH"
+    "test-birth-death-growth-rates": "npm run test-local-LPH"
   },
   "repository": {
     "type": "git",
