@@ -2,6 +2,7 @@ import dataStore from 'nedb';
 
 let BASE_URL_API = "/api/v1";
 let db = new dataStore();
+let DOCS_URL = "https://documenter.getpostman.com/view/52398391/2sBXigLYdf";
 
 export function loadBackend(app) {
 
@@ -29,55 +30,68 @@ export function loadBackend(app) {
         });
     });
 
-app.get(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
-    const filters = req.query;
-    const query = {};
+    app.get(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+        const filters = req.query;
+        const query = {};
 
-    const operatorMap = {
-        ">": "$gt",
-        "<": "$lt",
-        ">=": "$gte",
-        "<=": "$lte"
-    };
+        const operatorMap = {
+            ">": "$gt",
+            "<": "$lt",
+            ">=": "$gte",
+            "<=": "$lte"
+        };
 
-    // IMPORTANT: longest operators first so >= is matched before >
-    const operators = [">=", "<=", ">", "<"];
+        // IMPORTANT: longest operators first so >= is matched before >
+        const operators = [">=", "<=", ">", "<"];
 
-    Object.keys(filters).forEach(key => {
-        const value = filters[key];
+        Object.keys(filters).forEach(key => {
+            const value = filters[key];
 
-        // 1. RANGE USING DASH (e.g., "7-10")
-        if (typeof value === "string" && value.includes("-")) {
-            const [min, max] = value.split("-");
-            query[key] = {};
-            if (min !== "") query[key]["$gte"] = Number(min);
-            if (max !== "") query[key]["$lte"] = Number(max);
-            return;
-        }
-
-        // 2. RANGE USING OPERATORS (>, <, >=, <=)
-        for (const op of operators) {
-            if (value.startsWith(op)) {
-                const num = Number(value.slice(op.length));
-                if (!query[key]) query[key] = {};
-                query[key][operatorMap[op]] = num;
+            // 1. RANGE USING DASH (e.g., "7-10")
+            if (typeof value === "string" && value.includes("-")) {
+                const [min, max] = value.split("-");
+                query[key] = {};
+                if (min !== "") query[key]["$gte"] = Number(min);
+                if (max !== "") query[key]["$lte"] = Number(max);
                 return;
             }
-        }
 
-        // 3. EXACT MATCH
-        query[key] = isNaN(value) ? value : Number(value);
+            // 2. RANGE USING OPERATORS (>, <, >=, <=)
+            for (const op of operators) {
+                if (value.startsWith(op)) {
+                    const num = Number(value.slice(op.length));
+                    if (!query[key]) query[key] = {};
+                    query[key][operatorMap[op]] = num;
+                    return;
+                }
+            }
+
+            // 3. EXACT MATCH
+            query[key] = isNaN(value) ? value : Number(value);
+        });
+
+        db.find(query, (err, records) => {
+            if (records.length === 0) {
+                return res.status(404).json({ message: "Record not found" });
+            }
+
+            const clean = records.map(({ _id, ...rest }) => rest);
+            res.status(200).json(clean);
+        });
     });
 
-    db.find(query, (err, records) => {
-        if (records.length === 0) {
-            return res.status(404).json({ message: "Record not found" });
-        }
+    app.get(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
+        let country_code = req.params.country_code;
+        let year = parseInt(req.params.year);
 
-        const clean = records.map(({ _id, ...rest }) => rest);
-        res.status(200).json(clean);
+        db.find({ country_code: country_code, year: year }, (err, records) => {
+            if (records.length === 0) {
+                return res.status(404).json({ message: "Record not found" });
+            }
+            const clean = records.map(r => { const { _id, ...rest } = r; return rest; });
+            res.status(200).json(clean[0]);
+        });
     });
-});
 
 
 
@@ -152,4 +166,10 @@ app.get(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
             });
         });
     });
+
+    app.get(BASE_URL_API + "/birth-death-growth-rates/docs", (req, res) => {
+        console.log("Getting DOCS");
+        res.redirect(DOCS_URL);
+    });
+
 }
