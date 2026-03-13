@@ -1,0 +1,403 @@
+{
+  "info": {
+    "_postman_id": "17a9bfe1-35fc-42ca-91a2-2552f5d20fba",
+    "name": "My Collection",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52398391",
+    "_collection_link": "https://go.postman.co/collection/52398391-17a9bfe1-35fc-42ca-91a2-2552f5d20fba?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Get InitialData",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/loadInitialData",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "birth-death-growth-rates",
+            "loadInitialData"
+          ]
+        },
+        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+      },
+      "response": []
+    },
+    {
+      "name": "Get all",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get filter crude",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates?crude_birth_rate=7.26",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates"
+          ],
+          "query": [
+            {
+              "key": "crude_birth_rate",
+              "value": "7.26"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get <=",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates?crude_birth_rate=<=7.26",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates"
+          ],
+          "query": [
+            {
+              "key": "crude_birth_rate",
+              "value": "<=7.26"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Post data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"country_code\": \"TEST\",\n  \"country_name\": \"Test Country\",\n  \"year\": 2023,\n  \"crude_birth_rate\": 10.0,\n  \"crude_death_rate\": 5.0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Post update data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"country_code\": \"TEST\",\r\n  \"country_name\": \"Test Country Updated\",\r\n  \"year\": 2023,\r\n  \"crude_birth_rate\": 12.0,\r\n  \"crude_death_rate\": 6.0\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates/TEST/2023",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates",
+            "TEST",
+            "2023"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete data",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates/TEST/2023",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates",
+            "TEST",
+            "2023"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete all",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Inexistente 404",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates?crude_birth_rate=>1000",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates"
+          ],
+          "query": [
+            {
+              "key": "crude_birth_rate",
+              "value": ">1000"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Sin campos obligatorios 400",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"crude_birth_rate\": 10.0\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Duplicado 409",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"country_code\": \"SI\",\r\n  \"country_name\": \"Slovenia\",\r\n  \"year\": 2022\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "!Id 400",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"country_code\": \"XX\",\r\n  \"country_name\": \"Wrong Country\",\r\n  \"year\": 9999\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates/SI/2022",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates",
+            "SI",
+            "2022"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Sobre recurso concreto 405",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates/SI/2022",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates",
+            "SI",
+            "2022"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Sobre colección 405",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "sos2526-12.onrender.com",
+            "api",
+            "v1",
+            "birth-death-growth-rates"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
