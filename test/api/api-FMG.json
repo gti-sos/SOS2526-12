@@ -1,0 +1,459 @@
+
+{
+  "info": {
+    "_postman_id": "432b26a5-8f2c-49eb-8d44-0d1bffe5b2b0",
+    "name": "F05",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52304863",
+    "_collection_link": "https://go.postman.co/collection/52304863-432b26a5-8f2c-49eb-8d44-0d1bffe5b2b0?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "F05",
+      "item": [
+        {
+          "name": "Load Initial Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/loadinitialData",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates",
+                "loadinitialData"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Especifico",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/SI/2022",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates",
+                "SI",
+                "2022"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create New",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\", \r\n    \"year\": 2024, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Copy",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\", \r\n    \"year\": 2025, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Registro",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/SI/2022",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates",
+                "SI",
+                "2022"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Especifico",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/ES/2024",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates",
+                "ES",
+                "2024"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete All",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "F05 Errores",
+      "item": [
+        {
+          "name": "Error campos faltantes",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"ES\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Error ID distinto al de la URL",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\", \r\n    \"year\": 2026, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/SI/2022",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates",
+                "SI",
+                "2022"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Error PUT a coleccion",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\", \r\n    \"year\": 2026, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Error Recurso no encontrado",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"ES\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/SI/2029",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates",
+                "SI",
+                "2029"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Error POST no permitido",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"ES\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/SI/2022",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates",
+                "SI",
+                "2022"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Error Duplicado",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_code\": \"SI\",\r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates",
+              "protocol": "https",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "age-specific-fertility-rates"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
+
