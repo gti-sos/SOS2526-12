@@ -6,11 +6,14 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "test-api-local": "npx newman run test/api/api-test.json -e test/api/api-env-local.json",
-    "test-api-online": "npx newman run test/api/api-test.json -e test/api/api-env-render.json",
-    "test-local": "start-server-and-test start http://localhost:3000 test-api-local",
-    "test-online": "start-server-and-test start http://localhost:3000 test-api-online",
-    "test-": "npm run test-local"
+    
+    "test-api-local-LPH": "npx newman run test/api/api-test-LPH.json -e test/api/api-env-local.json",
+    "test-api-online-LPH": "npx newman run test/api/api-test-LPH.json -e test/api/api-env-render.json",
+
+    "test-local-LPH": "start-server-and-test start http://localhost:3000 test-api-local-LPH",
+    "test-online-LPH": "start-server-and-test start http://localhost:3000 test-api-online-LPH",
+
+    "test-LPH": "npm run test-local-LPH"
   },
   "repository": {
     "type": "git",
