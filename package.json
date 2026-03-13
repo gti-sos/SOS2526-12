@@ -6,7 +6,11 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test-api-local": "npx newman run test/api/api-test.json -e test/api/api-env-local.json",
+    "test-api-online": "npx newman run test/api/api-test.json -e test/api/api-env-render.json",
+    "test-local": "start-server-and-test start http://localhost:3000 test-api-local",
+    "test-online": "start-server-and-test start http://localhost:3000 test-api-online",
+    "test": "npm run test-local"
   },
   "repository": {
     "type": "git",
@@ -15,7 +19,11 @@
   "author": "SOS2526-12",
   "license": "ISC",
   "dependencies": {
-    "cool-ascii-faces": "^1.3.4",
-    "express": "^5.2.1"
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1",
+    "nedb": "^1.8.0"
+  },
+  "devDependencies": {
+    "start-server-and-test": "^2.1.5"
   }
 }
