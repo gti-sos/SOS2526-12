@@ -3,7 +3,7 @@ import dataStore from 'nedb';
 let BASE_URL_API = "/api/v1";
 let db = new dataStore();
 
-export function loadBackendFMG(app) {
+export function loadBackend(app) {
     let initialData = [
         { country_code: "SI", country_name: "Slovenia", year: 2022, fert_15_19: 7.5, fert_20_24: 56.4 },
         { country_code: "SI", country_name: "Slovenia", year: 2021, fert_15_19: 8.1, fert_20_24: 55.2 },
@@ -114,22 +114,3 @@ export function loadBackendFMG(app) {
     });
 }
 
-// 2. Algoritmo usando iteradores
-const countryToAnalyze = "Slovenia";
-
-// Filtrar por el campo de información geográfica
-const countryData = data.filter(item => item.country_name === countryToAnalyze);
-
-if (countryData.length > 0) {
-    // Calcular la media del campo numérico 'fert_15_19'
-    const sum = countryData
-        .map(item => item.fert_15_19)
-        .reduce((acc, current) => acc + current, 0);
-
-    const average = sum / countryData.length;
-
-    // 3. Resultado por consola
-    console.log(`La media de fertilidad (15-19 años) es: ${average.toFixed(2)}`);
-} else {
-    console.log(`No se encontraron datos para ${countryToAnalyze}`);
-}
