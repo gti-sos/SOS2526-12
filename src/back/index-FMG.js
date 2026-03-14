@@ -2,6 +2,8 @@ import dataStore from 'nedb';
 
 let BASE_URL_API = "/api/v1";
 let db = new dataStore();
+let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXigLDP2";
+
 
 export function loadBackend(app) {
     let initialData = [
@@ -112,5 +114,16 @@ export function loadBackend(app) {
             res.status(200).json({ message: "Record deleted successfully" });
         });
     });
+
+
+    
+    app.get(BASE_URL_API + "/FMG/docs", (req, res) => {
+        
+        res.redirect(DOC_URL);
+    
+});
+
+
+
 }
 
