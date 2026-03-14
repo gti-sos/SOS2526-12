@@ -13,7 +13,20 @@
     "test-local-LPH": "start-server-and-test start http://localhost:3000 test-api-local-LPH",
     "test-online-LPH": "start-server-and-test start http://localhost:3000 test-api-online-LPH",
 
-    "test-birth-death-growth-rates": "npm run test-local-LPH"
+
+    "test-api-local-FMG": "npx newman run test/api/api-test-FMG.json -e test/api/api-env-local.json",
+    "test-api-online-FMG": "npx newman run test/api/api-test-FMG.json -e test/api/api-env-render.json",
+
+    "test-local-FMG": "start-server-and-test start http://localhost:3000 test-api-local-FMG",
+    "test-online-FMG": "start-server-and-test start http://localhost:3000 test-api-online-FMG",
+
+
+    "test-birth-death-growth-rates": "npm run test-local-LPH",
+
+    "test-age-specific-fertility-rates": "npm run test-local-FMG",
+
+    "test": "npm run test-online-FMG"
+
   },
   "repository": {
     "type": "git",
