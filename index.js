@@ -29,7 +29,3 @@ app.listen(PORT, () => {
 app.get('/about', (req, res) => {
     res.sendFile(path.resolve('./static/about.html'));
 });
-
-
-
-//        !run: npm run test-birth-death-growth-rates
