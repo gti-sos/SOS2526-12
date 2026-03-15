@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 
 import { loadBackend as loadLHP } from "./src/back/index-LPH.js";
-//import { loadBackend as loadJJF } from "./src/back/index-JJG.js";
+import { loadBackend as loadJJG } from "./src/back/index-JJG.js";
 import { loadBackend as loadFMG } from "./src/back/index-FMG.js";
 
 
@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 
 export function loadBackend(app) {
     loadLHP(app);
-    //loadJJF(app);
+    loadJJG(app);
     loadFMG(app);
 }
 
