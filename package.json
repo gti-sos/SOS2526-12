@@ -33,8 +33,8 @@
     
 
 
-    "test-online": "npm run test-online",
-    "test-local": "npm run test-local",
+    "test-online": "npm run test-online-FMG",
+    "test-local": "npm run test-local-FMG",
 
 
 
