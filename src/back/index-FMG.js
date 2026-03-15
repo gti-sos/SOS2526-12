@@ -4,7 +4,6 @@ let BASE_URL_API = "/api/v1";
 let db = new dataStore();
 let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXigLDP2";
 
-
 function loadBackend(app) {
     let initialData = [
         { country_code: "SI", country_name: "Slovenia", year: 2022, fert_15_19: 7.5, fert_20_24: 56.4 },
@@ -29,9 +28,33 @@ function loadBackend(app) {
         });
     });
 
-    // GET: Obtener todos los recursos
+    // GET: Obtener todos los recursos (CON BÚSQUEDA Y PAGINACIÓN)
     app.get(BASE_URL_API + "/age-specific-fertility-rates", (req, res) => {
-        db.find({}, (err, records) => {
+        let searchQuery = {};
+
+        // 1. Filtros de búsqueda
+        if (req.query.country_code) searchQuery.country_code = req.query.country_code;
+        if (req.query.country_name) searchQuery.country_name = req.query.country_name;
+        if (req.query.year) searchQuery.year = parseInt(req.query.year);
+        if (req.query.fert_15_19) searchQuery.fert_15_19 = parseFloat(req.query.fert_15_19);
+        if (req.query.fert_20_24) searchQuery.fert_20_24 = parseFloat(req.query.fert_20_24);
+
+        // 2. Preparar consulta
+        let dbQuery = db.find(searchQuery);
+
+        // 3. Paginación (limit y offset)
+        if (req.query.limit) {
+            dbQuery = dbQuery.limit(parseInt(req.query.limit));
+        }
+        if (req.query.offset) {
+            dbQuery = dbQuery.skip(parseInt(req.query.offset));
+        }
+
+        // 4. Ejecutar consulta
+        dbQuery.exec((err, records) => {
+            if (err) {
+                return res.status(500).json({ message: "Internal server error" });
+            }
             if (records.length === 0) {
                 return res.status(404).json({ message: "Record not found" });
             }
@@ -116,14 +139,12 @@ function loadBackend(app) {
             res.status(200).json({ message: "Record deleted successfully" });
         });
     });
-   
+
+    // DOCS: Redirección a Postman
     app.get(BASE_URL_API + "/age-specific-fertility-rates/docs", (req, res) => {
-        
         res.redirect(DOC_URL);    
-});
+    });
 
 }
 
-
-
-export {loadBackend}; 
+export {loadBackend};
