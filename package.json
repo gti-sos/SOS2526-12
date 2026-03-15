@@ -20,10 +20,11 @@
     "test-online-FMG": "start-server-and-test start http://localhost:3000 test-api-online-FMG",
 
     "test-birth-death-growth-rates": "npm run test-local-LPH",
-    "test-age-specific-fertility-rates": "npm run test-local-FMG",
+    "test-age-specific-fertility-rates": "npm run test-online-FMG",
 
     "test-online": "npm run test-online-FMG ",
     "test-local": "npm run test-local-FMG ",
+
     "test": "npm run test-online"
   },
   "repository": {
