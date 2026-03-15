@@ -5,7 +5,7 @@ let db = new dataStore();
 let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXigLDP2";
 
 
-export function loadBackend(app) {
+function loadBackend(app) {
     let initialData = [
         { country_code: "SI", country_name: "Slovenia", year: 2022, fert_15_19: 7.5, fert_20_24: 56.4 },
         { country_code: "SI", country_name: "Slovenia", year: 2021, fert_15_19: 8.1, fert_20_24: 55.2 },
@@ -16,7 +16,9 @@ export function loadBackend(app) {
         { country_code: "LI", country_name: "Liberia", year: 2022, fert_15_19: 85.5, fert_20_24: 167.9 },
         { country_code: "TB", country_name: "Saint Barthelemy", year: 2022, fert_15_19: 14.3, fert_20_24: 67 },
         { country_code: "UP", country_name: "Ukraine", year: 2022, fert_15_19: 25.9, fert_20_24: 89.1 },
-        { country_code: "CD", country_name: "Chad", year: 2022, fert_15_19: 153.8, fert_20_24: 247.6 }
+        { country_code: "CD", country_name: "Chad", year: 2022, fert_15_19: 153.8, fert_20_24: 247.6 },
+        { country_code: "SP", country_name: "Spain", year: 2022, fert_15_19: 100.8, fert_20_24: 199.6 },
+        { country_code: "IT", country_name: "Italy", year: 2022, fert_15_19: 123.8, fert_20_24: 207.6 }
     ];
 
     // Cargar datos iniciales (Ruta para POSTMAN y test)
@@ -114,16 +116,14 @@ export function loadBackend(app) {
             res.status(200).json({ message: "Record deleted successfully" });
         });
     });
-
-
-    
-    app.get(BASE_URL_API + "/FMG/docs", (req, res) => {
+   
+    app.get(BASE_URL_API + "/age-specific-fertility-rates/docs", (req, res) => {
         
-        res.redirect(DOC_URL);
-    
+        res.redirect(DOC_URL);    
 });
-
-
 
 }
 
+
+
+export {loadBackend}; 
