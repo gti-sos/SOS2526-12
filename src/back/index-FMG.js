@@ -28,65 +28,65 @@ function loadBackend(app) {
         });
     });
 
-    // GET: Obtener todos los recursos (CON BÚSQUEDA Y PAGINACIÓN)
+    // GET: Obtener todos los recursos (CON BÚSQUEDA Y PAGINACIÓN) - Devuelve ARRAY
     app.get(BASE_URL_API + "/age-specific-fertility-rates", (req, res) => {
         let searchQuery = {};
 
-        // 1. Filtros de búsqueda
+        // Filtros de búsqueda
         if (req.query.country_code) searchQuery.country_code = req.query.country_code;
         if (req.query.country_name) searchQuery.country_name = req.query.country_name;
         if (req.query.year) searchQuery.year = parseInt(req.query.year);
         if (req.query.fert_15_19) searchQuery.fert_15_19 = parseFloat(req.query.fert_15_19);
         if (req.query.fert_20_24) searchQuery.fert_20_24 = parseFloat(req.query.fert_20_24);
 
-        // 2. Preparar consulta
         let dbQuery = db.find(searchQuery);
 
-        // 3. Paginación (limit y offset)
-        if (req.query.limit) {
-            dbQuery = dbQuery.limit(parseInt(req.query.limit));
-        }
-        if (req.query.offset) {
-            dbQuery = dbQuery.skip(parseInt(req.query.offset));
-        }
+        // Paginación
+        if (req.query.limit) dbQuery = dbQuery.limit(parseInt(req.query.limit));
+        if (req.query.offset) dbQuery = dbQuery.skip(parseInt(req.query.offset));
 
-        // 4. Ejecutar consulta
         dbQuery.exec((err, records) => {
-            if (err) {
-                return res.status(500).json({ message: "Internal server error" });
-            }
-            if (records.length === 0) {
-                return res.status(404).json({ message: "Record not found" });
-            }
+            if (err) return res.status(500).json({ message: "Internal server error" });
+            if (records.length === 0) return res.status(404).json({ message: "Record not found" });
+            
+            // Limpiamos el _id de NeDB
             const clean = records.map(r => { const { _id, ...rest } = r; return rest; });
             res.status(200).json(clean);
         });
     });
 
-    // GET: Obtener recurso por país y año
+    // GET: Obtener recurso por país y año - Devuelve OBJETO
     app.get(BASE_URL_API + "/age-specific-fertility-rates/:country_code/:year", (req, res) => {
         let country_code = req.params.country_code;
         let year = parseInt(req.params.year);
 
         db.find({ country_code: country_code, year: year }, (err, records) => {
-            if (records.length === 0) {
-                return res.status(404).json({ message: "Record not found" });
-            }
+            if (err) return res.status(500).json({ message: "Internal server error" });
+            if (records.length === 0) return res.status(404).json({ message: "Record not found" });
+            
             const clean = records.map(r => { const { _id, ...rest } = r; return rest; });
-            res.status(200).json(clean[0]);
+            res.status(200).json(clean[0]); // El [0] asegura que devolvemos un Objeto
         });
     });
 
-    // POST: Añadir nuevo recurso
+    // POST: Añadir nuevo recurso (Con validación estricta 400 y Conflicto 409)
     app.post(BASE_URL_API + "/age-specific-fertility-rates", (req, res) => {
         let newRecord = req.body;
-        if (!newRecord.country_code || !newRecord.country_name || !newRecord.year) {
-            return res.status(400).json({ message: "Missing required fields" });
+        
+        // Validación estricta de campos (Exactamente estos 5)
+        const expectedKeys = ["country_code", "country_name", "year", "fert_15_19", "fert_20_24"];
+        const recordKeys = Object.keys(newRecord);
+        let hasAllKeys = expectedKeys.every(key => recordKeys.includes(key));
+        let hasExactLength = recordKeys.length === expectedKeys.length;
+
+        if (!hasAllKeys || !hasExactLength) {
+            return res.status(400).json({ message: "Bad Request: Incorrect field structure" });
         }
+
+        // Comprobación de conflicto
         db.find({ country_code: newRecord.country_code, year: newRecord.year }, (err, records) => {
-            if (records.length > 0) {
-                return res.status(409).json({ message: "Record already exists" });
-            }
+            if (records.length > 0) return res.status(409).json({ message: "Record already exists" });
+            
             db.insert(newRecord);
             res.status(201).json({ message: "Created" });
         });
@@ -97,20 +97,29 @@ function loadBackend(app) {
         res.status(405).json({ message: "Method Not Allowed" });
     });
 
-    // PUT: Actualizar recurso
+    // PUT: Actualizar recurso (Con validación estricta 400 y comprobación de URL)
     app.put(BASE_URL_API + "/age-specific-fertility-rates/:country_code/:year", (req, res) => {
         let country_code = req.params.country_code;
         let year = parseInt(req.params.year);
         let updatedRecord = req.body;
 
+        // Validación estricta de campos
+        const expectedKeys = ["country_code", "country_name", "year", "fert_15_19", "fert_20_24"];
+        const recordKeys = Object.keys(updatedRecord);
+        let hasAllKeys = expectedKeys.every(key => recordKeys.includes(key));
+        let hasExactLength = recordKeys.length === expectedKeys.length;
+
+        if (!hasAllKeys || !hasExactLength) {
+            return res.status(400).json({ message: "Bad Request: Incorrect field structure" });
+        }
+
+        // Comprobar que URL y Body coinciden
         if (updatedRecord.country_code !== country_code || updatedRecord.year !== year) {
             return res.status(400).json({ message: "Bad Request: Data mismatch" });
         }
 
         db.update({ country_code: country_code, year: year }, updatedRecord, {}, (err, numReplaced) => {
-            if (numReplaced === 0) {
-                return res.status(404).json({ message: "Record not found" });
-            }
+            if (numReplaced === 0) return res.status(404).json({ message: "Record not found" });
             res.status(200).json({ message: "Updated successfully" });
         });
     });
@@ -133,9 +142,7 @@ function loadBackend(app) {
         let year = parseInt(req.params.year);
 
         db.remove({ country_code: country_code, year: year }, {}, (err, numRemoved) => {
-            if (numRemoved === 0) {
-                return res.status(404).json({ message: "Record not found" });
-            }
+            if (numRemoved === 0) return res.status(404).json({ message: "Record not found" });
             res.status(200).json({ message: "Record deleted successfully" });
         });
     });
@@ -144,7 +151,6 @@ function loadBackend(app) {
     app.get(BASE_URL_API + "/age-specific-fertility-rates/docs", (req, res) => {
         res.redirect(DOC_URL);    
     });
-
 }
 
-export {loadBackend};
+export { loadBackend };
