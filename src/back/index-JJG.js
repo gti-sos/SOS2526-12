@@ -19,7 +19,7 @@ export function loadBackend(app) {
         { country_name: "Bermuda", year: 1992, sex: "Male", population_age_100: 0 },
         { country_name: "Bahamas The", year: 1980, sex: "Male", population_age_100: 0 }
     ];
-    db.insert(records);
+    db.insert(initialRecords);
     // ==========================================
     // 1. CARGA DE DATOS INICIALES
     // ==========================================
