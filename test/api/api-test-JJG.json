@@ -35,12 +35,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -77,12 +74,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/loadInitialData",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/loadInitialData",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -130,12 +124,9 @@
               }
             },
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -185,12 +176,9 @@
               }
             },
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -236,12 +224,9 @@
               }
             },
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/Afghanistan/1979/Male",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/Afghanistan/1979/Male",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -280,12 +265,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -335,12 +317,9 @@
               }
             },
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/Afghanistan/1979/Male",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/Afghanistan/1979/Male",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -389,12 +368,9 @@
               }
             },
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -436,12 +412,9 @@
               }
             },
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/afghanistan/1979",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/afghanistan/1979",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -484,12 +457,9 @@
               }
             },
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -534,12 +504,9 @@
               }
             },
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/narnia/2026",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/narnia/2026",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -573,12 +540,9 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
@@ -615,12 +579,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
-              "protocol": "http",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/",
               "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "api",
