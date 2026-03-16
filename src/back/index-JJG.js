@@ -7,7 +7,7 @@ let DOCS_URL = "https://documenter.getpostman.com/view/52368982/2sBXigMtBS";
 export function loadBackend(app) {
 
     // Datos iniciales de tu ficha de trabajo
-    let records = [
+    let initialRecords = [
         { country_name: "Afghanistan", year: 1979, sex: "Male", population_age_100: 2 },
         { country_name: "Azerbaijan", year: 1992, sex: "Female", population_age_100: 3 },
         { country_name: "Azerbaijan", year: 1990, sex: "Female", population_age_100: 8 },
