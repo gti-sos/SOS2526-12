@@ -88,11 +88,11 @@
               }
             },
             "url": {
-              "raw": "http://sos2526-12.orender.com/api/v1/mid-population-ages/",
+              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
               "protocol": "http",
               "host": [
                 "sos2526-12",
-                "orender",
+                "onrender",
                 "com"
               ],
               "path": [
@@ -127,8 +127,11 @@
               }
             }
           ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [],
             "body": {
               "mode": "raw",
@@ -191,7 +194,7 @@
               }
             },
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/afghanistan/1979/female/",
+              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/afghanistan/1979/Male",
               "protocol": "http",
               "host": [
                 "sos2526-12",
@@ -204,8 +207,7 @@
                 "mid-population-ages",
                 "afghanistan",
                 "1979",
-                "female",
-                ""
+                "Male"
               ]
             }
           },
@@ -275,11 +277,23 @@
               }
             }
           ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
             "method": "GET",
             "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
+              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/1979/Male",
               "protocol": "http",
               "host": [
                 "sos2526-12",
@@ -290,7 +304,8 @@
                 "api",
                 "v1",
                 "mid-population-ages",
-                ""
+                "1979",
+                "Male"
               ]
             }
           },
@@ -343,53 +358,6 @@
     {
       "name": "Error",
       "item": [
-        {
-          "name": "Duplicado",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 409 por recurso ya existente\", function () {\r",
-                  "    pm.response.to.have.status(409);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"country_name\": \"Afghanistan\",\r\n    \"year\": 1979,\r\n    \"sex\": \"Male\",\r\n    \"population_age_100\": 2\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
-              "protocol": "http",
-              "host": [
-                "sos2526-12",
-                "onrender",
-                "com"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "mid-population-ages",
-                ""
-              ]
-            }
-          },
-          "response": []
-        },
         {
           "name": "Campos faltantes",
           "event": [
@@ -480,6 +448,53 @@
                 "mid-population-ages",
                 "afghanistan",
                 "1979"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Duplicado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 409 por recurso ya existente\", function () {\r",
+                  "    pm.response.to.have.status(409);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"country_name\": \"Afghanistan\",\r\n    \"year\": 1979,\r\n    \"sex\": \"Male\",\r\n    \"population_age_100\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://sos2526-12.onrender.com/api/v1/mid-population-ages/",
+              "protocol": "http",
+              "host": [
+                "sos2526-12",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "mid-population-ages",
+                ""
               ]
             }
           },
