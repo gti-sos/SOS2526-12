@@ -116,7 +116,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"country_name\": \"france\",\r\n    \"year\": 2026,\r\n    \"sex\": \"female\",\r\n    \"population_age_100\": 45\r\n}",
+              "raw": "{\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 15\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -124,15 +124,14 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/mid-population-ages/",
+              "raw": "{{base_url}}/api/v1/mid-population-ages",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "mid-population-ages",
-                ""
+                "mid-population-ages"
               ]
             }
           },
@@ -168,7 +167,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"country_name\": \"spain\"\r\n}",
+              "raw": "",
               "options": {
                 "raw": {
                   "language": "json"
@@ -176,15 +175,14 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/mid-population-ages/",
+              "raw": "{{base_url}}/api/v1/mid-population-ages",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "mid-population-ages",
-                ""
+                "mid-population-ages"
               ]
             }
           },
@@ -270,7 +268,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"country_name\": \"France\",\r\n    \"year\": 2026,\r\n    \"sex\": \"female\",\r\n    \"population_age_100\": 99\r\n}",
+              "raw": "{\r\n    \"country_name\": \"Afghanistan\",\r\n    \"year\": 1979,\r\n    \"sex\": \"Male\",\r\n    \"population_age_100\": 999\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -319,7 +317,7 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/mid-population-ages/",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/Afghanistan/1979/Male",
               "host": [
                 "{{base_url}}"
               ],
@@ -327,7 +325,9 @@
                 "api",
                 "v1",
                 "mid-population-ages",
-                ""
+                "Afghanistan",
+                "1979",
+                "Male"
               ]
             }
           },
@@ -360,7 +360,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"country_name\": \"spain\"}",
+              "raw": "{\r\n    \"country_name\": \"France\",\r\n    \"year\": 2020\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -368,15 +368,14 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/mid-population-ages/",
+              "raw": "{{base_url}}/api/v1/mid-population-ages",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "mid-population-ages",
-                ""
+                "mid-population-ages"
               ]
             }
           },
@@ -404,7 +403,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"country_name\": \"italy\",\r\n    \"year\": 1979,\r\n    \"sex\": \"Male\",\r\n    \"population_age_100\": 2\r\n}",
+              "raw": "{\r\n    \"country_name\": \"Andorra\",\r\n    \"year\": 2050,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 10\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -412,7 +411,7 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/mid-population-ages/afghanistan/1979",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/Andorra/1991/Female",
               "host": [
                 "{{base_url}}"
               ],
@@ -420,8 +419,9 @@
                 "api",
                 "v1",
                 "mid-population-ages",
-                "afghanistan",
-                "1979"
+                "Andorra",
+                "1991",
+                "Female"
               ]
             }
           },
@@ -449,7 +449,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"country_name\": \"Afghanistan\",\r\n    \"year\": 1979,\r\n    \"sex\": \"Male\",\r\n    \"population_age_100\": 2\r\n}",
+              "raw": "{\r\n    \"country_name\": \"Andorra\",\r\n    \"year\": 1991,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 37\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -504,7 +504,7 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/mid-population-ages/narnia/2026",
+              "raw": "{{base_url}}/api/v1/mid-population-ages/Narnia/3000/Male",
               "host": [
                 "{{base_url}}"
               ],
@@ -512,8 +512,9 @@
                 "api",
                 "v1",
                 "mid-population-ages",
-                "narnia",
-                "2026"
+                "Narnia",
+                "3000",
+                "Male"
               ]
             }
           },
@@ -540,15 +541,14 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/mid-population-ages/",
+              "raw": "{{base_url}}/api/v1/mid-population-ages",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "mid-population-ages",
-                ""
+                "mid-population-ages"
               ]
             }
           },
@@ -579,15 +579,14 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/mid-population-ages/",
+              "raw": "{{base_url}}/api/v1/mid-population-ages",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "mid-population-ages",
-                ""
+                "mid-population-ages"
               ]
             }
           },
