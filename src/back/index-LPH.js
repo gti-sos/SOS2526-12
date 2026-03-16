@@ -1,62 +1,64 @@
 import dataStore from 'nedb';
 
 let BASE_URL_API = "/api/v1";
-let db = new dataStore();
+let db = new dataStore({ filename: 'birth-death-growth-rates.db', autoload: true });
 let DOCS_URL = "https://documenter.getpostman.com/view/52398391/2sBXigLYdf";
+
+const REQUIRED_FIELDS = ['country_code', 'country_name', 'year', 'crude_birth_rate', 'crude_death_rate'];
+
+function isValidRecord(record) {
+    const keys = Object.keys(record);
+    return REQUIRED_FIELDS.every(f => keys.includes(f));
+}
+
+const initialRecords = [
+    { country_code: "SI", country_name: "Slovenia",         year: 2022, crude_birth_rate: 7.52,  crude_death_rate: 12.28, net_migration: 0.32,  rate_natural_increase: -0.476, growth_rate: -0.444 },
+    { country_code: "LG", country_name: "Latvia",           year: 2022, crude_birth_rate: 8.70,  crude_death_rate: 14.73, net_migration: -5.71, rate_natural_increase: -0.603, growth_rate: -1.174 },
+    { country_code: "MG", country_name: "Mongolia",         year: 2022, crude_birth_rate: 15.60, crude_death_rate: 6.36,  net_migration: -0.78, rate_natural_increase: 0.924,  growth_rate: 0.847  },
+    { country_code: "MR", country_name: "Mauritania",       year: 2022, crude_birth_rate: 28.11, crude_death_rate: 7.29,  net_migration: -0.72, rate_natural_increase: 2.082,  growth_rate: 2.01   },
+    { country_code: "LI", country_name: "Liberia",          year: 2022, crude_birth_rate: 30.92, crude_death_rate: 8.47,  net_migration: 0,     rate_natural_increase: 2.245,  growth_rate: 2.246  },
+    { country_code: "TB", country_name: "Saint Barthelemy", year: 2022, crude_birth_rate: 9.31,  crude_death_rate: 9.45,  net_migration: -1.83, rate_natural_increase: -0.014, growth_rate: -0.197 },
+    { country_code: "UP", country_name: "Ukraine",          year: 2022, crude_birth_rate: 9.16,  crude_death_rate: 13.82, net_migration: -0.26, rate_natural_increase: -0.466, growth_rate: -0.493 },
+    { country_code: "CY", country_name: "Cyprus",           year: 2022, crude_birth_rate: 10.58, crude_death_rate: 7.18,  net_migration: 6.97,  rate_natural_increase: 0.34,   growth_rate: 1.037  },
+    { country_code: "VE", country_name: "Venezuela",        year: 2022, crude_birth_rate: 17.32, crude_death_rate: 5.47,  net_migration: -1.1,  rate_natural_increase: 1.185,  growth_rate: 1.074  },
+    { country_code: "ET", country_name: "Ethiopia",         year: 2022, crude_birth_rate: 34.37, crude_death_rate: 6.95,  net_migration: -0.18, rate_natural_increase: 2.742,  growth_rate: 2.724  },
+    { country_code: "ZA", country_name: "Zambia",           year: 2022, crude_birth_rate: 39.74, crude_death_rate: 11.10, net_migration: 0,     rate_natural_increase: 2.864,  growth_rate: 2.864  },
+    { country_code: "ET", country_name: "Ethiopia",         year: 2021, crude_birth_rate: 35.10, crude_death_rate: 7.20,  net_migration: -0.20, rate_natural_increase: 2.790,  growth_rate: 2.710  },
+];
 
 export function loadBackend(app) {
 
-    let records = [
-        { country_code: "SI", country_name: "Slovenia", year: 2022, crude_birth_rate: 7.52, crude_death_rate: 12.28, net_migration: 0.32, rate_natural_increase: -0.476, growth_rate: -0.444 },
-        { country_code: "SI", country_name: "Slovenia", year: 2022, crude_birth_rate: 7.26, crude_death_rate: 12.84, net_migration: 0.30, rate_natural_increase: -0.558, growth_rate: -0.529 },
-        { country_code: "LG", country_name: "Latvia", year: 2022, crude_birth_rate: 8.70, crude_death_rate: 14.73, net_migration: -5.71, rate_natural_increase: -0.603, growth_rate: -1.174 },
-        { country_code: "MG", country_name: "Mongolia", year: 2022, crude_birth_rate: 15.60, crude_death_rate: 6.36, net_migration: -0.78, rate_natural_increase: 0.924, growth_rate: 0.847 },
-        { country_code: "MR", country_name: "Mauritania", year: 2022, crude_birth_rate: 28.11, crude_death_rate: 7.29, net_migration: -0.72, rate_natural_increase: 2.082, growth_rate: 2.01 },
-        { country_code: "LI", country_name: "Liberia", year: 2022, crude_birth_rate: 30.92, crude_death_rate: 8.47, net_migration: 0, rate_natural_increase: 2.245, growth_rate: 2.246 },
-        { country_code: "TB", country_name: "Saint Barthelemy", year: 2022, crude_birth_rate: 9.31, crude_death_rate: 9.45, net_migration: -1.83, rate_natural_increase: -0.014, growth_rate: -0.197 },
-        { country_code: "UP", country_name: "Ukraine", year: 2022, crude_birth_rate: 9.16, crude_death_rate: 13.82, net_migration: -0.26, rate_natural_increase: -0.466, growth_rate: -0.493 },
-        { country_code: "CY", country_name: "Cyprus", year: 2022, crude_birth_rate: 10.58, crude_death_rate: 7.18, net_migration: 6.97, rate_natural_increase: 0.34, growth_rate: 1.037 },
-        { country_code: "VE", country_name: "Venezuela", year: 2022, crude_birth_rate: 17.32, crude_death_rate: 5.47, net_migration: -1.1, rate_natural_increase: 1.185, growth_rate: 1.074 },
-        { country_code: "ET", country_name: "Ethiopia", year: 2022, crude_birth_rate: 34.37, crude_death_rate: 6.95, net_migration: -0.18, rate_natural_increase: 2.742, growth_rate: 2.724 },
-        { country_code: "ZA", country_name: "Zambia", year: 2022, crude_birth_rate: 39.74, crude_death_rate: 11.10, net_migration: 0, rate_natural_increase: 2.864, growth_rate: 2.864 },
-    ];
-
-    db.insert(records);
+    app.get(BASE_URL_API + "/birth-death-growth-rates/docs", (req, res) => {
+        res.redirect(DOCS_URL);
+    });
 
     app.get(BASE_URL_API + "/birth-death-growth-rates/loadInitialData", (req, res) => {
         db.find({}, (err, records) => {
-            console.log(`JSON Data to be sent: ${records.length}`);
-            res.json({ count: records.length });
+            if (records.length > 0) {
+                const clean = records.map(({ _id, ...rest }) => rest);
+                return res.status(200).json(clean);
+            }
+            db.insert(initialRecords, (err, inserted) => {
+                if (err) return res.status(500).json({ message: "Database error" });
+                const clean = inserted.map(({ _id, ...rest }) => rest);
+                res.status(200).json(clean);
+            });
         });
     });
 
     app.get(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
         const filters = req.query;
         const query = {};
-
-        const operatorMap = {
-            ">": "$gt",
-            "<": "$lt",
-            ">=": "$gte",
-            "<=": "$lte"
-        };
-
-        // IMPORTANT: longest operators first so >= is matched before >
+        const operatorMap = { ">": "$gt", "<": "$lt", ">=": "$gte", "<=": "$lte" };
         const operators = [">=", "<=", ">", "<"];
 
         Object.keys(filters).forEach(key => {
             const value = filters[key];
-
-            // 1. RANGE USING DASH (e.g., "7-10")
-            if (typeof value === "string" && value.includes("-")) {
+            if (typeof value === "string" && /^\d+-\d+$/.test(value)) {
                 const [min, max] = value.split("-");
-                query[key] = {};
-                if (min !== "") query[key]["$gte"] = Number(min);
-                if (max !== "") query[key]["$lte"] = Number(max);
+                query[key] = { "$gte": Number(min), "$lte": Number(max) };
                 return;
             }
-
-            // 2. RANGE USING OPERATORS (>, <, >=, <=)
             for (const op of operators) {
                 if (value.startsWith(op)) {
                     const num = Number(value.slice(op.length));
@@ -65,49 +67,44 @@ export function loadBackend(app) {
                     return;
                 }
             }
-
-            // 3. EXACT MATCH
             query[key] = isNaN(value) ? value : Number(value);
         });
 
         db.find(query, (err, records) => {
-            if (records.length === 0) {
-                return res.status(404).json({ message: "Record not found" });
-            }
-
             const clean = records.map(({ _id, ...rest }) => rest);
             res.status(200).json(clean);
         });
     });
 
     app.get(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
-        let country_code = req.params.country_code;
-        let year = parseInt(req.params.year);
+        const country_code = req.params.country_code;
+        const year = parseInt(req.params.year);
 
-        db.find({ country_code: country_code, year: year }, (err, records) => {
+        db.find({ country_code, year }, (err, records) => {
             if (records.length === 0) {
                 return res.status(404).json({ message: "Record not found" });
             }
-            const clean = records.map(r => { const { _id, ...rest } = r; return rest; });
-            res.status(200).json(clean[0]);
+            const { _id, ...clean } = records[0];
+            res.status(200).json(clean);
         });
     });
-
-
 
     app.post(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
         const newRecord = req.body;
 
-        if (!newRecord.country_code || !newRecord.country_name || !newRecord.year) {
-            return res.status(400).json({ message: "Missing required fields: country_code, country_name, year" });
+        if (!isValidRecord(newRecord)) {
+            return res.status(400).json({ message: "Missing required fields: country_code, country_name, year, crude_birth_rate, crude_death_rate" });
         }
 
         db.find({ country_code: newRecord.country_code, year: newRecord.year }, (err, records) => {
             if (records.length > 0) {
                 return res.status(409).json({ message: "Record already exists" });
             }
-            db.insert(newRecord);
-            res.status(201).json(newRecord);
+            db.insert(newRecord, (err, inserted) => {
+                if (err) return res.status(500).json({ message: "Database error" });
+                const { _id, ...clean } = inserted;
+                res.status(201).json(clean);
+            });
         });
     });
 
@@ -120,11 +117,11 @@ export function loadBackend(app) {
         const year = Number(req.params.year);
         const updatedRecord = req.body;
 
-        if (!updatedRecord.country_code || !updatedRecord.country_name || !updatedRecord.year) {
-            return res.status(400).json({ message: "Missing required fields: country_code, country_name, year" });
+        if (!isValidRecord(updatedRecord)) {
+            return res.status(400).json({ message: "Missing required fields" });
         }
 
-        if (updatedRecord.country_code !== country_code || updatedRecord.year !== year) {
+        if (updatedRecord.country_code !== country_code || Number(updatedRecord.year) !== year) {
             return res.status(400).json({ message: "country_code and year in body must match the URL" });
         }
 
@@ -132,8 +129,8 @@ export function loadBackend(app) {
             if (records.length === 0) {
                 return res.status(404).json({ message: "Record not found" });
             }
-
-            db.update({ country_code, year }, updatedRecord, {}, (err) => {
+            const { _id } = records[0];
+            db.update({ _id }, { $set: updatedRecord }, {}, (err) => {
                 if (err) return res.status(500).json({ message: "Database error" });
                 res.status(200).json(updatedRecord);
             });
@@ -159,17 +156,10 @@ export function loadBackend(app) {
             if (records.length === 0) {
                 return res.status(404).json({ message: "Record not found" });
             }
-
             db.remove({ country_code, year }, {}, (err) => {
                 if (err) return res.status(500).json({ message: "Database error" });
                 res.status(200).json({ message: "Record deleted successfully" });
             });
         });
     });
-
-    app.get(BASE_URL_API + "/birth-death-growth-rates/docs", (req, res) => {
-        console.log("Getting DOCS");
-        res.redirect(DOCS_URL);
-    });
-
 }
