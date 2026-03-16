@@ -191,6 +191,60 @@
           "response": []
         },
         {
+          "name": "Leer recurso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Debe devolver un objeto, no un array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('object');\r",
+                  "    pm.expect(pm.response.json()).to.not.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/mid-population-ages/Afghanistan/1979/Male",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "mid-population-ages",
+                "Afghanistan",
+                "1979",
+                "Male"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Actualizar",
           "event": [
             {
@@ -278,60 +332,6 @@
             }
           },
           "response": []
-        },
-        {
-          "name": "Leer recurso",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Debe devolver un objeto, no un array\", function () {\r",
-                  "    pm.expect(pm.response.json()).to.be.an('object');\r",
-                  "    pm.expect(pm.response.json()).to.not.be.an('array');\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/mid-population-ages/Afghanistan/1979/Male",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "mid-population-ages",
-                "Afghanistan",
-                "1979",
-                "Male"
-              ]
-            }
-          },
-          "response": []
         }
       ]
     },
@@ -404,7 +404,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"country_name\": \"italy\"\r\n    \"year\": 1979,\r\n    \"sex\": \"Male\",\r\n    \"population_age_100\": 2\r\n}",
+              "raw": "{\r\n    \"country_name\": \"italy\",\r\n    \"year\": 1979,\r\n    \"sex\": \"Male\",\r\n    \"population_age_100\": 2\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
