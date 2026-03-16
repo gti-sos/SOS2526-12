@@ -48,12 +48,11 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates"
@@ -68,12 +67,11 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates?crude_birth_rate=7.26",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates?crude_birth_rate=7.26",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates"
@@ -94,12 +92,11 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates?crude_birth_rate=<=7.26",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates?crude_birth_rate=<=7.26",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates"
@@ -142,12 +139,11 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates"
@@ -184,12 +180,11 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates/TEST/2023",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/TEST/2023",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates",
@@ -206,12 +201,11 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates/TEST/2023",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/TEST/2023",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates",
@@ -223,37 +217,16 @@
       "response": []
     },
     {
-      "name": "Delete all",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "sos2526-12.onrender.com",
-            "api",
-            "v1",
-            "birth-death-growth-rates"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
       "name": "Inexistente 404",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates?crude_birth_rate=>1000",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates?crude_birth_rate=>1000",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates"
@@ -283,12 +256,11 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates"
@@ -312,12 +284,11 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates"
@@ -341,12 +312,11 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates/SI/2022",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/SI/2022",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates",
@@ -363,12 +333,11 @@
         "method": "POST",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates/SI/2022",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/SI/2022",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates",
@@ -385,12 +354,11 @@
         "method": "PUT",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/sos2526-12.onrender.com/api/v1/birth-death-growth-rates",
+          "raw": "{{base_url}}/api/v1/birth-death-growth-rates",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "sos2526-12.onrender.com",
             "api",
             "v1",
             "birth-death-growth-rates"
