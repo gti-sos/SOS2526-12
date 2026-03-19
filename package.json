@@ -6,6 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "build": "cd src/front && npm run build",
+    "dev-front": "cd src/front && npm run dev -- --open",
+
     "test-api-local-LPH": "npx newman run test/api/api-test-LPH.json -e test/api/api-env-local.json",
     "test-api-online-LPH": "npx newman run test/api/api-test-LPH.json -e test/api/api-env-render.json",
     "test-local-LPH": "start-server-and-test start http://localhost:3000 test-api-local-LPH",
@@ -33,10 +36,12 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
     "express": "^5.2.1",
     "nedb": "^1.8.0"
   },
   "devDependencies": {
+    "@sveltejs/adapter-node": "^5.5.4",
     "newman": "^6.0.0",
     "start-server-and-test": "^2.1.5"
   }
