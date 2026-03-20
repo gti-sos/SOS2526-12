@@ -1,8 +1,9 @@
 import dataStore from 'nedb';
 
-let BASE_URL_API = "/api/v1";
+let BASE_URL_API = "/api/v2";
 let db = new dataStore();
-let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXigLDP2";
+let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXijHX4D";
+
 
 function loadBackend(app) {
     let initialData = [
