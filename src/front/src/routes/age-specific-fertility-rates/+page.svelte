@@ -4,7 +4,7 @@
 
     import {dev} from "$app/environment";
 
-    let API = '/api/v1/age-specific-fertility-rates';
+    let API = '/api/v2/age-specific-fertility-rates';
 
     if (dev)
         API = "http://localhost:3000" + API;
@@ -26,8 +26,8 @@ async function getFertility(){
 <h1>Fertility Rates</h1>
 
 <ul>
-{#each fertility as fert (fert.country_code)}
-    <li>{fert.country_code} - {fert.country_name}</li>
+{#each fertility as fert (fert.country_code + "-" + fert.year)}
+    <li>{fert.country_code} - {fert.country_name} ({fert.year})</li>
 {/each}
 </ul>
 

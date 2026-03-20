@@ -14,7 +14,7 @@ const app = express();
 
 app.use(cors());
 
-//app.use("/", express.static("./static"));
+app.use("/", express.static("./src/front/build"));
 app.use(bodyParser.json());
 
 export function loadBackend(app) {

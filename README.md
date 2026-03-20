@@ -24,10 +24,16 @@ The project relies on Open Data from international census records (Kaggle/Census
 ## URL
 * https://sos2526-12.onrender.com
 
-## APIs:
+## API V1:
 - https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/docs (Developed by Francisco de Paula Mediavilla García)
 - https://sos2526-12.onrender.com/api/v1/birth-death-growth-rates/docs (Developed by Lucca Pereira)
 - https://sos2526-12.onrender.com/api/v1/mid-population-ages/docs (Developed by Javier Jiménez)
+
+
+## API V2:
+- https://sos2526-12.onrender.com/api/v2/age-specific-fertility-rates/docs (Developed by Francisco de Paula Mediavilla García)
+
+
 
 ---
 *Repository for the Service-Oriented Systems course (2025/2026).*
