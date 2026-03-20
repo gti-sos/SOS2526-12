@@ -1,1 +1,1 @@
-<h1>La pagina no existe chulo</h1>
+<h1>La pagina no existe</h1>
