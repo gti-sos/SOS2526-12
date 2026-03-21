@@ -14,12 +14,13 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Status code is 200 OK\", function () {\r",
+              "pm.test(\"Status code is 200\", function () {\r",
               "    pm.response.to.have.status(200);\r",
               "});\r",
               "\r",
-              "pm.test(\"Mensaje de confirmación presente\", function () {\r",
-              "    pm.expect(pm.response.text()).to.include(\"borrado\");\r",
+              "pm.test(\"El mensaje confirma el borrado\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.include(\"borrado\");\r",
               "});"
             ],
             "type": "text/javascript",
@@ -46,18 +47,75 @@
       "response": []
     },
     {
-      "name": "carga de datos",
+      "name": "Todas(comprobar vacio)",
       "event": [
         {
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Status code is 200 o 201\", function () {\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Debe devolver un array vacío (tamaño 0)\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.be.an(\"array\");\r",
+              "    pm.expect(jsonData.length).to.eql(0);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/mid-population-ages",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mid-population-ages"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Load initial Data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 (Creado) o 200 (Ya cargado)\", function () {\r",
               "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
               "});\r",
               "\r",
-              "pm.test(\"Devuelve un array de datos\", function () {\r",
-              "    pm.expect(pm.response.json()).to.be.an('array');\r",
+              "pm.test(\"Devuelve datos o mensaje de éxito\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    if(pm.response.code === 201) {\r",
+              "        pm.expect(jsonData).to.be.an(\"array\");\r",
+              "    } else {\r",
+              "        pm.expect(jsonData).to.have.property(\"message\");\r",
+              "    }\r",
               "});"
             ],
             "type": "text/javascript",
@@ -97,110 +155,7 @@
       "response": []
     },
     {
-      "name": "crear nuevo recurso",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status code is 201 Created\", function () {\r",
-              "    pm.response.to.have.status(201);\r",
-              "});\r",
-              "\r",
-              "pm.test(\"El recurso devuelto tiene los campos necesarios\", function () {\r",
-              "    const jsonData = pm.response.json();\r",
-              "    pm.expect(jsonData).to.have.property('country_name');\r",
-              "    pm.expect(jsonData).to.have.property('year');\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 15\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "mid-population-ages"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Leer recurso",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status code is 200 OK\", function () {\r",
-              "    pm.response.to.have.status(200);\r",
-              "});\r",
-              "\r",
-              "pm.test(\"Debe devolver un objeto, no un array\", function () {\r",
-              "    pm.expect(pm.response.json()).to.be.an('object');\r",
-              "    pm.expect(pm.response.json()).to.not.be.an('array');\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "protocolProfileBehavior": {
-        "disableBodyPruning": true
-      },
-      "request": {
-        "method": "GET",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Afghanistan/1979/Male",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "mid-population-ages",
-            "Afghanistan",
-            "1979",
-            "Male"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "leer toda la coleccion",
+      "name": "Todas(comprobar carga)",
       "event": [
         {
           "listen": "test",
@@ -210,9 +165,10 @@
               "    pm.response.to.have.status(200);\r",
               "});\r",
               "\r",
-              "pm.test(\"La lista no está vacía\", function () {\r",
-              "    const data = pm.response.json();\r",
-              "    pm.expect(data.length).to.be.above(0);\r",
+              "pm.test(\"Debe devolver un array con 10 elementos (datos iniciales)\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.be.an(\"array\");\r",
+              "    pm.expect(jsonData.length).to.eql(10);\r",
               "});"
             ],
             "type": "text/javascript",
@@ -251,105 +207,21 @@
       "response": []
     },
     {
-      "name": "Actualizar",
+      "name": "crear nuevo recurso(201)",
       "event": [
         {
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Status code is 200 OK\", function () {\r",
-              "    pm.response.to.have.status(200);\r",
+              "pm.test(\"Status code is 201 Creado\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
               "});\r",
               "\r",
-              "pm.test(\"El recurso se ha actualizado correctamente\", function () {\r",
-              "    pm.expect(pm.response.json()).to.be.an('object');\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"country_name\": \"Afghanistan\",\r\n    \"year\": 1979,\r\n    \"sex\": \"Male\",\r\n    \"population_age_100\": 999\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Afghanistan/1979/Male",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "mid-population-ages",
-            "Afghanistan",
-            "1979",
-            "Male"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "DELETE recurso",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status code is 200 OK\", function () {\r",
-              "    pm.response.to.have.status(200);\r",
-              "});\r",
-              "\r",
-              "pm.test(\"Mensaje de confirmación presente\", function () {\r",
-              "    pm.expect(pm.response.text()).to.include(\"borrado\");\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Afghanistan/1979/Male",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "mid-population-ages",
-            "Afghanistan",
-            "1979",
-            "Male"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Campos faltantes",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status code is 400 por campos incorrectos\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
+              "pm.test(\"El recurso devuelto es un objeto y no tiene _id\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.be.an(\"object\");\r",
+              "    pm.expect(jsonData).to.not.have.property(\"_id\");\r",
+              "    pm.expect(jsonData).to.have.property(\"country_name\");\r",
               "});"
             ],
             "type": "text/javascript",
@@ -363,7 +235,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"country_name\": \"France\",\r\n    \"year\": 2020\r\n}",
+          "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"max_age\": 100,\r\n    \"population_age_0\": 45000,\r\n    \"population_age_25\": 50000,\r\n    \"population_age_50\": 60000,\r\n    \"population_age_75\": 12000,\r\n    \"population_age_100\": 300\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -385,60 +257,19 @@
       "response": []
     },
     {
-      "name": "Id mal",
+      "name": "Duplicado(409)",
       "event": [
         {
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Status code is 400 Bad Request\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"country_name\": \"Andorra\",\r\n    \"year\": 2050,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 10\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Andorra/1991/Female",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "mid-population-ages",
-            "Andorra",
-            "1991",
-            "Female"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Duplicado",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status code is 409 por recurso ya existente\", function () {\r",
+              "pm.test(\"Status code is 409 Conflicto\", function () {\r",
               "    pm.response.to.have.status(409);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Devuelve un mensaje de error explicativo\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.include(\"Conflicto\");\r",
               "});"
             ],
             "type": "text/javascript",
@@ -449,8 +280,12 @@
         {
           "listen": "prerequest",
           "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
             "packages": {},
-            "type": "text/javascript"
+            "requests": {}
           }
         }
       ],
@@ -459,7 +294,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"country_name\": \"Andorra\",\r\n    \"year\": 1991,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 37\r\n}",
+          "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"max_age\": 100,\r\n    \"population_age_0\": 45000,\r\n    \"population_age_25\": 50000,\r\n    \"population_age_50\": 60000,\r\n    \"population_age_75\": 12000,\r\n    \"population_age_100\": 300\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -481,7 +316,157 @@
       "response": []
     },
     {
-      "name": "Recurso no existente",
+      "name": "Campos faltantes(400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400 Bad Request\", function () {\r",
+              "    pm.response.to.have.status(400);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Advierte sobre la estructura JSON esperada\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.include(\"10 campos esperados\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"max_age\": 100,\r\n    \"population_age_0\": 45000,\r\n    \"population_age_25\": 50000,\r\n    \"population_age_50\": 60000,\r\n    \"population_age_75\": 12000,\r\n    \"population_age_100\": 300\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/mid-population-ages",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mid-population-ages"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Recurso concreto(405)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 405 Method Not Allowed\", function () {\r",
+              "    pm.response.to.have.status(405);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/2024/Female",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mid-population-ages",
+            "Spain",
+            "2024",
+            "Female"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Recurso Concreto(200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Devuelve el objeto correcto solicitado\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.be.an(\"object\");\r",
+              "    pm.expect(jsonData.country_name).to.eql(\"Spain\"); // Cambia 'Spain' por tu país de prueba\r",
+              "    pm.expect(jsonData.year).to.eql(2024); // Cambia el año por tu año de prueba\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/2024/Female",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mid-population-ages",
+            "Spain",
+            "2024",
+            "Female"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Recurso no encontrado(404)",
       "event": [
         {
           "listen": "test",
@@ -513,7 +498,7 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Narnia/3000/Male",
+          "raw": "{{base_url}}/api/v1/mid-population-ages/Neverland/9999/Male",
           "host": [
             "{{base_url}}"
           ],
@@ -521,8 +506,8 @@
             "api",
             "v1",
             "mid-population-ages",
-            "Narnia",
-            "3000",
+            "Neverland",
+            "9999",
             "Male"
           ]
         }
@@ -530,7 +515,110 @@
       "response": []
     },
     {
-      "name": "New Request",
+      "name": "Actualizar(200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"El objeto fue actualizado correctamente\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.be.an(\"object\");\r",
+              "    pm.expect(jsonData.country_name).to.eql(\"Spain\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"max_age\": 100,\r\n    \"population_age_0\": 45000,\r\n    \"population_age_25\": 50000,\r\n    \"population_age_50\": 60000,\r\n    \"population_age_75\": 12000,\r\n    \"population_age_100\": 299\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/2024/Female",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mid-population-ages",
+            "Spain",
+            "2024",
+            "Female"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mal formado(400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400 Bad Request\", function () {\r",
+              "    pm.response.to.have.status(400);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Comprueba que los datos de la URL y del body coinciden\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.include(\"coincidir\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"max_age\": 100,\r\n    \"population_age_0\": 45000,\r\n    \"population_age_25\": 50000,\r\n    \"population_age_50\": 60000,\r\n    \"population_age_75\": 12000,\r\n    \"population_age_100\": 300\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/1991/Female",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mid-population-ages",
+            "Spain",
+            "1991",
+            "Female"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Coleccion(405)",
       "event": [
         {
           "listen": "test",
@@ -549,6 +637,15 @@
       "request": {
         "method": "PUT",
         "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
         "url": {
           "raw": "{{base_url}}/api/v1/mid-population-ages",
           "host": [
@@ -564,18 +661,19 @@
       "response": []
     },
     {
-      "name": "Delete toda la coleccion",
+      "name": "DELETE recurso",
       "event": [
         {
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Status code is 200 OK\", function () {\r",
+              "pm.test(\"Status code is 200\", function () {\r",
               "    pm.response.to.have.status(200);\r",
               "});\r",
               "\r",
-              "pm.test(\"Mensaje de confirmación presente\", function () {\r",
-              "    pm.expect(pm.response.text()).to.include(\"borrado\");\r",
+              "pm.test(\"Mensaje de recurso borrado\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.include(\"borrado\");\r",
               "});"
             ],
             "type": "text/javascript",
@@ -587,6 +685,61 @@
       "request": {
         "method": "DELETE",
         "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/2024/Female",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mid-population-ages",
+            "Spain",
+            "2024",
+            "Female"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Todas",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Idempotencia: Volvemos a tener exactamente 10 registros\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.be.an(\"array\");\r",
+              "    pm.expect(jsonData.length).to.eql(10);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
         "url": {
           "raw": "{{base_url}}/api/v1/mid-population-ages",
           "host": [
