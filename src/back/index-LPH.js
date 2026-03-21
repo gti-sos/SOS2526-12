@@ -2,7 +2,8 @@ import dataStore from 'nedb';
 
 let BASE_URL_API = "/api/v2";
 let db = new dataStore({ filename: 'birth-death-growth-rates.db', autoload: true });
-let DOCS_URL = "https://documenter.getpostman.com/view/52398391/2sBXijJBsJ";
+let DOCS_URL_V1 = "https://documenter.getpostman.com/view/52398391/2sBXigLYdf";
+let DOCS_URL_V2 = "https://documenter.getpostman.com/view/52398391/2sBXijJBsJ";
 
 const REQUIRED_FIELDS = ['country_code', 'country_name', 'year', 'crude_birth_rate', 'crude_death_rate'];
 
@@ -28,8 +29,14 @@ const initialRecords = [
 
 export function loadBackend(app) {
 
+    // Docs v1 → redirige al portal de documentación de v1
+    app.get("/api/v1/birth-death-growth-rates/docs", (req, res) => {
+        res.redirect(DOCS_URL_V1);
+    });
+
+    // Docs v2 → redirige al portal de documentación de v2
     app.get(BASE_URL_API + "/birth-death-growth-rates/docs", (req, res) => {
-        res.redirect(DOCS_URL);
+        res.redirect(DOCS_URL_V2);
     });
 
     app.get(BASE_URL_API + "/birth-death-growth-rates/loadInitialData", (req, res) => {
