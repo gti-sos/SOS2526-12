@@ -31,9 +31,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/loadInitialData",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates/loadInitialData",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates", "loadInitialData"]
+          "path": ["api", "v2", "birth-death-growth-rates", "loadInitialData"]
         }
       },
       "response": []
@@ -68,9 +68,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates"]
+          "path": ["api", "v2", "birth-death-growth-rates"]
         }
       },
       "response": []
@@ -104,9 +104,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates?crude_birth_rate=7.26",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates?crude_birth_rate=7.26",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates"],
+          "path": ["api", "v2", "birth-death-growth-rates"],
           "query": [{ "key": "crude_birth_rate", "value": "7.26" }]
         }
       },
@@ -141,9 +141,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates?crude_birth_rate=<=7.26",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates?crude_birth_rate=<=7.26",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates"],
+          "path": ["api", "v2", "birth-death-growth-rates"],
           "query": [{ "key": "crude_birth_rate", "value": "<=7.26" }]
         }
       },
@@ -180,9 +180,9 @@
           "options": { "raw": { "language": "json" } }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates"]
+          "path": ["api", "v2", "birth-death-growth-rates"]
         }
       },
       "response": []
@@ -212,9 +212,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/TEST/2023",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates/TEST/2023",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates", "TEST", "2023"]
+          "path": ["api", "v2", "birth-death-growth-rates", "TEST", "2023"]
         }
       },
       "response": []
@@ -249,9 +249,9 @@
           "options": { "raw": { "language": "json" } }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/TEST/2023",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates/TEST/2023",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates", "TEST", "2023"]
+          "path": ["api", "v2", "birth-death-growth-rates", "TEST", "2023"]
         }
       },
       "response": []
@@ -275,9 +275,9 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/TEST/2023",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates/TEST/2023",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates", "TEST", "2023"]
+          "path": ["api", "v2", "birth-death-growth-rates", "TEST", "2023"]
         }
       },
       "response": []
@@ -301,9 +301,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/NARNIA/9999",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates/NARNIA/9999",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates", "NARNIA", "9999"]
+          "path": ["api", "v2", "birth-death-growth-rates", "NARNIA", "9999"]
         }
       },
       "response": []
@@ -332,9 +332,9 @@
           "options": { "raw": { "language": "json" } }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates"]
+          "path": ["api", "v2", "birth-death-growth-rates"]
         }
       },
       "response": []
@@ -363,9 +363,9 @@
           "options": { "raw": { "language": "json" } }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates"]
+          "path": ["api", "v2", "birth-death-growth-rates"]
         }
       },
       "response": []
@@ -394,9 +394,9 @@
           "options": { "raw": { "language": "json" } }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/SI/2022",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates/SI/2022",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates", "SI", "2022"]
+          "path": ["api", "v2", "birth-death-growth-rates", "SI", "2022"]
         }
       },
       "response": []
@@ -420,9 +420,9 @@
         "method": "POST",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates/SI/2022",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates/SI/2022",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates", "SI", "2022"]
+          "path": ["api", "v2", "birth-death-growth-rates", "SI", "2022"]
         }
       },
       "response": []
@@ -446,9 +446,9 @@
         "method": "PUT",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/birth-death-growth-rates",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates",
           "host": ["{{base_url}}"],
-          "path": ["api", "v1", "birth-death-growth-rates"]
+          "path": ["api", "v2", "birth-death-growth-rates"]
         }
       },
       "response": []
