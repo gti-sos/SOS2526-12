@@ -235,7 +235,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 15\r\n}",
+          "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"max_age\": 100,\r\n    \"population_age_0\": 45000,\r\n    \"population_age_25\": 50000,\r\n    \"population_age_50\": 60000,\r\n    \"population_age_75\": 12000,\r\n    \"population_age_100\": 300\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -294,7 +294,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 15\r\n}",
+          "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"max_age\": 100,\r\n    \"population_age_0\": 45000,\r\n    \"population_age_25\": 50000,\r\n    \"population_age_50\": 60000,\r\n    \"population_age_75\": 12000,\r\n    \"population_age_100\": 300\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -342,7 +342,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 15\r\n}",
+          "raw": "{\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"max_age\": 100,\r\n    \"population_age_0\": 45000,\r\n    \"population_age_25\": 50000,\r\n    \"population_age_50\": 60000,\r\n    \"population_age_75\": 12000,\r\n    \"population_age_100\": 300\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -385,7 +385,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 15\r\n}",
+          "raw": "",
           "options": {
             "raw": {
               "language": "json"
@@ -393,7 +393,7 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Sapin/2024/Female",
+          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/2024/Female",
           "host": [
             "{{base_url}}"
           ],
@@ -401,7 +401,7 @@
             "api",
             "v1",
             "mid-population-ages",
-            "Sapin",
+            "Spain",
             "2024",
             "Female"
           ]
@@ -542,7 +542,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"country_name\": \"Afghanistan\",\r\n    \"year\": 1979,\r\n    \"sex\": \"Male\",\r\n    \"population_age_100\": 998\r\n}",
+          "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"max_age\": 100,\r\n    \"population_age_0\": 45000,\r\n    \"population_age_25\": 50000,\r\n    \"population_age_50\": 60000,\r\n    \"population_age_75\": 12000,\r\n    \"population_age_100\": 299\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -593,7 +593,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"country_name\": \"Andorra\",\r\n    \"year\": 2050,\r\n    \"sex\": \"Female\",\r\n    \"population_age_100\": 10\r\n}",
+          "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\",\r\n    \"year\": 2024,\r\n    \"sex\": \"Female\",\r\n    \"max_age\": 100,\r\n    \"population_age_0\": 45000,\r\n    \"population_age_25\": 50000,\r\n    \"population_age_50\": 60000,\r\n    \"population_age_75\": 12000,\r\n    \"population_age_100\": 300\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -601,7 +601,7 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Andorra/1991/Female",
+          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/1991/Female",
           "host": [
             "{{base_url}}"
           ],
@@ -609,7 +609,7 @@
             "api",
             "v1",
             "mid-population-ages",
-            "Andorra",
+            "Spain",
             "1991",
             "Female"
           ]
@@ -686,7 +686,7 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Sapin/2024/Female",
+          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/2024/Female",
           "host": [
             "{{base_url}}"
           ],
@@ -694,7 +694,7 @@
             "api",
             "v1",
             "mid-population-ages",
-            "Sapin",
+            "Spain",
             "2024",
             "Female"
           ]
