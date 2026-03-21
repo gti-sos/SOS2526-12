@@ -424,7 +424,7 @@
               "    var jsonData = pm.response.json();\r",
               "    pm.expect(jsonData).to.be.an(\"object\");\r",
               "    pm.expect(jsonData.country_name).to.eql(\"Spain\"); // Cambia 'Spain' por tu país de prueba\r",
-              "    pm.expect(jsonData.year).to.eql(2026); // Cambia el año por tu año de prueba\r",
+              "    pm.expect(jsonData.year).to.eql(2024); // Cambia el año por tu año de prueba\r",
               "});"
             ],
             "type": "text/javascript",
