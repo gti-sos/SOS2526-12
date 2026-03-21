@@ -10,3 +10,6 @@
 {"country_code":"VE","country_name":"Venezuela","year":2022,"crude_birth_rate":17.32,"crude_death_rate":5.47,"net_migration":-1.1,"rate_natural_increase":1.185,"growth_rate":1.074,"_id":"lERqp9UAppEZQ1G5"}
 {"country_code":"UP","country_name":"Ukraine","year":2022,"crude_birth_rate":9.16,"crude_death_rate":13.82,"net_migration":-0.26,"rate_natural_increase":-0.466,"growth_rate":-0.493,"_id":"yyPB26zWqKBNu967"}
 {"country_code":"MG","country_name":"Mongolia","year":2022,"crude_birth_rate":15.6,"crude_death_rate":6.36,"net_migration":-0.78,"rate_natural_increase":0.924,"growth_rate":0.847,"_id":"zWTH5CJJ7wEIB5sr"}
+{"country_code":"TEST","country_name":"Test Country","year":2023,"crude_birth_rate":10,"crude_death_rate":5,"_id":"xGPUZkEjBrGAsRh8"}
+{"country_code":"TEST","country_name":"Test Country Updated","year":2023,"crude_birth_rate":12,"crude_death_rate":6,"_id":"xGPUZkEjBrGAsRh8"}
+{"$$deleted":true,"_id":"xGPUZkEjBrGAsRh8"}
