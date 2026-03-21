@@ -6,20 +6,20 @@ let DOCS_URL = "https://documenter.getpostman.com/view/52368982/2sBXigMtBS";
 
 export function loadBackend(app) {
 
-    // Datos iniciales de tu ficha de trabajo
+    // Datos iniciales de tu ficha de trabajo (10 campos)
     let initialRecords = [
-        { country_name: "Afghanistan", year: 1979, sex: "Male", population_age_100: 2 },
-        { country_name: "Azerbaijan", year: 1992, sex: "Female", population_age_100: 3 },
-        { country_name: "Azerbaijan", year: 1990, sex: "Female", population_age_100: 8 },
-        { country_name: "Armenia", year: 1991, sex: "Female", population_age_100: 37 },
-        { country_name: "Andorra", year: 1991, sex: "Female", population_age_100: 37 },
-        { country_name: "Australia", year: 1986, sex: "Male", population_age_100: 163 },
-        { country_name: "Bahrain", year: 1982, sex: "Male", population_age_100: 0 },
-        { country_name: "Botswana", year: 1983, sex: "Male", population_age_100: 3 },
-        { country_name: "Bermuda", year: 1992, sex: "Male", population_age_100: 0 },
-        { country_name: "Bahamas The", year: 1980, sex: "Male", population_age_100: 0 }
+        { country_code: "AF", country_name: "Afghanistan", year: 1979, sex: "Male", max_age: 100, population_age_0: 318425, population_age_25: 127876, population_age_50: 49804, population_age_75: 9729, population_age_100: 2 },
+        { country_code: "AJ", country_name: "Azerbaijan", year: 1992, sex: "Female", max_age: 100, population_age_0: 108912, population_age_25: 67871, population_age_50: 31250, population_age_75: 4571, population_age_100: 3 },
+        { country_code: "AJ", country_name: "Azerbaijan", year: 1990, sex: "Female", max_age: 100, population_age_0: 107574, population_age_25: 68932, population_age_50: 31252, population_age_75: 4594, population_age_100: 8 },
+        { country_code: "AM", country_name: "Armenia", year: 1991, sex: "Female", max_age: 100, population_age_0: 37961, population_age_25: 31179, population_age_50: 19315, population_age_75: 4571, population_age_100: 37 },
+        { country_code: "AN", country_name: "Andorra", year: 1991, sex: "Female", max_age: 100, population_age_0: 37961, population_age_25: 31179, population_age_50: 19315, population_age_75: 4571, population_age_100: 37 },
+        { country_code: "AS", country_name: "Australia", year: 1986, sex: "Male", max_age: 100, population_age_0: 121872, population_age_25: 1367731, population_age_50: 76764, population_age_75: 32582, population_age_100: 163 },
+        { country_code: "BA", country_name: "Bahrain", year: 1982, sex: "Male", max_age: 96, population_age_0: 5313, population_age_25: 6093, population_age_50: 1394, population_age_75: 168, population_age_100: 0 },
+        { country_code: "BC", country_name: "Botswana", year: 1983, sex: "Male", max_age: 100, population_age_0: 20539, population_age_25: 6321, population_age_50: 2624, population_age_75: 991, population_age_100: 3 },
+        { country_code: "BD", country_name: "Bermuda", year: 1992, sex: "Male", max_age: 99, population_age_0: 427, population_age_25: 506, population_age_50: 324, population_age_75: 100, population_age_100: 0 },
+        { country_code: "BF", country_name: "Bahamas The", year: 1980, sex: "Male", max_age: 96, population_age_0: 2574, population_age_25: 17171, population_age_50: 628, population_age_75: 149, population_age_100: 0 }
     ];
-    db.insert(initialRecords);
+    
     // ==========================================
     // 1. CARGA DE DATOS INICIALES
     // ==========================================
@@ -28,7 +28,6 @@ export function loadBackend(app) {
             if (err) return res.status(500).json({ message: "Error interno de la base de datos" });
             
             if (records.length === 0) {
-                // Ahora sí, initialRecords existe
                 db.insert(initialRecords, (err, newDocs) => {
                     if (err) {
                         console.error(" Error de NeDB al insertar:", err);
@@ -38,7 +37,6 @@ export function loadBackend(app) {
                     res.status(201).json(newDocs.map(({ _id, ...rest }) => rest)); 
                 });
             } else {
-                // Es buena práctica avisar si los datos ya estaban cargados
                 res.status(200).json({ message: "Los datos ya estaban cargados previamente" });
             }
         });
@@ -50,27 +48,24 @@ export function loadBackend(app) {
     app.get(BASE_URL_API + "/mid-population-ages", (req, res) => {
         const query = {};
         
-        // Variables de paginación
         let offset = 0;
         let limit = Number.MAX_SAFE_INTEGER;
 
         if (req.query.offset) {
             offset = parseInt(req.query.offset);
-            delete req.query.offset; // Lo quitamos para que no afecte a la búsqueda por campos
+            delete req.query.offset;
         }
         if (req.query.limit) {
             limit = parseInt(req.query.limit);
             delete req.query.limit;
         }
 
-        // Configuración de operadores para búsquedas avanzadas
         const operatorMap = { ">": "$gt", "<": "$lt", ">=": "$gte", "<=": "$lte" };
         const operators = [">=", "<=", ">", "<"];
 
         Object.keys(req.query).forEach(key => {
             const value = req.query[key];
 
-            // Rango con guion (ej. ?year=1980-1990)
             if (typeof value === "string" && value.includes("-")) {
                 const [min, max] = value.split("-");
                 query[key] = {};
@@ -79,7 +74,6 @@ export function loadBackend(app) {
                 return;
             }
 
-            // Operadores mayor/menor (ej. ?population_age_100=>=10)
             for (const op of operators) {
                 if (typeof value === "string" && value.startsWith(op)) {
                     const valStr = value.slice(op.length);
@@ -90,14 +84,12 @@ export function loadBackend(app) {
                 }
             }
 
-            // Búsqueda exacta normal (ej. ?country_name=Andorra)
             query[key] = isNaN(value) ? value : Number(value);
         });
 
         db.find(query).skip(offset).limit(limit).exec((err, records) => {
             if (err) return res.status(500).json({ message: "Error en la base de datos" });
             
-            // Requisito: Siempre devolver un Array en GET a colección
             const cleanRecords = records.map(({ _id, ...rest }) => rest);
             res.status(200).json(cleanRecords);
         });
@@ -116,7 +108,6 @@ export function loadBackend(app) {
             if (err) return res.status(500).json({ message: "Error interno" });
             if (records.length === 0) return res.status(404).json({ message: "Recurso no encontrado" });
             
-            // Requisito: Siempre devolver un Objeto en GET a recurso
             const { _id, ...cleanRecord } = records[0];
             res.status(200).json(cleanRecord);
         });
@@ -128,28 +119,30 @@ export function loadBackend(app) {
     app.post(BASE_URL_API + "/mid-population-ages", (req, res) => {
         const newRecord = req.body;
         
-        // Requisito: Si el cliente envía un _id, lo borramos
         if (newRecord._id) delete newRecord._id;
 
-        // Requisito: Validación estricta JSON (Error 400)
-        const expectedFields = ["country_name", "year", "sex", "population_age_100"];
+        // Validación estricta JSON (Error 400) - 10 campos
+        const expectedFields = [
+            "country_code", "country_name", "year", "sex", "max_age", 
+            "population_age_0", "population_age_25", "population_age_50", 
+            "population_age_75", "population_age_100"
+        ];
         const receivedFields = Object.keys(newRecord);
         
         const hasAllFields = expectedFields.every(field => receivedFields.includes(field));
         const hasExtraFields = receivedFields.length > expectedFields.length;
 
         if (!hasAllFields || hasExtraFields) {
-            return res.status(400).json({ message: "Bad request. La estructura JSON debe tener exactamente los 4 campos esperados." });
+            return res.status(400).json({ message: "Bad request. La estructura JSON debe tener exactamente los 10 campos esperados." });
         }
 
-        // Comprobamos si ya existe para devolver 409
         db.find({ country_name: newRecord.country_name, year: newRecord.year, sex: newRecord.sex }, (err, records) => {
             if (err) return res.status(500).json({ message: "Error interno" });
             if (records.length > 0) return res.status(409).json({ message: "Conflicto: El recurso ya existe" });
             
             db.insert(newRecord, (err, insertedDoc) => {
                 if (err) {
-                    console.error(" Error de NeDB en el POST:", err); // <-- Añadimos esto
+                    console.error(" Error de NeDB en el POST:", err);
                     return res.status(500).json({ message: "Error interno" });
                 }
                 const { _id, ...cleanDoc } = insertedDoc;
@@ -176,18 +169,21 @@ export function loadBackend(app) {
 
         if (updatedRecord._id) delete updatedRecord._id;
 
-        // Validación estricta JSON (Error 400)
-        const expectedFields = ["country_name", "year", "sex", "population_age_100"];
+        // Validación estricta JSON (Error 400) - 10 campos
+        const expectedFields = [
+            "country_code", "country_name", "year", "sex", "max_age", 
+            "population_age_0", "population_age_25", "population_age_50", 
+            "population_age_75", "population_age_100"
+        ];
         const receivedFields = Object.keys(updatedRecord);
         
         const hasAllFields = expectedFields.every(field => receivedFields.includes(field));
         const hasExtraFields = receivedFields.length > expectedFields.length;
 
         if (!hasAllFields || hasExtraFields) {
-            return res.status(400).json({ message: "Bad request. La estructura JSON debe tener exactamente los 4 campos esperados." });
+            return res.status(400).json({ message: "Bad request. La estructura JSON debe tener exactamente los 10 campos esperados." });
         }
 
-        // Requisito: Validar que los datos del body coinciden con la URL
         if (updatedRecord.country_name !== country_name || updatedRecord.year !== year || updatedRecord.sex !== sex) {
             return res.status(400).json({ message: "Los parámetros del ID en la URL deben coincidir con el body" });
         }
