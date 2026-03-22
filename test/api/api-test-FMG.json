@@ -1,14 +1,14 @@
 {
   "info": {
-    "_postman_id": "432b26a5-8f2c-49eb-8d44-0d1bffe5b2b0",
-    "name": "F05",
+    "_postman_id": "39465d08-b3f2-430f-a557-d826b5cdcdb2",
+    "name": "V2",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "52304863",
-    "_collection_link": "https://go.postman.co/collection/52304863-432b26a5-8f2c-49eb-8d44-0d1bffe5b2b0?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/52304863-39465d08-b3f2-430f-a557-d826b5cdcdb2?source=collection_link"
   },
   "item": [
     {
-      "name": "F05",
+      "name": "V2 F07",
       "item": [
         {
           "name": "Load Initial Data",
@@ -31,9 +31,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/loadInitialData",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates", "loadInitialData"]
+              "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/loadinitialData",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates",
+                "loadinitialData"
+              ]
             }
           },
           "response": []
@@ -66,8 +73,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates"
+              ]
             }
           },
           "response": []
@@ -89,19 +102,33 @@
               }
             }
           ],
-          "protocolProfileBehavior": { "disableBodyPruning": true },
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
             "method": "GET",
             "header": [],
             "body": {
               "mode": "raw",
               "raw": "",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/SI/2022",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates", "SI", "2022"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates",
+                "SI",
+                "2022"
+              ]
             }
           },
           "response": []
@@ -129,12 +156,22 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\", \r\n    \"year\": 2024, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates"
+              ]
             }
           },
           "response": []
@@ -162,12 +199,22 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\", \r\n    \"year\": 2025, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates"
+              ]
             }
           },
           "response": []
@@ -195,12 +242,24 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/SI/2022",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates", "SI", "2022"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates",
+                "SI",
+                "2022"
+              ]
             }
           },
           "response": []
@@ -228,12 +287,22 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n    \"country_code\": \"ES\"\r\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates"
+              ]
             }
           },
           "response": []
@@ -261,12 +330,24 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\", \r\n    \"year\": 2026, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/SI/2022",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates", "SI", "2022"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates",
+                "SI",
+                "2022"
+              ]
             }
           },
           "response": []
@@ -294,12 +375,22 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\", \r\n    \"year\": 2026, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates"
+              ]
             }
           },
           "response": []
@@ -321,19 +412,33 @@
               }
             }
           ],
-          "protocolProfileBehavior": { "disableBodyPruning": true },
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
             "method": "GET",
             "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\r\n    \"country_code\": \"ES\"\r\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/SI/2029",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates", "SI", "2029"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates",
+                "SI",
+                "2029"
+              ]
             }
           },
           "response": []
@@ -361,12 +466,24 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n    \"country_code\": \"ES\"\r\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/SI/2022",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates", "SI", "2022"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates",
+                "SI",
+                "2022"
+              ]
             }
           },
           "response": []
@@ -394,12 +511,22 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n    \"country_code\": \"SI\",\r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates"
+              ]
             }
           },
           "response": []
@@ -426,13 +553,25 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/ES/2024",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates", "ES", "2024"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates",
+                "ES",
+                "2024"
+              ]
             }
           },
           "response": []
@@ -459,13 +598,24 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{base_url}}/api/v2/age-specific-fertility-rates",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v2", "age-specific-fertility-rates"]
+              "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates",
+                ""
+              ]
             }
           },
           "response": []
