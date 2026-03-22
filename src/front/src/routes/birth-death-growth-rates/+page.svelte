@@ -1,6 +1,7 @@
 <script>
     import { dev } from "$app/environment";
 
+    // @ts-ignore
     let registros = $state([]);
 
     let nuevoCodigo = $state("");
