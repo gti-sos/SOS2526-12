@@ -1,7 +1,6 @@
 <script>
     import { dev } from "$app/environment";
 
-    // @ts-ignore
     let registros = $state([]);
 
     let nuevoCodigo = $state("");
@@ -50,6 +49,11 @@
     }
 
     async function añadirRegistro() {
+        if (!nuevoCodigo || !nuevoPais || !nuevoAnio || !nuevoNacimientos || !nuevoDefunciones || !nuevaMigracion || !nuevoCrecimientoNatural || !nuevaTasaCrecimiento) {
+            mostrarMensaje("Por favor, rellena todos los campos antes de añadir un registro.", "error");
+            return;
+        }
+
         const nuevo = {
             country_code: nuevoCodigo,
             country_name: nuevoPais,
