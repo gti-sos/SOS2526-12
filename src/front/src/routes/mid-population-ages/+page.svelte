@@ -57,6 +57,14 @@
     }
 
     async function insertPopulation() {
+        // --- VALIDACIÓN FRONTEND (EL GUARDIA DE SEGURIDAD) ---
+        // Comprobamos si el país, el año o el sexo están vacíos
+        if (newCountryName.trim() === "" || newYear === "" || newSex === "") {
+            mostrarMensaje("❌ ¡Alto ahí! Debes rellenar obligatoriamente el País, el Año y el Sexo.", "error");
+            return; // El 'return' hace que la función se detenga aquí y no envíe nada
+        }
+        // -----------------------------------------------------
+
         const newResource = {
             country_code: newCountryCode,
             country_name: newCountryName,
