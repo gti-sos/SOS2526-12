@@ -16,7 +16,7 @@
     let newPop75 = $state("");
     let newPop100 = $state("");
 
-    let API = '/api/v1/mid-population-ages';
+    let API = '/api/v2/mid-population-ages';
     if (dev) {
         API = "http://localhost:3000" + API;
     }

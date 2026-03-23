@@ -1,6 +1,6 @@
 import dataStore from 'nedb';
 
-let BASE_URL_API = "/api/v1";
+let BASE_URL_API = "/api/v2";
 let db = new dataStore();
 let DOCS_URL = "https://documenter.getpostman.com/view/52368982/2sBXigMtBS"; 
 

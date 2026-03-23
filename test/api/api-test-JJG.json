@@ -33,13 +33,13 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages",
+          "raw": "{{base_url}}/api/v2/mid-population-ages",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages"
           ]
         }
@@ -85,13 +85,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages",
+          "raw": "{{base_url}}/api/v2/mid-population-ages",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages"
           ]
         }
@@ -140,13 +140,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/loadInitialData",
+          "raw": "{{base_url}}/api/v2/mid-population-ages/loadInitialData",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages",
             "loadInitialData"
           ]
@@ -193,13 +193,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages",
+          "raw": "{{base_url}}/api/v2/mid-population-ages",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages"
           ]
         }
@@ -243,13 +243,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages",
+          "raw": "{{base_url}}/api/v2/mid-population-ages",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages"
           ]
         }
@@ -302,13 +302,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages",
+          "raw": "{{base_url}}/api/v2/mid-population-ages",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages"
           ]
         }
@@ -350,13 +350,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages",
+          "raw": "{{base_url}}/api/v2/mid-population-ages",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages"
           ]
         }
@@ -393,13 +393,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/2024/Female",
+          "raw": "{{base_url}}/api/v2/mid-population-ages/Spain/2024/Female",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages",
             "Spain",
             "2024",
@@ -449,13 +449,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/2024/Female",
+          "raw": "{{base_url}}/api/v2/mid-population-ages/Spain/2024/Female",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages",
             "Spain",
             "2024",
@@ -498,13 +498,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Neverland/9999/Male",
+          "raw": "{{base_url}}/api/v2/mid-population-ages/Neverland/9999/Male",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages",
             "Neverland",
             "9999",
@@ -550,13 +550,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/2024/Female",
+          "raw": "{{base_url}}/api/v2/mid-population-ages/Spain/2024/Female",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages",
             "Spain",
             "2024",
@@ -601,13 +601,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/1991/Female",
+          "raw": "{{base_url}}/api/v2/mid-population-ages/Spain/1991/Female",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages",
             "Spain",
             "1991",
@@ -647,13 +647,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages",
+          "raw": "{{base_url}}/api/v2/mid-population-ages",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages"
           ]
         }
@@ -686,13 +686,13 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages/Spain/2024/Female",
+          "raw": "{{base_url}}/api/v2/mid-population-ages/Spain/2024/Female",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages",
             "Spain",
             "2024",
@@ -741,13 +741,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/api/v1/mid-population-ages",
+          "raw": "{{base_url}}/api/v2/mid-population-ages",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
-            "v1",
+            "v2",
             "mid-population-ages"
           ]
         }
