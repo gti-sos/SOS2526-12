@@ -49,20 +49,15 @@
     }
 
     async function añadirRegistro() {
-        if (!nuevoCodigo || !nuevoPais || !nuevoAnio || !nuevoNacimientos || !nuevoDefunciones || !nuevaMigracion || !nuevoCrecimientoNatural || !nuevaTasaCrecimiento) {
-            mostrarMensaje("Por favor, rellena todos los campos antes de añadir un registro.", "error");
-            return;
-        }
-
         const nuevo = {
             country_code: nuevoCodigo,
             country_name: nuevoPais,
             year: parseInt(nuevoAnio),
-            crude_birth_rate: parseFloat(nuevoNacimientos),
-            crude_death_rate: parseFloat(nuevoDefunciones),
-            net_migration: parseFloat(nuevaMigracion),
-            rate_natural_increase: parseFloat(nuevoCrecimientoNatural),
-            growth_rate: parseFloat(nuevaTasaCrecimiento)
+            crude_birth_rate: parseFloat(nuevoNacimientos) || 0,
+            crude_death_rate: parseFloat(nuevoDefunciones) || 0,
+            net_migration: parseFloat(nuevaMigracion) || 0,
+            rate_natural_increase: parseFloat(nuevoCrecimientoNatural) || 0,
+            growth_rate: parseFloat(nuevaTasaCrecimiento) || 0
         };
 
         const res = await fetch(API, {
@@ -78,7 +73,7 @@
             nuevaMigracion = ""; nuevoCrecimientoNatural = ""; nuevaTasaCrecimiento = "";
             mostrarMensaje("Registro añadido con éxito.", "nuevo");
         } else if (res.status === 400) {
-            mostrarMensaje("Faltan campos obligatorios. Rellena todos los campos del formulario.", "error");
+            mostrarMensaje("Faltan campos obligatorios", "error");
         } else if (res.status === 409) {
             mostrarMensaje(`Ya existe un registro para ${nuevoCodigo} en el año ${nuevoAnio}.`, "error");
         } else {
@@ -236,9 +231,9 @@
     </div>
 
     <div class="formulario">
-        <input type="text"   placeholder="Código (ej. ES)"          bind:value={nuevoCodigo} />
-        <input type="text"   placeholder="País (ej. España)"        bind:value={nuevoPais} />
-        <input type="number" placeholder="Año (ej. 2022)"           bind:value={nuevoAnio} />
+        <input type="text"   placeholder="Código (ej. ES) *"        bind:value={nuevoCodigo} />
+        <input type="text"   placeholder="País (ej. España) *"      bind:value={nuevoPais} />
+        <input type="number" placeholder="Año (ej. 2022) *"         bind:value={nuevoAnio} />
         <input type="number" placeholder="Tasa natalidad"           bind:value={nuevoNacimientos} step="0.01" />
         <input type="number" placeholder="Tasa mortalidad"          bind:value={nuevoDefunciones} step="0.01" />
         <input type="number" placeholder="Migración neta"           bind:value={nuevaMigracion} step="0.01" />
@@ -272,11 +267,11 @@
                     <td>{r.country_code}</td>
                     <td>{r.country_name}</td>
                     <td>{r.year}</td>
-                    <td>{r.crude_birth_rate}</td>
-                    <td>{r.crude_death_rate}</td>
-                    <td>{r.net_migration ?? '—'}</td>
-                    <td>{r.rate_natural_increase ?? '—'}</td>
-                    <td>{r.growth_rate ?? '—'}</td>
+                    <td>{r.crude_birth_rate ?? 0}</td>
+                    <td>{r.crude_death_rate ?? 0}</td>
+                    <td>{r.net_migration ?? 0}</td>
+                    <td>{r.rate_natural_increase ?? 0}</td>
+                    <td>{r.growth_rate ?? 0}</td>
                     <td>
                         <button class="btn-rojo" onclick={() => borrarUno(r.country_code, r.year)}>
                             Eliminar

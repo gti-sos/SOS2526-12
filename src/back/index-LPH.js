@@ -5,11 +5,11 @@ let db = new dataStore({ filename: 'birth-death-growth-rates.db', autoload: true
 let DOCS_URL_V1 = "https://documenter.getpostman.com/view/52398391/2sBXigLYdf";
 let DOCS_URL_V2 = "https://documenter.getpostman.com/view/52398391/2sBXijJBsJ";
 
-const REQUIRED_FIELDS = ['country_code', 'country_name', 'year', 'crude_birth_rate', 'crude_death_rate'];
-
 function isValidRecord(record) {
-    const keys = Object.keys(record);
-    return REQUIRED_FIELDS.every(f => keys.includes(f));
+    if (!record.country_code || record.country_code === "") return false;
+    if (!record.country_name || record.country_name === "") return false;
+    if (record.year === undefined || record.year === null || record.year === "" || isNaN(record.year)) return false;
+    return true;
 }
 
 const initialRecords = [
@@ -29,22 +29,16 @@ const initialRecords = [
 
 export function loadBackend(app) {
 
-    // Docs v1 → redirige al portal de documentación de v1
     app.get("/api/v1/birth-death-growth-rates/docs", (req, res) => {
         res.redirect(DOCS_URL_V1);
     });
 
-    // Docs v2 → redirige al portal de documentación de v2
     app.get(BASE_URL_API + "/birth-death-growth-rates/docs", (req, res) => {
         res.redirect(DOCS_URL_V2);
     });
 
     app.get(BASE_URL_API + "/birth-death-growth-rates/loadInitialData", (req, res) => {
-        db.find({}, (err, records) => {
-            if (records.length > 0) {
-                const clean = records.map(({ _id, ...rest }) => rest);
-                return res.status(200).json(clean);
-            }
+        db.remove({}, { multi: true }, (err) => {
             db.insert(initialRecords, (err, inserted) => {
                 if (err) return res.status(500).json({ message: "Database error" });
                 const clean = inserted.map(({ _id, ...rest }) => rest);
@@ -100,7 +94,7 @@ export function loadBackend(app) {
         const newRecord = req.body;
 
         if (!isValidRecord(newRecord)) {
-            return res.status(400).json({ message: "Missing required fields: country_code, country_name, year, crude_birth_rate, crude_death_rate" });
+            return res.status(400).json({ message: "Missing required fields: country_code, country_name, year" });
         }
 
         db.find({ country_code: newRecord.country_code, year: newRecord.year }, (err, records) => {
