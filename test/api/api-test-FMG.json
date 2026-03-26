@@ -613,7 +613,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
+              "raw": "{\r\n        \"country_code\": \"UP\",\r\n        \"country_name\": \"Ukraine\",\r\n        \"year\": 2022,\r\n        \"fert_15_19\": 25.9,\r\n        \"fert_20_24\": 89.1\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -621,7 +621,7 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/ES/2024",
+              "raw": "{{base_url}}/api/v2/age-specific-fertility-rates/UP/2022",
               "host": [
                 "{{base_url}}"
               ],
@@ -629,8 +629,8 @@
                 "api",
                 "v2",
                 "age-specific-fertility-rates",
-                "ES",
-                "2024"
+                "UP",
+                "2022"
               ]
             }
           },
