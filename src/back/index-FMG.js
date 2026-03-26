@@ -48,7 +48,7 @@ function loadBackend(app) {
 
         dbQuery.exec((err, records) => {
             if (err) return res.status(500).json({ message: "Internal server error" });
-            if (records.length === 0) return res.status(404).json({ message: "Record not found" });
+            //if (records.length === 0) return res.status(404).json({ message: "Record not found" });
             
             // Limpiamos el _id de NeDB
             const clean = records.map(r => { const { _id, ...rest } = r; return rest; });

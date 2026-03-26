@@ -17,8 +17,15 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
+                  "// 1. Comprobamos que el código sea 200 o 201\r",
+                  "pm.test(\"Status code is 201 (Creado) o 200 (Ya cargado)\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Comprobamos que devuelve datos o un mensaje (que el body no está vacío)\r",
+                  "pm.test(\"Devuelve datos o mensaje de éxito\", function () {\r",
+                  "    var body = pm.response.text();\r",
+                  "    pm.expect(body.length).to.be.above(5); // Tiene que devolver algo más largo que 5 caracteres\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -52,14 +59,20 @@
               "listen": "test",
               "script": {
                 "exec": [
+                  "// 1. Comprobamos que todo ha ido bien (Status 200)\r",
                   "pm.test(\"Status code is 200\", function () {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Response is an array with data\", function () {\r",
+                  "// 2. Comprobamos que es un array y tiene el tamaño correcto\r",
+                  "pm.test(\"Debe devolver un array con mas de 10 elementos (datos iniciales)\", function () {\r",
                   "    var jsonData = pm.response.json();\r",
-                  "    pm.expect(jsonData).to.be.an(\"array\");\r",
-                  "    pm.expect(jsonData.length).to.be.above(0);\r",
+                  "    \r",
+                  "    // Verificamos que lo que devuelve es formato Array (lista)\r",
+                  "    pm.expect(Array.isArray(jsonData)).to.be.true;\r",
+                  "    \r",
+                  "    // Verificamos que tiene exactamente 10 elementos\r",
+                  "    pm.expect(jsonData.length).to.be.above(10); \r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -94,6 +107,18 @@
                 "exec": [
                   "pm.test(\"Status code is 200\", function () {\r",
                   "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Devuelve el objeto correcto solicitado\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    // Comprobamos que el país y el año coinciden exactamente con la URL\r",
+                  "    pm.expect(jsonData.country_code).to.eql(\"SI\");\r",
+                  "    pm.expect(jsonData.year).to.eql(2022);\r",
+                  "    \r",
+                  "    // Comprobamos que el objeto trae los datos que nos interesan\r",
+                  "    pm.expect(jsonData).to.have.property(\"fert_15_19\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"fert_20_24\");\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -140,51 +165,18 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 201 Created\", function () {\r",
+                  "pm.test(\"Status code is 201 Creado\", function () {\r",
                   "    pm.response.to.have.status(201);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"country_code\": \"ES\",\r\n    \"country_name\": \"Spain\", \r\n    \"year\": 2024, \r\n    \"fert_15_19\": 6.5, \r\n    \"fert_20_24\": 30.2\r\n    }",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v2/age-specific-fertility-rates",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v2",
-                "age-specific-fertility-rates"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create New Copy",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201 Created\", function () {\r",
-                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"El recurso devuelto es un objeto y no tiene _id\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    // Comprobamos que es un objeto (no un array ni un string)\r",
+                  "    pm.expect(jsonData).to.be.an('object');\r",
+                  "    \r",
+                  "    // Comprobamos que el backend ha limpiado el _id de la base de datos\r",
+                  "    pm.expect(jsonData).to.not.have.property('_id');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -226,8 +218,20 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () {\r",
+                  "// 1. Comprobamos que la actualización fue exitosa (200)\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
                   "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Comprobamos que tu API nos devuelve el mensaje de éxito\r",
+                  "pm.test(\"El objeto fue actualizado correctamente\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    // Como tu API devuelve un mensaje, comprobamos que exista la propiedad 'message'\r",
+                  "    pm.expect(jsonData).to.have.property('message');\r",
+                  "    \r",
+                  "    // (Opcional pero le da un toque muy pro) Comprobamos que el texto sea el correcto\r",
+                  "    pm.expect(jsonData.message).to.include('Updated'); \r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -241,7 +245,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 10.0, \r\n    \"fert_20_24\": 50.0\r\n}",
+              "raw": "{\r\n    \"country_code\": \"SI\", \r\n    \"country_name\": \"Slovenia\", \r\n    \"year\": 2022, \r\n    \"fert_15_19\": 11.0, \r\n    \"fert_20_24\": 50.0\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -271,8 +275,18 @@
               "listen": "test",
               "script": {
                 "exec": [
+                  "// 1. Comprobamos que el servidor rechaza la petición por estar mal formada (400)\r",
                   "pm.test(\"Status code is 400 Bad Request\", function () {\r",
                   "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Comprobamos que nos devuelve un mensaje de advertencia\r",
+                  "pm.test(\"Comprueba que la estructura JSON sea correcta\", function () {\r",
+                  "    // Leemos la respuesta como texto para evitar fallos si no es un JSON puro\r",
+                  "    var respuesta = pm.response.text();\r",
+                  "    \r",
+                  "    // Comprobamos que el servidor nos ha contestado algo (el texto no está vacío)\r",
+                  "    pm.expect(respuesta.length).to.be.above(5);\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -316,6 +330,14 @@
                 "exec": [
                   "pm.test(\"Status code is 400 Bad Request\", function () {\r",
                   "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Comprueba que los datos de la URL y del body coinciden\", function () {\r",
+                  "    // Leemos la respuesta del servidor\r",
+                  "    var respuesta = pm.response.text();\r",
+                  "    \r",
+                  "    // Comprobamos que el servidor nos ha contestado con un mensaje de error explicativo\r",
+                  "    pm.expect(respuesta.length).to.be.above(5);\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -359,8 +381,15 @@
               "listen": "test",
               "script": {
                 "exec": [
+                  "// 1. Comprobamos que el servidor bloquea la acción (405)\r",
                   "pm.test(\"Status code is 405 Method Not Allowed\", function () {\r",
                   "    pm.response.to.have.status(405);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Comprobamos que el servidor no se queda callado y devuelve algo\r",
+                  "pm.test(\"Devuelve un error al intentar actualizar toda la colección\", function () {\r",
+                  "    var respuesta = pm.response.text();\r",
+                  "    pm.expect(respuesta.length).to.be.above(2); // Comprobamos que manda un mensaje\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -402,8 +431,15 @@
               "listen": "test",
               "script": {
                 "exec": [
+                  "// 1. Comprobamos que el servidor responde con 404 porque no lo encuentra\r",
                   "pm.test(\"Status code is 404 Not Found\", function () {\r",
                   "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Comprobamos que devuelve un mensaje de error y no se queda en blanco\r",
+                  "pm.test(\"Devuelve un mensaje indicando que no se encuentra el recurso\", function () {\r",
+                  "    var respuesta = pm.response.text();\r",
+                  "    pm.expect(respuesta.length).to.be.above(5);\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -450,8 +486,15 @@
               "listen": "test",
               "script": {
                 "exec": [
+                  "// 1. Comprobamos que el servidor bloquea el POST a una ruta concreta\r",
                   "pm.test(\"Status code is 405 Method Not Allowed\", function () {\r",
                   "    pm.response.to.have.status(405);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Comprobamos que el servidor contesta con un mensaje\r",
+                  "pm.test(\"Devuelve un mensaje de error indicando que el método no está permitido\", function () {\r",
+                  "    var respuesta = pm.response.text();\r",
+                  "    pm.expect(respuesta.length).to.be.above(5);\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -495,8 +538,16 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 409 Conflict\", function () {\r",
+                  "// 1. Comprobamos que el servidor detecta el duplicado y lanza un 409\r",
+                  "pm.test(\"Status code is 409 Conflicto\", function () {\r",
                   "    pm.response.to.have.status(409);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Comprobamos que el servidor te explica el problema y no se queda callado\r",
+                  "pm.test(\"Devuelve un mensaje de error explicativo\", function () {\r",
+                  "    var respuesta = pm.response.text();\r",
+                  "    // Comprobamos que la respuesta tiene texto (el mensaje de error)\r",
+                  "    pm.expect(respuesta.length).to.be.above(5);\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -538,8 +589,17 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () {\r",
+                  "// 1. Comprobamos que el borrado ha ido bien (Status 200)\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
                   "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Comprobamos que el servidor nos devuelve un mensaje de confirmación\r",
+                  "pm.test(\"El recurso fue borrado correctamente\", function () {\r",
+                  "    var respuesta = pm.response.text();\r",
+                  "    \r",
+                  "    // Verificamos que la respuesta no está vacía (tiene al menos algún texto o JSON)\r",
+                  "    pm.expect(respuesta.length).to.be.above(2);\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -583,8 +643,17 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () {\r",
+                  "// 1. Comprobamos que el borrado masivo ha sido un éxito (200)\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
                   "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Comprobamos que el servidor nos contesta confirmando la acción\r",
+                  "pm.test(\"Todos los recursos fueron borrados correctamente\", function () {\r",
+                  "    var respuesta = pm.response.text();\r",
+                  "    \r",
+                  "    // Verificamos que la respuesta contenga un mensaje\r",
+                  "    pm.expect(respuesta.length).to.be.above(2);\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -615,6 +684,55 @@
                 "v2",
                 "age-specific-fertility-rates",
                 ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Todas (comprobar vacio)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 1. Comprobamos que el servidor responde con éxito (200)\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Comprobamos que el array está vacío (el que tenías antes)\r",
+                  "pm.test(\"Debe devolver un array vacío (tamaño 0)\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(Array.isArray(jsonData)).to.be.true;\r",
+                  "    pm.expect(jsonData.length).to.eql(0); \r",
+                  "});\r",
+                  "\r",
+                  "// 3. Test de Idempotencia (el nuevo)\r",
+                  "pm.test(\"Idempotencia: Volvemos a tener exactamente 0 registros\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(Array.isArray(jsonData)).to.be.true;\r",
+                  "    pm.expect(jsonData.length).to.eql(0); \r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/age-specific-fertility-rates",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "age-specific-fertility-rates"
               ]
             }
           },
