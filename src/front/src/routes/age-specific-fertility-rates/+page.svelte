@@ -1,5 +1,7 @@
 <script>
     import { dev } from "$app/environment";
+    import { onMount } from "svelte";
+
 
     // @ts-ignore
     let fertility = $state([]);
@@ -117,9 +119,11 @@
         }
     }
 
-    $effect(() => {
+    onMount(() => {
         getFertility();
     });
+    
+
 </script>
 
 <style>
