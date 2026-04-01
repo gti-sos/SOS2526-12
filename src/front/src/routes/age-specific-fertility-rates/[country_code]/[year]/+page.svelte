@@ -37,6 +37,13 @@
 
     // 4. Función para guardar los cambios (PUT)
     async function updateRecurso() {
+        // --- NUEVA VALIDACIÓN: Comprobar que no hay campos vacíos ---
+        if (!country_name || fert_15_19 === "" || fert_15_19 === null || fert_20_24 === "" || fert_20_24 === null) {
+            mensajeTexto = "⚠️ No puedes dejar ningún campo en blanco.";
+            mensajeTipo = "error";
+            return; // Corta la función aquí y no envía la petición al servidor
+        }
+
         const updatedRecord = {
             country_code: country_code, // La clave principal no se cambia
             country_name: country_name,
@@ -81,7 +88,7 @@
     .btn-primary:hover { background: #0056b3; }
     .btn-secondary { background: #6c757d; color: white; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; margin-top: 10px; }
     .btn-secondary:hover { background: #5a6268; }
-    .mensaje-error { padding: 15px; background-color: #f8d7da; color: #721c24; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+    .mensaje-error { padding: 15px; background-color: #f8d7da; color: #721c24; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold; }
 </style>
 
 <main>
