@@ -1,6 +1,7 @@
-<script>
+<svelte:head>
+    <title>Grupo 12 SOS</title>
+</svelte:head>
 
-</script>
 
 <style>
     main {
