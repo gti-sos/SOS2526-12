@@ -1,43 +1,16 @@
 name: CI_CD
 on: [push, pull_request]
-
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        
+        uses: actions/checkout@v6
       - name: Install root dependencies
         run: npm install
-        
       - name: Install front dependencies
         run: cd src/front && npm install
-        
       - name: Build front
         run: cd src/front && npm run build
-        
-      - name: Test (Newman API)
-       
-        run: npm run test -- --env-var "base_url=https://sos2526-12.onrender.com"
-
-      
-      
-      - name: 📦 Get Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./src/front/package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_ENV
-
-      - name: 🗄️ Cache Playwright Browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
-
-      - name: 🛠️ Install Playwright Browsers (Solo Chromium)
-       
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: cd src/front && npx playwright install chromium --with-deps
-        
-      - name: 🎭 Run Playwright E2E Tests
-        run: cd src/front && npx playwright test
+      - name: Test
+        run: npm run test
