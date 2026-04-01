@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // Recuerda cambiar esto por tu URL pública de Render/Vercel cuando vayas a subirlo a GitHub
-const URL_FRONTEND = 'http://localhost:5173/mid-population-ages';
+const URL_FRONTEND = 'http://sos2526-12.onrender.com/mid-population-ages';
 
 test.describe('Pruebas E2E - Frontend Gestión de Población', () => {
 
