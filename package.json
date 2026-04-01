@@ -8,25 +8,21 @@
     "start": "node index.js",
     "build": "cd src/front && npm run build",
     "dev-front": "cd src/front && npm run dev -- --open",
-
     "test-api-local-LPH": "npx newman run test/api/api-test-LPH.json -e test/api/api-env-local.json",
     "test-api-online-LPH": "npx newman run test/api/api-test-LPH.json -e test/api/api-env-render.json",
     "test-local-LPH": "start-server-and-test start http://localhost:3000 test-api-local-LPH",
     "test-online-LPH": "start-server-and-test start http://localhost:3000 test-api-online-LPH",
     "test-api-local-FMG": "npx newman run test/api/api-test-FMG.json -e test/api/api-env-local.json",
     "test-api-online-FMG": "npx newman run test/api/api-test-FMG.json -e test/api/api-env-render.json",
-    
     "test-local-FMG": "start-server-and-test start http://localhost:3000 test-api-local-FMG",
     "test-online-FMG": "start-server-and-test start http://localhost:3000 test-api-online-FMG",
     "test-api-local-JJG": "npx newman run test/api/api-test-JJG.json -e test/api/api-env-local.json",
     "test-api-online-JJG": "npx newman run test/api/api-test-JJG.json -e test/api/api-env-render.json",
     "test-local-JJG": "start-server-and-test start http://localhost:3000 test-api-local-JJG",
     "test-online-JJG": "start-server-and-test start http://localhost:3000 test-api-online-JJG",
-    
     "test-birth-death-growth-rates": "npm run test-local-LPH",
     "test-age-specific-fertility-rates": "npm run test-local-FMG",
     "test-mid-population-ages": "npm run test-local-JJG",
-
     "test-online": "npm run test-online-FMG && npm run test-online-LPH && npm run test-online-JJG",
     "test-local": "npm run test-local-FMG && npm run test-local-LPH && npm run test-local-JJG",
     "test": "npm run test-local"
@@ -44,7 +40,9 @@
     "nedb": "^1.8.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.0",
     "@sveltejs/adapter-node": "^5.5.4",
+    "@types/node": "^25.5.0",
     "newman": "^6.0.0",
     "start-server-and-test": "^2.1.5"
   }

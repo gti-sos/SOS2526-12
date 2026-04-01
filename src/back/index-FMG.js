@@ -28,16 +28,26 @@ function loadBackend(app) {
         });
     });
 
-    // GET: Obtener todos los recursos (CON BÚSQUEDA Y PAGINACIÓN) - Devuelve ARRAY
+    // GET: Obtener todos los recursos (CON BÚSQUEDA, RANGOS Y PAGINACIÓN) - Devuelve ARRAY
     app.get(BASE_URL_API + "/age-specific-fertility-rates", (req, res) => {
         let searchQuery = {};
 
-        // Filtros de búsqueda
+        // Filtros de búsqueda por texto o valores exactos
         if (req.query.country_code) searchQuery.country_code = req.query.country_code;
         if (req.query.country_name) searchQuery.country_name = req.query.country_name;
-        if (req.query.year) searchQuery.year = parseInt(req.query.year);
         if (req.query.fert_15_19) searchQuery.fert_15_19 = parseFloat(req.query.fert_15_19);
         if (req.query.fert_20_24) searchQuery.fert_20_24 = parseFloat(req.query.fert_20_24);
+
+        // --- NUEVO: Filtros de búsqueda por año (Exacto o por rango From/To) ---
+        if (req.query.year) {
+            // Si el usuario pone un año exacto, buscamos ese
+            searchQuery.year = parseInt(req.query.year);
+        } else if (req.query.from || req.query.to) {
+            // Si pone "from" o "to", creamos un objeto para buscar en ese rango
+            searchQuery.year = {};
+            if (req.query.from) searchQuery.year.$gte = parseInt(req.query.from); // Mayor o igual que 'from'
+            if (req.query.to) searchQuery.year.$lte = parseInt(req.query.to);     // Menor o igual que 'to'
+        }
 
         let dbQuery = db.find(searchQuery);
 
