@@ -51,6 +51,7 @@
 
         const res = await fetch(fetchUrl, { method: "GET" });
         
+        
         if (res.ok) {
             fertility = await res.json();
         } else if (res.status === 404) {
