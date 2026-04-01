@@ -19,14 +19,14 @@ test.describe('E2E Tests para la interfaz de Fertilidad', () => {
     test('2. Debería poder crear (insertar) un nuevo registro', async ({ page }) => {
         await page.goto(FRONTEND_URL);
 
-        // ¡AJUSTADO! Ahora usa exactamente los placeholders de tu Svelte
+        // Ahora usa exactamente los placeholders de tu Svelte
         await page.fill('input[placeholder="Código (ej. ES)"]', 'ZZ');
         await page.fill('input[placeholder="País (ej. España)"]', 'PaisPrueba');
         await page.fill('input[placeholder="Año (ej. 2022)"]', '2050');
         await page.fill('input[placeholder="Tasa 15-19"]', '1.5');
         await page.fill('input[placeholder="Tasa 20-24"]', '2.5');
         
-        // ¡AJUSTADO! Hace clic en tu botón exacto de añadir
+        // Hace clic en tu botón exacto de añadir
         await page.click('button:has-text("Añadir")');
 
         // Espera a que la tabla contenga el nuevo país
@@ -38,16 +38,15 @@ test.describe('E2E Tests para la interfaz de Fertilidad', () => {
     test('3. Debería buscar/filtrar usando "from" y "to"', async ({ page }) => {
         await page.goto(FRONTEND_URL);
 
-        // ¡AJUSTADO! Usa tus placeholders de búsqueda
+        // Usa tus placeholders de búsqueda
         await page.fill('input[placeholder="Desde año"]', '2020');
         await page.fill('input[placeholder="Hasta año"]', '2022');
         
-        // ¡AJUSTADO! Hace clic en tu botón de buscar
+        // Hace clic en tu botón de buscar
         await page.click('button:has-text("Buscar")');
 
-        // Como tu Svelte NO cambia la URL (solo hace el fetch con la query URLSearchParams internamente),
-        // no podemos usar expect(page).toHaveURL(...).
-        // En su lugar, comprobamos que no salga el mensaje de error de que no hay datos (asumiendo que en 2020-2022 sí hay).
+        // Como tu Svelte NO cambia la URL (solo hace el fetch internamente),
+        // comprobamos que no salga el mensaje de error de que no hay datos.
         const mensajeError = page.locator('.mensaje-error');
         await expect(mensajeError).not.toBeVisible();
     });
@@ -55,7 +54,7 @@ test.describe('E2E Tests para la interfaz de Fertilidad', () => {
     test('4. Debería poder eliminar un registro', async ({ page }) => {
         await page.goto(FRONTEND_URL);
 
-        // Acepta el cuadro de diálogo de confirmación automáticamente (el "confirm" de tu deleteOne)
+        // Acepta el cuadro de diálogo de confirmación automáticamente 
         page.on('dialog', dialog => dialog.accept());
 
         // Busca el botón de eliminar
@@ -72,7 +71,7 @@ test.describe('E2E Tests para la interfaz de Fertilidad', () => {
     test('5. Debería poder borrar todos los registros', async ({ page }) => {
         await page.goto(FRONTEND_URL);
 
-        // Acepta el cuadro de diálogo de confirmación (el "confirm" de tu deleteAll)
+        // Acepta el cuadro de diálogo de confirmación 
         page.on('dialog', dialog => dialog.accept());
 
         // Hace clic en tu botón exacto
@@ -81,8 +80,35 @@ test.describe('E2E Tests para la interfaz de Fertilidad', () => {
         if (await deleteAllBtn.count() > 0) {
             await deleteAllBtn.click();
             
-            // Comprueba que aparece el texto de tabla vacía que tienes en tu Svelte
+            // Comprueba que aparece el texto de tabla vacía
             await expect(page.locator('text="No hay datos para mostrar."')).toBeVisible();
+        }
+    });
+
+    test('6. Debería poder editar un registro en la vista separada', async ({ page }) => {
+        await page.goto(FRONTEND_URL);
+
+        // 1. Busca el primer enlace de edición (el del lapicito ✏️)
+        const editLink = page.locator('a.enlace-pais').first();
+        
+        if (await editLink.count() > 0) {
+            await editLink.click();
+
+            // 2. Comprueba que la URL ha cambiado a la vista dinámica
+            await expect(page).toHaveURL(/.*\/age-specific-fertility-rates\/.+\/\d{4}/);
+
+            // 3. Aceptamos automáticamente el "alert()" que sale al guardar con éxito
+            page.on('dialog', dialog => dialog.accept());
+
+            // 4. Modificamos un dato en el input (en lugar de buscar por placeholder, buscamos el input hermano del label)
+            // Tu Svelte tiene: <label>Tasa (15 a 19 años)</label> <input ...>
+            await page.locator('div.input-group:has(label:has-text("Tasa (15 a 19 años)")) > input').fill('9.9');
+
+            // 5. Clic en guardar
+            await page.click('button:has-text("💾 Guardar Cambios")');
+
+            // 6. Comprobamos que el "goto" de tu Svelte nos ha devuelto a la página principal
+            await expect(page).toHaveURL(FRONTEND_URL);
         }
     });
 
