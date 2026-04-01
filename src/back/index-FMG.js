@@ -4,7 +4,6 @@ let BASE_URL_API = "/api/v2";
 let db = new dataStore();
 let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXijHX4D";
 
-
 function loadBackend(app) {
     let initialData = [
         { country_code: "SI", country_name: "Slovenia", year: 2022, fert_15_19: 7.5, fert_20_24: 56.4 },
@@ -48,7 +47,6 @@ function loadBackend(app) {
 
         dbQuery.exec((err, records) => {
             if (err) return res.status(500).json({ message: "Internal server error" });
-            //if (records.length === 0) return res.status(404).json({ message: "Record not found" });
             
             // Limpiamos el _id de NeDB
             const clean = records.map(r => { const { _id, ...rest } = r; return rest; });
@@ -119,7 +117,9 @@ function loadBackend(app) {
             return res.status(400).json({ message: "Bad Request: Data mismatch" });
         }
 
-        db.update({ country_code: country_code, year: year }, updatedRecord, {}, (err, numReplaced) => {
+        // --- SOLUCIÓN: Usamos $set para evitar machacar el _id interno de NeDB ---
+        db.update({ country_code: country_code, year: year }, { $set: updatedRecord }, {}, (err, numReplaced) => {
+            if (err) return res.status(500).json({ message: "Internal server error" });
             if (numReplaced === 0) return res.status(404).json({ message: "Record not found" });
             res.status(200).json({ message: "Updated successfully" });
         });
