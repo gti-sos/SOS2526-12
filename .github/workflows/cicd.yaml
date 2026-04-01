@@ -17,11 +17,27 @@ jobs:
       - name: Build front
         run: cd src/front && npm run build
         
-      - name: Test
-        run: npm run test
+      - name: Test (Newman API)
+       
+        run: npm run test -- --env-var "base_url=https://sos2526-12.onrender.com"
 
-      - name: Install Playwright Browsers
-        run: cd src/front && npx playwright install --with-deps
+      
+      
+      - name: 📦 Get Playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./src/front/package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_ENV
+
+      - name: 🗄️ Cache Playwright Browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: 🛠️ Install Playwright Browsers (Solo Chromium)
+       
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: cd src/front && npx playwright install chromium --with-deps
         
-      - name: Run Playwright E2E Tests
+      - name: 🎭 Run Playwright E2E Tests
         run: cd src/front && npx playwright test
