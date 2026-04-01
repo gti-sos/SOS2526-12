@@ -1,16 +1,27 @@
 name: CI_CD
 on: [push, pull_request]
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+        
       - name: Install root dependencies
         run: npm install
+        
       - name: Install front dependencies
         run: cd src/front && npm install
+        
       - name: Build front
         run: cd src/front && npm run build
+        
       - name: Test
         run: npm run test
+
+      - name: Install Playwright Browsers
+        run: cd src/front && npx playwright install --with-deps
+        
+      - name: Run Playwright E2E Tests
+        run: cd src/front && npx playwright test
