@@ -4,7 +4,7 @@
     // @ts-ignore
     let populations = $state([]);
     
-    // Variables de estado para tu formulario
+    // Variables de estado para tu formulario de creación
     let newCountryCode = $state("");
     let newCountryName = $state("");
     let newYear = $state("");
@@ -16,14 +16,19 @@
     let newPop75 = $state("");
     let newPop100 = $state("");
 
-    let API = '/api/v1/mid-population-ages';
+    // Variables para el buscador
+    let searchCountry = $state("");
+    let searchYear = $state("");
+
+    // APUNTAMOS A LA API V2
+    let API = '/api/v2/mid-population-ages';
     if (dev) {
         API = "http://localhost:3000" + API;
     }
 
-    // --- NUEVO SISTEMA DE MENSAJES MULTICOLOR ---
+    // --- SISTEMA DE MENSAJES MULTICOLOR ---
     let mensajeTexto = $state("");
-    let mensajeTipo = $state(""); // Puede ser 'exito', 'error', 'creacion', o 'borrado'
+    let mensajeTipo = $state(""); // 'exito', 'error', 'creacion', 'borrado'
 
     // @ts-ignore
     function mostrarMensaje(texto, tipo = "exito") {
@@ -35,15 +40,38 @@
     }
     // --------------------------------------------
 
+    // OBTENER Y BUSCAR DATOS
     async function getPopulations() {
-        const res = await fetch(API, { method: "GET" });
+        let url = API;
+        let queryParams = [];
+
+        // Añadimos los parámetros de búsqueda si el usuario ha escrito algo
+        if (searchCountry) queryParams.push(`country_name=${searchCountry}`);
+        if (searchYear) queryParams.push(`year=${searchYear}`);
+
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
+
+        const res = await fetch(url, { method: "GET" });
         if (res.ok) {
             populations = await res.json();
+            // Avisar si la búsqueda no dio resultados
+            if (populations.length === 0 && (searchCountry || searchYear)) {
+                 mostrarMensaje("ℹ️ No se encontraron registros con esos datos de búsqueda.", "exito");
+            }
         } else if (res.status === 404) {
             populations = []; 
         } else {
             mostrarMensaje("❌ Tuvimos un problema al intentar cargar la lista. Inténtalo más tarde.", "error");
         }
+    }
+
+    // LIMPIAR BÚSQUEDA
+    function limpiarBusqueda() {
+        searchCountry = "";
+        searchYear = "";
+        getPopulations();
     }
 
     async function loadInitialData() {
@@ -185,7 +213,16 @@
         <button class="btn-danger" onclick={deleteAll}>🗑️ Vaciar toda la tabla</button>
     </div>
 
+    <div class="form-container" style="background-color: #e9ecef;">
+        <h3 style="margin: 0 100%; width: 100%; font-size: 1rem; color: #555;">🔍 Buscador</h3>
+        <input type="text" placeholder="Buscar por País..." bind:value={searchCountry} />
+        <input type="number" placeholder="Buscar por Año..." bind:value={searchYear} />
+        <button class="btn-primary" onclick={getPopulations}>Buscar Registros</button>
+        <button class="btn-warning" onclick={limpiarBusqueda}>Limpiar Búsqueda</button>
+    </div>
+
     <div class="form-container">
+        <h3 style="margin: 0 100%; width: 100%; font-size: 1rem; color: #555;">➕ Añadir Nuevo Registro</h3>
         <input type="text" placeholder="Cód. País" bind:value={newCountryCode} />
         <input type="text" placeholder="País" bind:value={newCountryName} />
         <input type="number" placeholder="Año" bind:value={newYear} />
@@ -218,7 +255,7 @@
             {#if populations.length === 0}
                 <tr>
                     <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
-                        No hay datos para mostrar. Añade un registro o restaura los datos de prueba.
+                        No hay datos para mostrar. Añade un registro, restaura los datos de prueba o prueba con otra búsqueda.
                     </td>
                 </tr>
             {/if}
@@ -226,7 +263,7 @@
                 <tr>
                     <td><strong>{pop.country_name}</strong> ({pop.country_code})</td>
                     <td>{pop.year}</td>
-                    <td>{pop.sex}</td>
+                    <td>{pop.sex === 'Male' ? 'Hombre' : 'Mujer'}</td>
                     <td>{pop.max_age}</td>
                     <td>{pop.population_age_0} / {pop.population_age_25} / {pop.population_age_50} / {pop.population_age_75} / {pop.population_age_100}</td>
                     <td>
