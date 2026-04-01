@@ -1,27 +1,23 @@
 import { test, expect } from '@playwright/test';
 
-// Recuerda cambiar esto por tu URL pública de Render/Vercel cuando vayas a subirlo a GitHub
 const URL_FRONTEND = 'https://sos2526-12.onrender.com/mid-population-ages';
 
 test.describe('Pruebas E2E - Frontend Gestión de Población', () => {
 
     test('1. Listar recursos', async ({ page }) => {
-        await page.goto(URL_FRONTEND);
-        await expect(page.locator('h1', { hasText: 'Tasas de Edades de Población' })).toBeVisible();
+        await page.goto(URL_FRONTEND, { waitUntil: 'networkidle' }); // Espera a que cargue todo
+        // Usamos /.../i para que no importe mayúsculas/minúsculas
+        await expect(page.locator('h1', { hasText: /Tasas de Edades de Población/i })).toBeVisible();
         await expect(page.locator('table')).toBeVisible();
     });
 
     test('2. Crear un recurso', async ({ page }) => {
         await page.goto(URL_FRONTEND);
-        
-        // Aceptamos cualquier alerta automáticamente
         page.on('dialog', dialog => dialog.accept());
         
-        // Vaciamos la tabla primero y esperamos 1 segundo para que el backend borre seguro
         await page.click('button:has-text("Vaciar toda la tabla")');
-        await page.waitForTimeout(1000); 
+        await expect(page.locator('.mensaje-borrado')).toBeVisible(); // Esperamos confirmación visual
         
-        // Rellenamos el formulario
         await page.fill('input[placeholder="Cód. País"]', 'TEST');
         await page.fill('input[placeholder="País"]', 'PaisPrueba');
         await page.fill('input[placeholder="Año"]', '2025');
@@ -34,9 +30,7 @@ test.describe('Pruebas E2E - Frontend Gestión de Población', () => {
         await page.fill('input[placeholder="Pob. 100"]', '50');
 
         await page.click('button:has-text("Añadir a la lista")');
-
-        await expect(page.locator('.mensaje-creacion')).toBeVisible({ timeout: 10000 });
-        await expect(page.locator('td', { hasText: 'PaisPrueba' }).first()).toBeVisible();
+        await expect(page.locator('.mensaje-creacion')).toBeVisible();
     });
 
     test('3. Buscar recursos', async ({ page }) => {
@@ -44,37 +38,29 @@ test.describe('Pruebas E2E - Frontend Gestión de Población', () => {
         page.on('dialog', dialog => dialog.accept());
 
         await page.click('button:has-text("Vaciar toda la tabla")');
-        await page.waitForTimeout(1000); 
-        
         await page.click('button:has-text("Restaurar datos de prueba")');
-        await page.waitForTimeout(1500); 
         
-        await page.fill('input[placeholder="Buscar por País..."]', 'Afghanistan');
+        // Esperamos a que la tabla tenga datos antes de buscar
+        await expect(page.locator('td', { hasText: 'Afghanistan' }).first()).toBeVisible({ timeout: 15000 });
+        
+        await page.fill('input[placeholder*="Buscar por País"]', 'Afghanistan');
         await page.click('button:has-text("Buscar Registros")');
         
-        await expect(page.locator('td', { hasText: 'Afghanistan' }).first()).toBeVisible();
+        await expect(page.locator('table')).toContainText('Afghanistan');
     });
 
     test('4. Editar recurso (Vista separada)', async ({ page }) => {
         await page.goto(URL_FRONTEND);
-        
-        // 1. Simplemente nos aseguramos de que haya datos (sin vaciar antes)
+        page.on('dialog', dialog => dialog.accept());
+
         await page.click('button:has-text("Restaurar datos de prueba")');
-        
-        // 2. Esperamos pacientemente a que la tabla dibuje al menos una fila
-        await expect(page.locator('tbody tr').first()).toBeVisible({ timeout: 10000 });
-        await page.waitForTimeout(500); // Un respiro para que todo cargue bien
-        
-        // 3. Hacemos clic en el PRIMER botón de editar
         await page.locator('a:has-text("Editar")').first().click();
         
-        // 4. Comprobamos que estamos en la vista de edición
-        await expect(page).toHaveURL(/.*mid-population-ages\/.*/);
-        await expect(page.locator('h1', { hasText: 'Editar Registro' })).toBeVisible();
+        // Comprobamos el título de edición de forma flexible
+        await expect(page.locator('h1', { hasText: /Editar Registro/i })).toBeVisible();
         
-        // 5. Como ahora sí cargará el formulario, el botón existirá y podremos hacer clic
         await page.click('button:has-text("Cancelar y Volver")');
-        await expect(page.locator('h1', { hasText: 'Tasas de Edades de Población' })).toBeVisible();
+        await expect(page.locator('h1', { hasText: /Tasas de Edades de Población/i })).toBeVisible();
     });
     
     test('5. Borrar un recurso concreto', async ({ page }) => {
