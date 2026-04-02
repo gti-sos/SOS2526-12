@@ -7,8 +7,9 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
     test.describe.configure({ mode: 'serial' });
     test.slow(); 
 
-    const codigoPaisUnico = 'Z' + Date.now().toString().slice(-2);
-    const anioUnico = '2050';
+    // Generamos un código de 2 caracteres (ej. Z4) para que la base de datos lo acepte
+    const codigoPaisUnico = 'Z' + Math.floor(Math.random() * 10).toString();
+    const nombrePaisUnico = 'PaisPrueba';
 
     test.beforeEach(async ({ page }) => {
         page.on('dialog', dialog => dialog.accept());
@@ -19,85 +20,63 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
         await page.goto(URL_FRONTEND);
         await getInicial; 
 
-        await expect(page.getByRole('heading', { name: /Tasas de Fertilidad/i, level: 1 })).toBeVisible({ timeout: 15000 });
+        await expect(page.locator('h1', { hasText: 'Tasas de Fertilidad por Paises' })).toBeVisible({ timeout: 15000 });
     });
 
     test('1. Listar recursos', async ({ page }) => {
         const deletePromise = page.waitForResponse(res => res.request().method() === 'DELETE');
-        await page.locator('button', { hasText: /Vaciar tabla/i }).click();
+        await page.click('button:has-text("Vaciar tabla")');
         await deletePromise;
 
-        const loadPromise = page.waitForResponse(res => res.url().includes('loadInitialData'));
-        await page.locator('button', { hasText: /Restaurar datos/i }).click();
-        await loadPromise;
-
+        await page.click('button:has-text("Restaurar datos")');
         await expect(page.locator('.mensaje-exito')).toBeVisible({ timeout: 60000 }); 
-        await expect(page.locator('td', { hasText: /No hay datos para mostrar/i })).not.toBeVisible();
+        await expect(page.locator('td', { hasText: 'No hay datos para mostrar' })).not.toBeVisible();
     });
 
     test('2. Crear un recurso', async ({ page }) => {
-        // Usamos expresiones regulares para ignorar tildes en Código y País
-        await page.getByPlaceholder(/C.digo/i).fill(codigoPaisUnico);
-        await page.getByPlaceholder(/Pa.s \(ej. Espa.a\)/i).fill('PaisPrueba'); 
-        
-        // Buscamos el contenedor de creación flexibilizando el texto (Añadir vs Anadir)
-        const panelCreacion = page.locator('.form-container').filter({ hasText: /A.adir Nuevo Registro/i });
-        await panelCreacion.getByPlaceholder(/A.o|Anio/i).fill(anioUnico);
-        
-        await page.getByPlaceholder(/Tasa 15-19/i).fill('1.5');
-        await page.getByPlaceholder(/Tasa 20-24/i).fill('2.5');
+        // Limitamos la búsqueda al contenedor de creación porque hay dos inputs con el placeholder "Anio"
+        const formCreacion = page.locator('.form-container', { hasText: 'Anadir Nuevo Registro' });
 
-        const postPromise = page.waitForResponse(res => res.request().method() === 'POST');
-        await page.locator('button', { hasText: /^A.adir$/i }).click();
-        await postPromise;
+        await formCreacion.locator('input[placeholder="Codigo (ej. ES)"]').fill(codigoPaisUnico);
+        await formCreacion.locator('input[placeholder="Pais (ej. Espana)"]').fill(nombrePaisUnico); 
+        await formCreacion.locator('input[placeholder="Anio"]').fill('2050');
+        await formCreacion.locator('input[placeholder="Tasa 15-19"]').fill('1.5');
+        await formCreacion.locator('input[placeholder="Tasa 20-24"]').fill('2.5');
 
-        await expect(page.locator('.mensaje-creacion')).toBeVisible();
-        await expect(page.locator('table')).toContainText(codigoPaisUnico);
+        await formCreacion.locator('button:has-text("Anadir")').click();
+        await expect(page.locator('.mensaje-creacion')).toBeVisible({ timeout: 15000 });
     });
 
     test('3. Buscar recursos', async ({ page }) => {
-        await page.getByPlaceholder(/Pa.s \(ej. Spain\)/i).fill('PaisPrueba');
+        const formBuscador = page.locator('.form-container', { hasText: 'Buscador' });
         
-        const searchPromise = page.waitForResponse(res => res.request().method() === 'GET' && res.url().includes('country_name='));
-        await page.locator('button', { hasText: /^Buscar$/i }).click();
-        await searchPromise;
-
+        await formBuscador.locator('input[placeholder="Pais (ej. Spain)"]').fill(nombrePaisUnico);
+        await formBuscador.locator('button:has-text("Buscar")').click();
+        
         await expect(page.locator('table')).toContainText(codigoPaisUnico);
     });
 
     test('4. Editar recurso (Vista separada)', async ({ page }) => {
-        await page.getByPlaceholder(/Pa.s \(ej. Spain\)/i).fill('PaisPrueba');
-        await page.locator('button', { hasText: /^Buscar$/i }).click();
+        const filaNueva = page.locator('tr', { hasText: codigoPaisUnico });
+        await filaNueva.locator('a:has-text("Editar")').click();
         
-        const fila = page.locator('tr', { hasText: codigoPaisUnico });
-        await fila.locator('a', { hasText: /Editar/i }).click();
+        await expect(page.locator('h1', { hasText: 'Editar' })).toBeVisible({ timeout: 15000 });
         
-        await expect(page.getByRole('heading', { name: /Editar/i, level: 1 })).toBeVisible({ timeout: 15000 });
-        
-        const inputTasa = page.locator('input[placeholder*="15"], input[type="number"]').nth(1); 
+        // Buscamos el input numérico de la tasa en la vista de edición
+        const inputTasa = page.locator('input[type="number"]').first(); 
         await inputTasa.fill('9.9');
         
-        const savePromise = page.waitForResponse(res => 
-            res.url().includes(codigoPaisUnico) && 
-            (res.request().method() === 'PUT' || res.request().method() === 'POST')
-        );
-        await page.locator('button', { hasText: /Guardar/i }).click();
-        await savePromise;
+        await page.click('button:has-text("Guardar")');
         
-        await expect(page.getByRole('heading', { name: /Tasas de Fertilidad/i, level: 1 })).toBeVisible({ timeout: 15000 });
-        await page.getByPlaceholder(/Pa.s \(ej. Spain\)/i).fill('PaisPrueba');
-        await page.locator('button', { hasText: /^Buscar$/i }).click();
-        await expect(page.locator('tr', { hasText: codigoPaisUnico })).toContainText('9.9');
+        await expect(page.locator('h1', { hasText: 'Tasas de Fertilidad' })).toBeVisible({ timeout: 10000 });
+        
+        const filaEditada = page.locator('tr', { hasText: codigoPaisUnico });
+        await expect(filaEditada).toContainText('9.9');
     });
 
     test('5. Borrar un recurso concreto', async ({ page }) => {
-        await page.getByPlaceholder(/Pa.s \(ej. Spain\)/i).fill('PaisPrueba');
-        await page.locator('button', { hasText: /^Buscar$/i }).click();
-
-        const fila = page.locator('tr', { hasText: codigoPaisUnico });
-        const deleteOnePromise = page.waitForResponse(res => res.request().method() === 'DELETE');
-        await fila.locator('button', { hasText: /Eliminar/i }).click();
-        await deleteOnePromise;
+        const filaNueva = page.locator('tr', { hasText: codigoPaisUnico });
+        await filaNueva.locator('button:has-text("Eliminar")').click();
         
         await expect(page.locator('.mensaje-borrado')).toBeVisible({ timeout: 15000 });
         await expect(page.locator('table')).not.toContainText(codigoPaisUnico);
@@ -105,14 +84,11 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
 
     test('6. Borrar todos los recursos', async ({ page }) => {
         const loadPromise = page.waitForResponse(res => res.url().includes('loadInitialData'));
-        await page.locator('button', { hasText: /Restaurar datos/i }).click();
+        await page.click('button:has-text("Restaurar datos")');
         await loadPromise;
 
-        const deleteAllPromise = page.waitForResponse(res => res.request().method() === 'DELETE');
-        await page.locator('button', { hasText: /Vaciar tabla/i }).click();
-        await deleteAllPromise;
-
+        await page.click('button:has-text("Vaciar tabla")');
         await expect(page.locator('.mensaje-borrado')).toBeVisible({ timeout: 15000 });
-        await expect(page.locator('td', { hasText: /No hay datos para mostrar/i })).toBeVisible();
+        await expect(page.locator('td', { hasText: 'No hay datos para mostrar' })).toBeVisible();
     });
 });
