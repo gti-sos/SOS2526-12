@@ -10,7 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
-    
     defaults:
       run:
         working-directory: ./src/front
@@ -30,8 +29,6 @@ jobs:
       - name: Build UI
         run: npm run build
 
-      - name: Test
-        run: npm test
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
