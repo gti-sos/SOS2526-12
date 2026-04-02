@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const FRONTEND_URL = 'http://localhost:3000/age-specific-fertility-rates';
+const FRONTEND_URL = 'https://sos2526-12.onrender.com/age-specific-fertility-rates';
 
 test.describe('E2E Tests para la interfaz de Fertilidad', () => {
 
