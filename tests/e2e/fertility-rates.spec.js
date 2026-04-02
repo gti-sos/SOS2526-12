@@ -18,7 +18,7 @@ test.describe('Pruebas E2E - Frontend Gestión de Fertilidad', () => {
         );
         await page.goto(URL_FRONTEND);
         await getInicial; 
-
+ 
         await expect(page.locator('h1', { hasText: 'Tasas de Fertilidad por Países' })).toBeVisible({ timeout: 15000 });
     });
 
