@@ -1,32 +1,29 @@
 <script>
     import { dev } from "$app/environment";
-    import { onMount } from "svelte";
 
-    // --- DATOS PRINCIPALES ---
     // @ts-ignore
-    let fertility = $state([]);
+    let fertilityRates = $state([]);
     
-    // --- FORMULARIO DE CREACIÓN ---
+    // Variables de estado para el formulario de creación
     let newCountryCode = $state("");
     let newCountryName = $state("");
     let newYear = $state("");
-    let newFert15_19 = $state("");
-    let newFert20_24 = $state("");
+    let newRate1519 = $state("");
+    let newRate2024 = $state("");
 
-    // --- FORMULARIO DE BÚSQUEDA ---
+    // Variables para el buscador
     let searchCountry = $state("");
     let searchYear = $state("");
-    let searchFrom = $state("");
-    let searchTo = $state("");
 
+    // API V2
     let API = '/api/v2/age-specific-fertility-rates';
     if (dev) {
         API = "http://localhost:3000" + API;
     }
 
-    // --- SISTEMA DE MENSAJES MULTICOLOR ---
+    // --- SISTEMA DE MENSAJES ---
     let mensajeTexto = $state("");
-    let mensajeTipo = $state("");
+    let mensajeTipo = $state(""); 
 
     // @ts-ignore
     function mostrarMensaje(texto, tipo = "exito") {
@@ -37,60 +34,58 @@
         }, 4000);
     }
 
-    // --- GET (CON SOPORTE PARA BÚSQUEDAS) ---
-    async function getFertility() {
-        const params = new URLSearchParams();
-        
-        if (searchCountry) params.append("country_name", searchCountry);
-        if (searchYear) params.append("year", searchYear);
-        if (searchFrom) params.append("from", searchFrom);
-        if (searchTo) params.append("to", searchTo);
+    async function getFertilityRates() {
+        let url = API;
+        let queryParams = [];
 
-        const queryString = params.toString();
-        const fetchUrl = queryString ? `${API}?${queryString}` : API;
+        if (searchCountry) queryParams.push(`country_name=${searchCountry}`);
+        if (searchYear) queryParams.push(`year=${searchYear}`);
 
-        const res = await fetch(fetchUrl, { method: "GET" });
-        
-        
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
+
+        const res = await fetch(url, { method: "GET" });
         if (res.ok) {
-            fertility = await res.json();
+            fertilityRates = await res.json();
+            if (fertilityRates.length === 0 && (searchCountry || searchYear)) {
+                 mostrarMensaje("Info: No se encontraron registros con esos datos.", "exito");
+            }
         } else if (res.status === 404) {
-            fertility = []; 
-            if (queryString) mostrarMensaje("⚠️ No se encontraron registros con esos filtros.", "error");
+            fertilityRates = []; 
         } else {
-            mostrarMensaje("❌ Tuvimos un problema al intentar cargar la lista.", "error");
+            mostrarMensaje("Error: Problema al cargar la lista.", "error");
         }
     }
 
     function limpiarBusqueda() {
-        searchCountry = ""; searchYear = ""; searchFrom = ""; searchTo = "";
-        getFertility();
+        searchCountry = "";
+        searchYear = "";
+        getFertilityRates();
     }
 
-    // --- RESTO DE OPERACIONES ---
     async function loadInitialData() {
         const res = await fetch(API + "/loadInitialData", { method: "GET" });
         if (res.ok) {
-            getFertility();
-            mostrarMensaje("✅ Se han restaurado los datos de prueba.", "exito");
+            getFertilityRates();
+            mostrarMensaje("Exito: Datos de prueba restaurados.", "exito");
         } else {
-            mostrarMensaje("❌ Error al restaurar los datos.", "error");
+            mostrarMensaje("Error: No se pudieron restaurar los datos.", "error");
         }
     }
 
-    async function insertFertility() {
-        // --- NUEVO: Nuestro "portero" que comprueba que no haya campos vacíos ---
-        if (!newCountryCode || !newCountryName || newYear === "" || newYear === null || newFert15_19 === "" || newFert15_19 === null || newFert20_24 === "" || newFert20_24 === null) {
-            mostrarMensaje("⚠️ ¡Eh! No puedes dejar ningún campo en blanco.", "error");
-            return; // Corta la función aquí y no envía el POST
+    async function insertFertilityRate() {
+        if (newCountryCode.trim() === "" || newCountryName.trim() === "" || newYear === "") {
+            mostrarMensaje("Error: El Codigo, el Pais y el Año son obligatorios.", "error");
+            return; 
         }
 
         const newResource = {
             country_code: newCountryCode,
             country_name: newCountryName,
-            year: parseInt(newYear), 
-            fert_15_19: parseFloat(newFert15_19),
-            fert_20_24: parseFloat(newFert20_24)
+            year: parseInt(newYear),
+            fertility_rate_15_19: parseFloat(newRate1519),
+            fertility_rate_20_24: parseFloat(newRate2024)
         };
 
         const res = await fetch(API, {
@@ -100,96 +95,70 @@
         });
 
         if (res.ok || res.status === 201) {
-            getFertility(); 
-            newCountryCode = ""; newCountryName = ""; newYear = ""; newFert15_19 = ""; newFert20_24 = "";
-            mostrarMensaje("ℹ️ Nuevo registro añadido a la lista con éxito.", "creacion");
-        } 
-        else if (res.status === 400) {
-            mostrarMensaje("❌ Faltan datos o el formato es incorrecto.", "error");
+            getFertilityRates(); 
+            newCountryCode = ""; newCountryName = ""; newYear = ""; newRate1519 = ""; newRate2024 = "";
+            mostrarMensaje("Info: Nuevo registro añadido.", "creacion");
         } 
         else if (res.status === 409) {
-            mostrarMensaje(`⚠️ El registro de ${newCountryCode} en el año ${newYear} ya existe.`, "error");
+            mostrarMensaje(`Error: Ya existe un registro para ${newCountryName} en ${newYear}.`, "error");
         } 
         else {
-            mostrarMensaje("❌ Error inesperado al guardar.", "error");
+            mostrarMensaje("Error: No se pudo guardar el registro.", "error");
         }
     }
 
     async function deleteAll() {
-        if (confirm("🚨 ¿Estás seguro de vaciar toda la tabla?")) {
+        if (confirm("Atencion: Se va a vaciar toda la tabla. ¿Continuar?")) {
             const res = await fetch(API, { method: "DELETE" });
             if (res.ok) {
-                getFertility(); 
-                mostrarMensaje("🗑️ Tabla vaciada correctamente.", "borrado");
+                getFertilityRates(); 
+                mostrarMensaje("Borrado: Tabla vaciada correctamente.", "borrado");
             } else {
-                mostrarMensaje("❌ Error al vaciar la tabla.", "error");
+                mostrarMensaje("Error: No se pudo vaciar la tabla.", "error");
             }
         }
     }
 
     // @ts-ignore
     async function deleteOne(country_code, year) {
-        if (confirm(`¿Borrar el registro de ${country_code} del año ${year}?`)) {
+        if (confirm(`¿Borrar el registro de ${country_code} (${year})?`)) {
             const res = await fetch(`${API}/${country_code}/${year}`, { method: "DELETE" });
             if (res.ok) {
-                getFertility(); 
-                mostrarMensaje(`🗑️ ${country_code} (${year}) eliminado con éxito.`, "borrado");
+                getFertilityRates(); 
+                mostrarMensaje(`Borrado: Registro eliminado con exito.`, "borrado");
             } else {
-                mostrarMensaje("❌ Error al intentar eliminar el registro.", "error");
+                mostrarMensaje("Error: No se pudo eliminar el registro.", "error");
             }
         }
     }
 
-    onMount(() => {
-        getFertility();
+    $effect(() => {
+        getFertilityRates();
     });
-
 </script>
 
 <style>
-    main { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 1100px; margin: auto; }
-    
-    .mensaje-alerta { padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: bold; text-align: center; animation: aparecer 0.3s ease-in-out; }
+    main { font-family: sans-serif; padding: 20px; max-width: 1200px; margin: auto; }
+    .mensaje-alerta { padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: bold; text-align: center; }
     .mensaje-exito { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     .mensaje-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     .mensaje-creacion { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }
     .mensaje-borrado { background-color: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
-    
-    @keyframes aparecer {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: middle; }
-    th { background-color: #f8f9fa; color: #333; }
-    
-    .panel { background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #ddd; align-items: center;}
-    .panel h3 { width: 100%; margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: #495057; }
-    
-    input { padding: 8px; width: 140px; border: 1px solid #ccc; border-radius: 4px; }
-    button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s; }
-    
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background-color: #f8f9fa; }
+    .form-container { background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #ddd;}
+    input { padding: 8px; width: 150px; border: 1px solid #ccc; border-radius: 4px; }
+    button, .btn-warning { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; text-decoration: none; }
     .btn-primary { background: #007bff; color: white; }
-    .btn-primary:hover { background: #0056b3; }
     .btn-danger { background: #dc3545; color: white; }
-    .btn-danger:hover { background: #c82333; }
-    .btn-success { background: #28a745; color: white; margin-bottom: 15px; }
-    .btn-success:hover { background: #218838; }
-    .btn-warning { background: #ffc107; color: black; }
-    .btn-warning:hover { background: #e0a800; }
-    .btn-secondary { background: #6c757d; color: white; }
-    .btn-secondary:hover { background: #5a6268; }
-    
-    /* NUEVO BOTÓN DE EDITAR (Simulado con un enlace) */
-    .btn-edit { background: #17a2b8; color: white; padding: 10px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 13.3px; margin-right: 5px; display: inline-block; transition: background-color 0.2s; }
-    .btn-edit:hover { background: #138496; text-decoration: none; }
-    
+    .btn-success { background: #28a745; color: white; margin-bottom: 15px;}
+    .btn-warning { background: #ffc107; color: black; margin-right: 5px; }
     .actions-header { display: flex; justify-content: space-between; align-items: center; }
 </style>
 
 <main>
-    <h1>Tasas de Fertilidad por Países</h1>
+    <h1>Tasas de Fertilidad por Paises</h1>
 
     {#if mensajeTexto !== ""}
         <div class="mensaje-alerta mensaje-{mensajeTipo}">
@@ -198,64 +167,55 @@
     {/if}
 
     <div class="actions-header">
-        <button class="btn-success" onclick={loadInitialData}>📥 Restaurar datos</button>
-        <button class="btn-danger" onclick={deleteAll}>🗑️ Vaciar tabla</button>
+        <button class="btn-success" onclick={loadInitialData}>Restaurar datos</button>
+        <button class="btn-danger" onclick={deleteAll}>Vaciar tabla</button>
     </div>
 
-    <div class="panel">
-        <h3>🔍 Buscador (Filtros)</h3>
-        <input type="text" placeholder="País (ej. Spain)" bind:value={searchCountry} />
-        <input type="number" placeholder="Año exacto" bind:value={searchYear} />
-        <input type="number" placeholder="Desde año" bind:value={searchFrom} />
-        <input type="number" placeholder="Hasta año" bind:value={searchTo} />
-        <button class="btn-secondary" onclick={getFertility}>Buscar</button>
+    <div class="form-container">
+        <h3 style="width: 100%; font-size: 1rem; color: #555;">Buscador</h3>
+        <input type="text" placeholder="Pais (ej. Spain)" bind:value={searchCountry} />
+        <input type="number" placeholder="Anio" bind:value={searchYear} />
+        <button class="btn-primary" onclick={getFertilityRates}>Buscar</button>
         <button class="btn-warning" onclick={limpiarBusqueda}>Limpiar</button>
     </div>
 
-    <div class="panel">
-        <h3>➕ Añadir Nuevo Registro</h3>
-        <input type="text" placeholder="Código (ej. ES)" bind:value={newCountryCode} />
-        <input type="text" placeholder="País (ej. España)" bind:value={newCountryName} />
-        <input type="number" placeholder="Año (ej. 2022)" bind:value={newYear} />
-        <input type="number" placeholder="Tasa 15-19" bind:value={newFert15_19} step="0.1" />
-        <input type="number" placeholder="Tasa 20-24" bind:value={newFert20_24} step="0.1" />
-        <button class="btn-primary" onclick={insertFertility}>Añadir</button>
+    <div class="form-container">
+        <h3 style="width: 100%; font-size: 1rem; color: #555;">Anadir Nuevo Registro</h3>
+        <input type="text" placeholder="Codigo (ej. ES)" bind:value={newCountryCode} />
+        <input type="text" placeholder="Pais (ej. Espana)" bind:value={newCountryName} />
+        <input type="number" placeholder="Anio" bind:value={newYear} />
+        <input type="number" step="0.1" placeholder="Tasa 15-19" bind:value={newRate1519} />
+        <input type="number" step="0.1" placeholder="Tasa 20-24" bind:value={newRate2024} />
+        <button class="btn-primary" onclick={insertFertilityRate}>Anadir</button>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Código de País</th>
-                <th>Nombre del País</th>
-                <th>Año</th>
-                <th>Tasa (15 a 19 años)</th>
-                <th>Tasa (20 a 24 años)</th>
+                <th>Codigo</th>
+                <th>Nombre</th>
+                <th>Anio</th>
+                <th>Tasa 15-19</th>
+                <th>Tasa 20-24</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {#if fertility.length === 0}
+            {#if fertilityRates.length === 0}
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
-                        No hay datos para mostrar.
-                    </td>
+                    <td colspan="6" style="text-align: center;">No hay datos para mostrar.</td>
                 </tr>
             {/if}
-            {#each fertility as fert (fert.country_code + "-" + fert.year)}
+            {#each fertilityRates as rate (rate.country_code + "-" + rate.year)}
                 <tr>
-                    <td>{fert.country_code}</td>
-                    <td>{fert.country_name}</td>
-                    
-                    <td>{fert.year}</td>
-                    <td>{fert.fert_15_19}</td>
-                    <td>{fert.fert_20_24}</td>
-                    <td style="white-space: nowrap;">
-                        <a href="/age-specific-fertility-rates/{fert.country_code}/{fert.year}" class="btn-edit" title="Editar este registro">
-                            ✏️ Editar
-                        </a>
-                        <button class="btn-danger" onclick={() => deleteOne(fert.country_code, fert.year)}>
-                            🗑️ Eliminar
-                        </button>
+                    <td>{rate.country_code}</td>
+                    <td>{rate.country_name}</td>
+                    <td>{rate.year}</td>
+                    <td>{rate.fertility_rate_15_19}</td>
+                    <td>{rate.fertility_rate_20_24}</td>
+                    <td>
+                        <a href={`/age-specific-fertility-rates/${rate.country_code}/${rate.year}`} class="btn-warning">Editar</a>
+                        <button class="btn-danger" onclick={() => deleteOne(rate.country_code, rate.year)}>Eliminar</button>
                     </td>
                 </tr>
             {/each}

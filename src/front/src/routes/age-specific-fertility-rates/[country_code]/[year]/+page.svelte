@@ -30,7 +30,7 @@
             fert_15_19 = data.fert_15_19;
             fert_20_24 = data.fert_20_24;
         } else {
-            mensajeTexto = "❌ Error al cargar los datos del recurso.";
+            mensajeTexto = "Error al cargar los datos del recurso.";
             mensajeTipo = "error";
         }
     }
@@ -39,7 +39,7 @@
     async function updateRecurso() {
         // --- NUEVA VALIDACIÓN: Comprobar que no hay campos vacíos ---
         if (!country_name || fert_15_19 === "" || fert_15_19 === null || fert_20_24 === "" || fert_20_24 === null) {
-            mensajeTexto = "⚠️ No puedes dejar ningún campo en blanco.";
+            mensajeTexto = "No puedes dejar ningún campo en blanco.";
             mensajeTipo = "error";
             return; // Corta la función aquí y no envía la petición al servidor
         }
@@ -47,6 +47,7 @@
         const updatedRecord = {
             country_code: country_code, // La clave principal no se cambia
             country_name: country_name,
+            // @ts-ignore
             year: parseInt(year),       // La clave principal no se cambia
             fert_15_19: parseFloat(fert_15_19),
             fert_20_24: parseFloat(fert_20_24)
@@ -59,14 +60,14 @@
         });
 
         if (res.ok) {
-            alert("✅ Recurso actualizado con éxito");
+            alert("Recurso actualizado con éxito");
             // El usuario no tiene que darle a atrás, lo mandamos nosotros automáticamente:
             goto("/age-specific-fertility-rates");
         } else if (res.status === 400) {
-            mensajeTexto = "❌ Faltan datos o el formato es incorrecto.";
+            mensajeTexto = "Faltan datos o el formato es incorrecto.";
             mensajeTipo = "error";
         } else {
-            mensajeTexto = "❌ Error inesperado al actualizar.";
+            mensajeTexto = "Error inesperado al actualizar.";
             mensajeTipo = "error";
         }
     }
@@ -92,7 +93,7 @@
 </style>
 
 <main>
-    <h1>✏️ Editar Recurso</h1>
+    <h1>Editar Recurso</h1>
     
     {#if mensajeTexto !== ""}
         <div class="mensaje-error">{mensajeTexto}</div>
@@ -124,7 +125,7 @@
             <input type="number" bind:value={fert_20_24} step="0.1" />
         </div>
 
-        <button class="btn-primary" onclick={updateRecurso}>💾 Guardar Cambios</button>
+        <button class="btn-primary" onclick={updateRecurso}>Guardar Cambios</button>
         <button class="btn-secondary" onclick={() => goto('/age-specific-fertility-rates')}>Cancelar y Volver</button>
     </div>
 </main>
