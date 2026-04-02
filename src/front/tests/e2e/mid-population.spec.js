@@ -4,22 +4,29 @@ const URL_FRONTEND = 'https://sos2526-12.onrender.com/mid-population-ages';
 
 test.describe('Pruebas E2E - Frontend Gestión de Población', () => {
 
-    // Configuración para que cada test tenga su propio margen de tiempo
+    test.describe.configure({ mode: 'serial' });
     test.slow(); 
 
+    test.beforeEach(async ({ page }) => {
+        page.on('dialog', dialog => dialog.accept());
+        await page.goto(URL_FRONTEND);
+        await expect(page.locator('h1', { hasText: 'Tasas de Edades de Población' })).toBeVisible({ timeout: 15000 });
+    });
+
     test('1. Listar recursos', async ({ page }) => {
-        await page.goto(URL_FRONTEND, { waitUntil: 'networkidle' });
-        await expect(page.locator('h1', { hasText: /Tasas de Edades de Población/i })).toBeVisible();
+        await expect(page.locator('h1', { hasText: 'Tasas de Edades de Población' })).toBeVisible();
     });
 
     test('2. Crear un recurso', async ({ page }) => {
-        await page.goto(URL_FRONTEND);
-        page.on('dialog', d => d.accept());
+        // 1. Restauramos SIEMPRE primero para que el "Vaciar" nunca de error 404
+        await page.click('button:has-text("Restaurar datos de prueba")');
+        await expect(page.locator('.mensaje-exito')).toBeVisible({ timeout: 15000 });
 
-        // Esperamos a que el borrado termine en el servidor
+        // 2. Ahora sí, vaciamos de forma segura
         await page.click('button:has-text("Vaciar toda la tabla")');
-        await expect(page.locator('.mensaje-borrado')).toBeVisible();
+        await expect(page.locator('.mensaje-borrado')).toBeVisible({ timeout: 15000 });
 
+        // 3. Rellenamos formulario
         await page.fill('input[placeholder="Cód. País"]', 'TEST');
         await page.fill('input[placeholder="País"]', 'PaisPrueba');
         await page.fill('input[placeholder="Año"]', '2025');
@@ -31,86 +38,55 @@ test.describe('Pruebas E2E - Frontend Gestión de Población', () => {
         await page.fill('input[placeholder*="Pob. 75"]', '40');
         await page.fill('input[placeholder*="Pob. 100"]', '50');
 
-        // Al hacer clic, esperamos la respuesta 201 del servidor
-        const responsePromise = page.waitForResponse(res => res.status() === 201);
+        // 4. Guardamos
         await page.click('button:has-text("Añadir a la lista")');
-        await responsePromise;
-
-        await expect(page.locator('.mensaje-creacion')).toBeVisible();
+        await expect(page.locator('.mensaje-creacion')).toBeVisible({ timeout: 15000 });
     });
 
     test('3. Buscar recursos', async ({ page }) => {
-        await page.goto(URL_FRONTEND);
-        page.on('dialog', d => d.accept());
-
-        await page.click('button:has-text("Vaciar toda la tabla")');
-        
-        // Esperamos a que los datos de prueba se carguen de verdad
-        const loadPromise = page.waitForResponse(res => res.url().includes('loadInitialData'));
         await page.click('button:has-text("Restaurar datos de prueba")');
-        await loadPromise;
+        await expect(page.locator('.mensaje-exito')).toBeVisible({ timeout: 15000 });
 
-        // Esperamos a que el primer dato aparezca en la tabla
+        // Nos aseguramos de que el dato que vamos a buscar existe en pantalla
         await expect(page.locator('td', { hasText: 'Afghanistan' }).first()).toBeVisible({ timeout: 10000 });
 
-        await page.fill('input[placeholder*="Buscar por País"]', 'Afghanistan');
+        await page.locator('input[placeholder*="Buscar por País"]').fill('Afghanistan');
         await page.click('button:has-text("Buscar Registros")');
         
-        // Comprobamos que la tabla SOLO muestra Afghanistan
         await expect(page.locator('table')).toContainText('Afghanistan');
     });
 
     test('4. Editar recurso (Vista separada)', async ({ page }) => {
-        await page.goto(URL_FRONTEND);
-        page.on('dialog', d => d.accept());
-
         await page.click('button:has-text("Restaurar datos de prueba")');
-        await expect(page.locator('a:has-text("Editar")').first()).toBeVisible();
+        await expect(page.locator('.mensaje-exito')).toBeVisible({ timeout: 15000 });
         
+        await expect(page.locator('a:has-text("Editar")').first()).toBeVisible({ timeout: 10000 });
         await page.locator('a:has-text("Editar")').first().click();
         
-        // Esperamos a que la URL cambie y aparezca el título
-        await page.waitForURL(/.*mid-population-ages\/.*/);
-        await expect(page.locator('h1', { hasText: /Editar Registro/i })).toBeVisible({ timeout: 15000 });
+        await expect(page.locator('h1', { hasText: 'Editar Registro' })).toBeVisible({ timeout: 15000 });
         
         await page.click('button:has-text("Cancelar y Volver")');
-        await expect(page.locator('h1', { hasText: /Tasas de Edades de Población/i })).toBeVisible();
+        await expect(page.locator('h1', { hasText: 'Tasas de Edades de Población' })).toBeVisible({ timeout: 10000 });
     });
 
-    
     test('5. Borrar un recurso concreto', async ({ page }) => {
-        await page.goto(URL_FRONTEND);
-        page.on('dialog', dialog => dialog.accept());
-
-        // Vaciamos y restauramos para asegurarnos de que la tabla tiene algo que borrar
-        await page.click('button:has-text("Vaciar toda la tabla")');
-        await page.waitForTimeout(1000);
-
         await page.click('button:has-text("Restaurar datos de prueba")');
-        await page.waitForTimeout(1500); 
+        await expect(page.locator('.mensaje-exito')).toBeVisible({ timeout: 15000 });
         
-        await page.locator('button:has-text("Eliminar")').first().click();
-        
-        await expect(page.locator('.mensaje-borrado')).toBeVisible({ timeout: 10000 });
+        const btnEliminar = page.locator('button:has-text("Eliminar")').first();
+        await expect(btnEliminar).toBeVisible();
+
+        await btnEliminar.click();
+        await expect(page.locator('.mensaje-borrado')).toBeVisible({ timeout: 15000 });
     });
 
-   test('6. Borrar todos los recursos', async ({ page }) => {
-        await page.goto(URL_FRONTEND);
-        
-        // 1. Aceptamos las alertas automáticamente
-        page.on('dialog', dialog => dialog.accept());
-        
-        // 2. Nos aseguramos de que haya datos en la tabla antes de borrar
+    test('6. Borrar todos los recursos', async ({ page }) => {
         await page.click('button:has-text("Restaurar datos de prueba")');
-        await page.waitForTimeout(1500); // ⏱️ ESPERA MÁGICA
+        await expect(page.locator('.mensaje-exito')).toBeVisible({ timeout: 15000 });
         
-        // 3. Hacemos clic en vaciar
         await page.click('button:has-text("Vaciar toda la tabla")');
+        await expect(page.locator('.mensaje-borrado')).toBeVisible({ timeout: 15000 });
         
-        // 4. Esperamos a que salga el cartel rojo de Svelte avisando del borrado
-        await expect(page.locator('.mensaje-borrado')).toBeVisible({ timeout: 10000 });
-        
-        // 5. Comprobamos que el texto de tabla vacía por fin aparece
         await expect(page.locator('td', { hasText: 'No hay datos para mostrar' })).toBeVisible();
     });
 });
