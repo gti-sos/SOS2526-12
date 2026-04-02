@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const URL_FRONTEND = 'https://sos2526-12.onrender.com/mid-population-ages';
+const URL_FRONTEND = 'http://localhost:3000/mid-population-ages';
 
 test.describe('Pruebas E2E - Frontend Gestión de Población', () => {
 
