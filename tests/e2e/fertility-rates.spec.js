@@ -6,7 +6,7 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
 
     test.describe.configure({ mode: 'serial' });
     test.slow(); 
-
+ 
     // Generamos un código de 2 caracteres (ej. Z4) para que la base de datos lo acepte
     const codigoPaisUnico = 'Z' + Math.floor(Math.random() * 10).toString();
     const nombrePaisUnico = 'PaisPrueba';
