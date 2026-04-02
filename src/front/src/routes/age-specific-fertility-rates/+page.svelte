@@ -181,9 +181,9 @@
     .btn-secondary { background: #6c757d; color: white; }
     .btn-secondary:hover { background: #5a6268; }
     
-    /* NUEVO ESTILO PARA EL ENLACE DEL PAÍS */
-    .enlace-pais { color: #007bff; text-decoration: none; font-weight: bold; }
-    .enlace-pais:hover { text-decoration: underline; color: #0056b3; }
+    /* NUEVO BOTÓN DE EDITAR (Simulado con un enlace) */
+    .btn-edit { background: #17a2b8; color: white; padding: 10px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 13.3px; margin-right: 5px; display: inline-block; transition: background-color 0.2s; }
+    .btn-edit:hover { background: #138496; text-decoration: none; }
     
     .actions-header { display: flex; justify-content: space-between; align-items: center; }
 </style>
@@ -244,17 +244,15 @@
             {#each fertility as fert (fert.country_code + "-" + fert.year)}
                 <tr>
                     <td>{fert.country_code}</td>
-                    
-                    <td>
-                        <a href="/age-specific-fertility-rates/{fert.country_code}/{fert.year}" class="enlace-pais" title="Haz clic para editar este registro">
-                            {fert.country_name} ✏️
-                        </a>
-                    </td>
+                    <td>{fert.country_name}</td>
                     
                     <td>{fert.year}</td>
                     <td>{fert.fert_15_19}</td>
                     <td>{fert.fert_20_24}</td>
-                    <td>
+                    <td style="white-space: nowrap;">
+                        <a href="/age-specific-fertility-rates/{fert.country_code}/{fert.year}" class="btn-edit" title="Editar este registro">
+                            ✏️ Editar
+                        </a>
                         <button class="btn-danger" onclick={() => deleteOne(fert.country_code, fert.year)}>
                             🗑️ Eliminar
                         </button>
