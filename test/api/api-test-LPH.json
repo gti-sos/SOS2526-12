@@ -8,6 +8,67 @@
   },
   "item": [
     {
+      "name": "Delete toda la coleccion",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('El mensaje confirma el borrado', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.include('deleted');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v2", "birth-death-growth-rates"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get all (comprobar vacio)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Debe devolver un array vacio', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an('array');",
+              "    pm.expect(jsonData.length).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v2", "birth-death-growth-rates"]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "Get InitialData",
       "event": [
         {
@@ -39,7 +100,7 @@
       "response": []
     },
     {
-      "name": "Get all",
+      "name": "Get all (comprobar carga)",
       "event": [
         {
           "listen": "test",
@@ -48,12 +109,12 @@
               "pm.test('Status code is 200', function () {",
               "    pm.response.to.have.status(200);",
               "});",
-              "pm.test('Response is an array', function () {",
+              "pm.test('Response is an array with data', function () {",
               "    const json = pm.response.json();",
               "    pm.expect(json).to.be.an('array');",
               "    pm.expect(json.length).to.be.greaterThan(0);",
               "});",
-              "pm.test('Elements have expected fields', function () {",
+              "pm.test('Elements have expected fields and no _id', function () {",
               "    const json = pm.response.json();",
               "    pm.expect(json[0]).to.have.property('country_code');",
               "    pm.expect(json[0]).to.have.property('year');",
@@ -89,10 +150,10 @@
               "    const json = pm.response.json();",
               "    pm.expect(json).to.be.an('array');",
               "});",
-              "pm.test('All results match filter', function () {",
+              "pm.test('All results match country_code filter', function () {",
               "    const json = pm.response.json();",
               "    json.forEach(item => {",
-              "        pm.expect(item.crude_birth_rate).to.equal(7.26);",
+              "        pm.expect(item.country_code).to.equal('SI');",
               "    });",
               "});"
             ],
@@ -104,10 +165,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v2/birth-death-growth-rates?crude_birth_rate=7.26",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates?country_code=SI",
           "host": ["{{base_url}}"],
           "path": ["api", "v2", "birth-death-growth-rates"],
-          "query": [{ "key": "crude_birth_rate", "value": "7.26" }]
+          "query": [{ "key": "country_code", "value": "SI" }]
         }
       },
       "response": []
@@ -129,7 +190,7 @@
               "pm.test('All results match <= filter', function () {",
               "    const json = pm.response.json();",
               "    json.forEach(item => {",
-              "        pm.expect(item.crude_birth_rate).to.be.at.most(7.26);",
+              "        pm.expect(item.crude_birth_rate).to.be.at.most(10);",
               "    });",
               "});"
             ],
@@ -141,16 +202,16 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/v2/birth-death-growth-rates?crude_birth_rate=<=7.26",
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates?crude_birth_rate=<=10",
           "host": ["{{base_url}}"],
           "path": ["api", "v2", "birth-death-growth-rates"],
-          "query": [{ "key": "crude_birth_rate", "value": "<=7.26" }]
+          "query": [{ "key": "crude_birth_rate", "value": "<=10" }]
         }
       },
       "response": []
     },
     {
-      "name": "Post data",
+      "name": "Post data (201)",
       "event": [
         {
           "listen": "test",
@@ -159,7 +220,7 @@
               "pm.test('Status code is 201', function () {",
               "    pm.response.to.have.status(201);",
               "});",
-              "pm.test('Response is an object with correct fields', function () {",
+              "pm.test('Response is an object with correct fields and no _id', function () {",
               "    const json = pm.response.json();",
               "    pm.expect(json).to.be.an('object');",
               "    pm.expect(json.country_code).to.equal('TEST');",
@@ -188,7 +249,7 @@
       "response": []
     },
     {
-      "name": "Get específico",
+      "name": "Get específico (200)",
       "event": [
         {
           "listen": "test",
@@ -197,11 +258,12 @@
               "pm.test('Status code is 200', function () {",
               "    pm.response.to.have.status(200);",
               "});",
-              "pm.test('Response is an object', function () {",
+              "pm.test('Response is an object with correct fields', function () {",
               "    const json = pm.response.json();",
               "    pm.expect(json).to.be.an('object');",
               "    pm.expect(json.country_code).to.equal('TEST');",
               "    pm.expect(json.year).to.equal(2023);",
+              "    pm.expect(json).to.not.have.property('_id');",
               "});"
             ],
             "type": "text/javascript"
@@ -220,7 +282,7 @@
       "response": []
     },
     {
-      "name": "Put update data",
+      "name": "Put update data (200)",
       "event": [
         {
           "listen": "test",
@@ -257,7 +319,7 @@
       "response": []
     },
     {
-      "name": "Delete data",
+      "name": "Delete recurso concreto (200)",
       "event": [
         {
           "listen": "test",
@@ -265,6 +327,10 @@
             "exec": [
               "pm.test('Status code is 200', function () {",
               "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('El mensaje confirma el borrado del recurso', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.include('deleted');",
               "});"
             ],
             "type": "text/javascript"
@@ -428,7 +494,7 @@
       "response": []
     },
     {
-      "name": "Sobre colección 405",
+      "name": "Sobre coleccion 405",
       "event": [
         {
           "listen": "test",
@@ -444,6 +510,37 @@
       ],
       "request": {
         "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v2/birth-death-growth-rates",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v2", "birth-death-growth-rates"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get all (idempotencia final)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Idempotencia: volvemos al estado inicial con datos cargados', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.be.an('array');",
+              "    pm.expect(json.length).to.be.greaterThan(0);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v2/birth-death-growth-rates",
