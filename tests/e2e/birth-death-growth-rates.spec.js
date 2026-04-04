@@ -13,13 +13,7 @@ test.describe('Pruebas E2E - Tasas de Natalidad, Mortalidad y Crecimiento', () =
 
     test.beforeEach(async ({ page }) => {
         page.on('dialog', dialog => dialog.accept());
-
-        const getInicial = page.waitForResponse(res =>
-            res.url().includes('/api/v2/birth-death-growth-rates') && res.request().method() === 'GET'
-        );
         await page.goto(URL);
-        await getInicial;
-
         await expect(page.locator('h1', { hasText: 'Tasas de Natalidad' })).toBeVisible({ timeout: 15000 });
     });
 
@@ -65,7 +59,6 @@ test.describe('Pruebas E2E - Tasas de Natalidad, Mortalidad y Crecimiento', () =
 
         await page.getByLabel(/Nombre del país/i).fill(paisUnico + ' Editado');
 
-        page.on('dialog', dialog => dialog.accept());
         await page.getByRole('button', { name: /Guardar cambios/i }).click();
 
         await expect(page).toHaveURL(new RegExp('/birth-death-growth-rates$'), { timeout: 10000 });
