@@ -59,7 +59,7 @@
 
         if (res.ok) {
             alert("Cambios guardados correctamente.");
-                // eslint-disable-next-line svelte/no-navigation-without-resolve
+            // eslint-disable-next-line svelte/no-navigation-without-resolve
             goto("/birth-death-growth-rates");
         } else if (res.status === 400) {
             mensaje = "Datos incorrectos. Comprueba los campos e inténtalo de nuevo.";
@@ -164,36 +164,36 @@
     {/if}
 
     <div class="campo">
-        <label>Código de país</label>
-        <input type="text" value={country_code} disabled />
+        <label for="codigo">Código de país</label>
+        <input id="codigo" type="text" value={country_code} disabled />
     </div>
     <div class="campo">
-        <label>Año</label>
-        <input type="text" value={year} disabled />
+        <label for="anio">Año</label>
+        <input id="anio" type="text" value={year} disabled />
     </div>
     <div class="campo">
-        <label>Nombre del país</label>
-        <input type="text" bind:value={country_name} />
+        <label for="country_name">Nombre del país</label>
+        <input id="country_name" type="text" bind:value={country_name} />
     </div>
     <div class="campo">
-        <label>Tasa de natalidad</label>
-        <input type="number" bind:value={crude_birth_rate} step="0.01" />
+        <label for="crude_birth_rate">Tasa de natalidad</label>
+        <input id="crude_birth_rate" type="number" bind:value={crude_birth_rate} step="0.01" />
     </div>
     <div class="campo">
-        <label>Tasa de mortalidad</label>
-        <input type="number" bind:value={crude_death_rate} step="0.01" />
+        <label for="crude_death_rate">Tasa de mortalidad</label>
+        <input id="crude_death_rate" type="number" bind:value={crude_death_rate} step="0.01" />
     </div>
     <div class="campo">
-        <label>Migración neta</label>
-        <input type="number" bind:value={net_migration} step="0.01" />
+        <label for="net_migration">Migración neta</label>
+        <input id="net_migration" type="number" bind:value={net_migration} step="0.01" />
     </div>
     <div class="campo">
-        <label>Crecimiento natural</label>
-        <input type="number" bind:value={rate_natural_increase} step="0.01" />
+        <label for="rate_natural_increase">Crecimiento natural</label>
+        <input id="rate_natural_increase" type="number" bind:value={rate_natural_increase} step="0.01" />
     </div>
     <div class="campo">
-        <label>Tasa de crecimiento</label>
-        <input type="number" bind:value={growth_rate} step="0.01" />
+        <label for="growth_rate">Tasa de crecimiento</label>
+        <input id="growth_rate" type="number" bind:value={growth_rate} step="0.01" />
     </div>
 
     <div class="botones">
