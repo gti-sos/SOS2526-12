@@ -22,6 +22,8 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
 
         // Esperar a que la tabla este visible (datos cargados por onMount)
         await expect(page.locator('table')).toBeVisible({ timeout: 15000 });
+        await expect(page.getByPlaceholder('Pais (ej. Spain)')).toBeVisible({ timeout: 15000 });
+
     });
 
     // ── 1. LISTAR ──────────────────────────────────────────────────────────
