@@ -34,9 +34,6 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: ⏳ Esperar a que Render despliegue
-        run: sleep 200
-
       - name: Run Playwright tests
         run: npx playwright test
 
