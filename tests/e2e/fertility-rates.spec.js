@@ -4,38 +4,60 @@ const URL_FRONTEND = 'https://sos2526-12.onrender.com/age-specific-fertility-rat
 
 test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
 
-    // Ejecutar en serie para que los tests no se pisen entre ellos
     test.describe.configure({ mode: 'serial' });
-    test.slow(); 
+    test.slow();
 
-    const codigoUnico = 'Z' + Date.now().toString().slice(-2);
-    const paisUnico = 'PaisTest_' + Date.now().toString().slice(-4);
-    const anioUnico = '2026';
+    // Valores fijos — evitamos Date.now() como clave de busqueda
+    const codigoUnico = 'ZZ';
+    const paisUnico   = 'PaisTest';
+    const anioUnico   = '2026';
 
     test.beforeEach(async ({ page }) => {
-        // Aceptamos las alertas nativas (el confirm de borrar)
         page.on('dialog', dialog => dialog.accept());
-        
-        // Vamos a la URL y le decimos a Playwright que espere a que la red se calme
+
         await page.goto(URL_FRONTEND, { waitUntil: 'networkidle' });
 
-        // Buscamos el h1 de forma mas directa y tolerante
-        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Países', { timeout: 15000 });
+        // El h1 del componente dice exactamente "Tasas de Fertilidad por Paises" (sin tilde)
+        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Paises', { timeout: 30000 });
+
+        // Esperar a que la tabla este visible (datos cargados por onMount)
+        await expect(page.locator('table')).toBeVisible({ timeout: 15000 });
     });
 
+    // ── 1. LISTAR ──────────────────────────────────────────────────────────
     test('1. Restaurar datos y listar recursos', async ({ page }) => {
-        // Vaciar primero para asegurarnos de que el boton de restaurar hace algo de verdad
+        // Vaciar primero
         await page.getByRole('button', { name: 'Vaciar tabla' }).click();
-        await expect(page.locator('td', { hasText: 'No hay datos para mostrar.' })).toBeVisible({ timeout: 15000 });
-        
-        // Restaurar
-        await page.getByRole('button', { name: 'Restaurar datos' }).click();
+        await expect(
+            page.locator('td', { hasText: 'No hay datos para mostrar.' })
+        ).toBeVisible({ timeout: 15000 });
 
-        // En lugar de buscar clases CSS, esperamos a que el texto de vacio desaparezca
-        await expect(page.locator('td', { hasText: 'No hay datos para mostrar.' })).not.toBeVisible({ timeout: 15000 });
+        // Restaurar y comprobar que la tabla tiene datos
+        await page.getByRole('button', { name: 'Restaurar datos' }).click();
+        await expect(
+            page.locator('td', { hasText: 'No hay datos para mostrar.' })
+        ).not.toBeVisible({ timeout: 60000 });
+
+        await expect(page.locator('table tbody tr').first()).toBeVisible();
     });
 
+    // ── 2. CREAR ───────────────────────────────────────────────────────────
     test('2. Crear un recurso nuevo', async ({ page }) => {
+        // Si el registro ya existe de una ejecucion anterior, borrarlo
+        await page.getByPlaceholder('Pais (ej. Spain)').fill(paisUnico);
+        await page.getByRole('button', { name: 'Buscar' }).click();
+        await page.waitForTimeout(1000);
+
+        const filaExistente = page.locator('tr', { hasText: codigoUnico }).filter({ hasText: anioUnico });
+        if (await filaExistente.count() > 0) {
+            await filaExistente.getByRole('button', { name: 'Eliminar' }).click();
+            await page.waitForTimeout(1000);
+        }
+
+        await page.getByRole('button', { name: 'Limpiar' }).click();
+        await page.waitForTimeout(500);
+
+        // Rellenar formulario — placeholders exactos del componente
         await page.getByPlaceholder('Codigo (ej. ES)').fill(codigoUnico);
         await page.getByPlaceholder('Pais (ej. Espana)').fill(paisUnico);
         await page.getByPlaceholder('Anio (ej. 2022)').fill(anioUnico);
@@ -43,45 +65,104 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
         await page.getByPlaceholder('Tasa 20-24').fill('2.5');
 
         await page.getByRole('button', { name: 'Anadir' }).click();
-        
-        // Comprobamos directamente que el pais nuevo aparece en la tabla
+
+        // Verificar que el nuevo registro aparece en la tabla
         await expect(page.locator('table')).toContainText(paisUnico, { timeout: 15000 });
+        await expect(page.locator('table')).toContainText(codigoUnico);
     });
 
+    // ── 3. BUSCAR ──────────────────────────────────────────────────────────
     test('3. Buscar recursos por pais', async ({ page }) => {
         await page.getByPlaceholder('Pais (ej. Spain)').fill(paisUnico);
         await page.getByRole('button', { name: 'Buscar' }).click();
-        
-        // Damos un respiro para que la tabla se filtre
+        await page.waitForTimeout(1500);
+
+        await expect(page.locator('table')).toContainText(paisUnico, { timeout: 10000 });
+        await expect(page.locator('table')).toContainText(anioUnico);
+
+        // Limpiar vuelve a mostrar todos los datos
+        await page.getByRole('button', { name: 'Limpiar' }).click();
         await page.waitForTimeout(1000);
-        await expect(page.locator('table')).toContainText(paisUnico);
-        
+        await expect(page.locator('table tbody tr').first()).toBeVisible();
+    });
+
+    // ── 3b. BUSCAR POR RANGO DE ANIOS ──────────────────────────────────────
+    test('3b. Buscar recursos por rango de anios (desde/hasta)', async ({ page }) => {
+        await page.getByPlaceholder('Desde anio').fill('2020');
+        await page.getByPlaceholder('Hasta anio').fill('2030');
+        await page.getByRole('button', { name: 'Buscar' }).click();
+        await page.waitForTimeout(1500);
+
+        // Debe aparecer nuestro registro de 2026
+        await expect(page.locator('table')).toContainText(anioUnico, { timeout: 10000 });
+
         await page.getByRole('button', { name: 'Limpiar' }).click();
     });
 
-    test('4. Navegar a la vista de edicion', async ({ page }) => {
+    // ── 4. EDITAR (vista separada) ─────────────────────────────────────────
+    test('4. Navegar a la vista de edicion y guardar cambios', async ({ page }) => {
+        // Buscar el registro para tenerlo visible
         const fila = page.locator('tr').filter({ hasText: paisUnico });
+        await expect(fila).toBeVisible({ timeout: 10000 });
+
+        // Clicar el enlace Editar (es un <a>, no un <button>)
         await fila.getByRole('link', { name: 'Editar' }).click();
-        
-        await expect(page).toHaveURL(new RegExp(`/age-specific-fertility-rates/${codigoUnico}/${anioUnico}`), { timeout: 10000 });
+
+        // La URL debe cambiar a /age-specific-fertility-rates/ZZ/2026
+        await expect(page).toHaveURL(
+            new RegExp(`/age-specific-fertility-rates/${codigoUnico}/${anioUnico}`),
+            { timeout: 10000 }
+        );
+
+        // El h1 de la vista de edicion dice exactamente "Editar Recurso"
+        await expect(page.locator('h1')).toContainText('Editar Recurso', { timeout: 10000 });
+
+        // Modificar la tasa — el label dice "Tasa (15 a 19 anios)"
+        const inputTasa = page.locator('label', { hasText: 'Tasa (15 a 19 anios)' })
+            .locator('.. input');
+        // Alternativa mas robusta: buscar por posicion dentro del form
+        await page.locator('.input-group').filter({ hasText: 'Tasa (15 a 19 anios)' })
+            .locator('input').fill('9.9');
+
+        // Guardar — el boton dice "Guardar Cambios"
+        const putPromise = page.waitForResponse(
+            res => res.url().includes(`/${codigoUnico}/${anioUnico}`) &&
+                   res.request().method() === 'PUT',
+            { timeout: 15000 }
+        );
+        await page.getByRole('button', { name: 'Guardar Cambios' }).click();
+        await putPromise;
+
+        // Debe volver a la lista automaticamente (el goto del componente)
+        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Paises', { timeout: 15000 });
+
+        // Verificar que el cambio se refleja en la tabla
+        await expect(
+            page.locator('tr').filter({ hasText: paisUnico })
+        ).toContainText('9.9', { timeout: 10000 });
     });
 
+    // ── 5. BORRAR UNO ──────────────────────────────────────────────────────
     test('5. Borrar un recurso concreto', async ({ page }) => {
         const fila = page.locator('tr').filter({ hasText: paisUnico });
+        await expect(fila).toBeVisible({ timeout: 10000 });
+
         await fila.getByRole('button', { name: 'Eliminar' }).click();
-        
-        // Comprobamos que el pais ya no esta en la tabla en vez de buscar el cartelito
+
+        // El registro desaparece de la tabla
         await expect(page.locator('table')).not.toContainText(paisUnico, { timeout: 15000 });
     });
 
+    // ── 6. BORRAR TODOS ────────────────────────────────────────────────────
     test('6. Vaciar toda la tabla', async ({ page }) => {
-        // Restauramos por si acaso, para asegurar que hay algo en pantalla antes de borrar
+        // Restaurar para asegurarnos de que hay datos
         await page.getByRole('button', { name: 'Restaurar datos' }).click();
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(2000);
 
         await page.getByRole('button', { name: 'Vaciar tabla' }).click();
-        
-        // Verificamos que sale el texto de que la tabla esta vacia
-        await expect(page.locator('td', { hasText: 'No hay datos para mostrar.' })).toBeVisible({ timeout: 15000 });
+
+        await expect(
+            page.locator('td', { hasText: 'No hay datos para mostrar.' })
+        ).toBeVisible({ timeout: 15000 });
     });
 });
