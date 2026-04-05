@@ -32,10 +32,10 @@ test.describe("Pruebas E2E - Tasas de Natalidad, Mortalidad y Crecimiento", () =
   });
 
   test("2. Crear un recurso nuevo", async ({ page }) => {
+    
     await page.getByPlaceholder("Código (ej. ES) *").fill(codigoUnico);
     await page.getByPlaceholder("País (ej. España) *").fill(paisUnico);
     await page.getByPlaceholder("Año (ej. 2022) *").fill(anioUnico);
-
     await page.getByRole("button", { name: /Añadir registro/i }).click();
 
     await expect(page.locator(".aviso.nuevo")).toBeVisible({ timeout: 15000 });
