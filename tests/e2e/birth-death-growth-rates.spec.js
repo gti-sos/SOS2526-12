@@ -1,4 +1,4 @@
-/*import { test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 const URL = "https://sos2526-12.onrender.com/birth-death-growth-rates";
 
@@ -96,4 +96,4 @@ test.describe("Pruebas E2E - Tasas de Natalidad, Mortalidad y Crecimiento", () =
       page.locator("td", { hasText: "No hay registros" }),
     ).toBeVisible();
   });
-});*/
+});

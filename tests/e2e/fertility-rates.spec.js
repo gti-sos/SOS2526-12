@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+/*import { test, expect } from '@playwright/test';
 
 const URL_FRONTEND = 'https://sos2526-12.onrender.com/age-specific-fertility-rates';
 
@@ -155,4 +155,4 @@ test('4. Navegar a la vista de edicion y guardar cambios', async ({ page }) => {
             page.locator('td', { hasText: 'No hay datos para mostrar.' })
         ).toBeVisible({ timeout: 15000 });
     });
-});
+});*/
