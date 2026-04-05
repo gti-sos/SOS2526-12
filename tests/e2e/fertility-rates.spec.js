@@ -101,35 +101,33 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
         await page.getByRole('button', { name: 'Limpiar' }).click();
     });
 
-    // ── 4. EDITAR (vista separada) ─────────────────────────────────────────
-    test('4. Navegar a la vista de edicion y guardar cambios', async ({ page }) => {
-        // 1. Entramos a editar
+test('4. Navegar a la vista de edicion y guardar cambios', async ({ page }) => {
+        // 1. Buscamos nuestro pais y entramos a editar
         const fila = page.locator('tr').filter({ hasText: paisUnico });
         await fila.getByRole('link', { name: 'Editar' }).click();
         
+        // Esperamos a que la URL cambie a la vista de edicion
         await expect(page).toHaveURL(new RegExp(`/age-specific-fertility-rates/${codigoUnico}/${anioUnico}`), { timeout: 10000 });
 
-        // 2. Modificamos el valor (buscamos el input debajo del label)
-        await page.locator('div').filter({ hasText: 'Tasa (15 a 19 anios)' }).locator('input').fill('9.9');
+        // 2. Modificamos el valor: cogemos directamente el 4º input de la pagina (indice 3)
+        await page.locator('input').nth(3).fill('9.9');
         
-        // --- LA MAGIA ESTA AQUI ---
-        // Preparamos a Playwright para que intercepte la peticion PUT
+        // 3. Preparamos a Playwright para que espere al backend (evitamos el Race Condition)
         const putPromise = page.waitForResponse(res => res.request().method() === 'PUT' && res.status() === 200);
         
-        // Hacemos clic
+        // 4. Guardamos los cambios
         await page.getByRole('button', { name: 'Guardar Cambios' }).click();
         
-        // Esperamos a que Render devuelva el OK de que se ha guardado de verdad
+        // Esperamos el OK del servidor
         await putPromise;
 
-        // Esperamos a que el goto() de Svelte termine y volvamos al listado
+        // 5. Volvemos a la vista principal (la del Svelte que me acabas de pasar)
         await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Paises', { timeout: 10000 });
 
-        // Forzamos un F5 (recarga) para asegurarnos de matar cualquier cache del frontend
-        // y obligar a traer la tabla fresca desde la base de datos.
+        // 6. Recargamos la pagina para asegurar que leemos los datos de la Base de Datos
         await page.reload({ waitUntil: 'networkidle' });
 
-        // Ahora si, comprobamos que el 9.9 esta ahi (y le damos 15s de colchon)
+        // 7. Comprobamos que el 9.9 se ha guardado correctamente
         await expect(
             page.locator('tr').filter({ hasText: paisUnico })
         ).toContainText('9.9', { timeout: 15000 });
