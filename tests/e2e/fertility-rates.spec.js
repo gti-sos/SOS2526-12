@@ -18,7 +18,7 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
         await page.goto(URL_FRONTEND, { waitUntil: 'networkidle' });
 
         // El h1 del componente dice exactamente "Tasas de Fertilidad por Paises" (sin tilde)
-        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Paises', { timeout: 30000 });
+        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Países', { timeout: 30000 });
 
         // Esperar a que la tabla este visible (datos cargados por onMount)
         await expect(page.locator('table')).toBeVisible({ timeout: 15000 });
