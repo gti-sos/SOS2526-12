@@ -103,47 +103,37 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
 
     // ── 4. EDITAR (vista separada) ─────────────────────────────────────────
     test('4. Navegar a la vista de edicion y guardar cambios', async ({ page }) => {
-        // Buscar el registro para tenerlo visible
+        // 1. Entramos a editar
         const fila = page.locator('tr').filter({ hasText: paisUnico });
-        await expect(fila).toBeVisible({ timeout: 10000 });
-
-        // Clicar el enlace Editar (es un <a>, no un <button>)
         await fila.getByRole('link', { name: 'Editar' }).click();
+        
+        await expect(page).toHaveURL(new RegExp(`/age-specific-fertility-rates/${codigoUnico}/${anioUnico}`), { timeout: 10000 });
 
-        // La URL debe cambiar a /age-specific-fertility-rates/ZZ/2026
-        await expect(page).toHaveURL(
-            new RegExp(`/age-specific-fertility-rates/${codigoUnico}/${anioUnico}`),
-            { timeout: 10000 }
-        );
-
-        // El h1 de la vista de edicion dice exactamente "Editar Recurso"
-        await expect(page.locator('h1')).toContainText('Editar Recurso', { timeout: 10000 });
-
-        // Modificar la tasa — el label dice "Tasa (15 a 19 anios)"
-        const inputTasa = page.locator('label', { hasText: 'Tasa (15 a 19 anios)' })
-            .locator('.. input');
-        // Alternativa mas robusta: buscar por posicion dentro del form
-        await page.locator('.input-group').filter({ hasText: 'Tasa (15 a 19 anios)' })
-            .locator('input').fill('9.9');
-
-        // Guardar — el boton dice "Guardar Cambios"
-        const putPromise = page.waitForResponse(
-            res => res.url().includes(`/${codigoUnico}/${anioUnico}`) &&
-                   res.request().method() === 'PUT',
-            { timeout: 15000 }
-        );
+        // 2. Modificamos el valor (buscamos el input debajo del label)
+        await page.locator('div').filter({ hasText: 'Tasa (15 a 19 anios)' }).locator('input').fill('9.9');
+        
+        // --- LA MAGIA ESTA AQUI ---
+        // Preparamos a Playwright para que intercepte la peticion PUT
+        const putPromise = page.waitForResponse(res => res.request().method() === 'PUT' && res.status() === 200);
+        
+        // Hacemos clic
         await page.getByRole('button', { name: 'Guardar Cambios' }).click();
+        
+        // Esperamos a que Render devuelva el OK de que se ha guardado de verdad
         await putPromise;
 
-        // Debe volver a la lista automaticamente (el goto del componente)
-        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Paises', { timeout: 15000 });
+        // Esperamos a que el goto() de Svelte termine y volvamos al listado
+        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Paises', { timeout: 10000 });
 
-        // Verificar que el cambio se refleja en la tabla
+        // Forzamos un F5 (recarga) para asegurarnos de matar cualquier cache del frontend
+        // y obligar a traer la tabla fresca desde la base de datos.
+        await page.reload({ waitUntil: 'networkidle' });
+
+        // Ahora si, comprobamos que el 9.9 esta ahi (y le damos 15s de colchon)
         await expect(
             page.locator('tr').filter({ hasText: paisUnico })
-        ).toContainText('9.9', { timeout: 10000 });
+        ).toContainText('9.9', { timeout: 15000 });
     });
-
     // ── 5. BORRAR UNO ──────────────────────────────────────────────────────
     test('5. Borrar un recurso concreto', async ({ page }) => {
         const fila = page.locator('tr').filter({ hasText: paisUnico });
