@@ -20,7 +20,7 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
         await page.goto(URL_FRONTEND, { waitUntil: 'networkidle' });
 
         // Buscamos el h1 de forma mas directa y tolerante
-        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Paises', { timeout: 15000 });
+        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Países', { timeout: 15000 });
     });
 
     test('1. Restaurar datos y listar recursos', async ({ page }) => {
