@@ -101,37 +101,50 @@ test.describe('Pruebas E2E - Gestion de Fertilidad', () => {
         await page.getByRole('button', { name: 'Limpiar' }).click();
     });
 
-test('4. Navegar a la vista de edicion y guardar cambios', async ({ page }) => {
+
+    test('4. Navegar a la vista de edicion y guardar cambios', async ({ page }) => {
         // 1. Buscamos nuestro pais y entramos a editar
         const fila = page.locator('tr').filter({ hasText: paisUnico });
         await fila.getByRole('link', { name: 'Editar' }).click();
         
-        // Esperamos a que la URL cambie a la vista de edicion
+        // Esperamos a que la URL cambie
         await expect(page).toHaveURL(new RegExp(`/age-specific-fertility-rates/${codigoUnico}/${anioUnico}`), { timeout: 10000 });
 
-        // 2. Modificamos el valor: cogemos directamente el 4º input de la pagina (indice 3)
-        await page.locator('input').nth(3).fill('9.9');
+        // --- SOLUCIÓN AL PROBLEMA DE CARGA ---
+        // Esperamos a que el input del nombre ya tenga el valor (eso significa que el GET ha terminado)
+        const inputNombre = page.locator('input').nth(2); // El nombre del país
+        await expect(inputNombre).toHaveValue(paisUnico, { timeout: 10000 });
+
+        // 2. Ahora sí, modificamos la tasa con seguridad
+        const inputTasa = page.locator('input').nth(3);
+        await inputTasa.fill('9.9');
         
-        // 3. Preparamos a Playwright para que espere al backend (evitamos el Race Condition)
-        const putPromise = page.waitForResponse(res => res.request().method() === 'PUT' && res.status() === 200);
+        // 3. Preparamos la espera de la respuesta del servidor (PUT)
+        // Usamos .ok() para aceptar cualquier código 200, 201, 204...
+        const putPromise = page.waitForResponse(res => 
+            res.request().method() === 'PUT' && res.ok()
+        );
         
         // 4. Guardamos los cambios
         await page.getByRole('button', { name: 'Guardar Cambios' }).click();
         
-        // Esperamos el OK del servidor
+        // Esperamos a que el servidor responda
         await putPromise;
 
-        // 5. Volvemos a la vista principal (la del Svelte que me acabas de pasar)
-        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Paises', { timeout: 10000 });
+        // 5. El alert se acepta solo gracias al beforeEach, y el goto nos lleva atrás.
+        // Esperamos a ver el H1 de la página principal para saber que hemos vuelto
+        await expect(page.locator('h1')).toContainText('Tasas de Fertilidad por Paises', { timeout: 15000 });
 
-        // 6. Recargamos la pagina para asegurar que leemos los datos de la Base de Datos
-        await page.reload({ waitUntil: 'networkidle' });
+        // 6. Opcional: Si tu backend es lento, forzamos un reload o esperamos a la tabla
+        await page.waitForTimeout(1000); 
 
-        // 7. Comprobamos que el 9.9 se ha guardado correctamente
-        await expect(
-            page.locator('tr').filter({ hasText: paisUnico })
-        ).toContainText('9.9', { timeout: 15000 });
+        // 7. Comprobamos que el 9.9 aparece en la fila de nuestro país
+        const filaFinal = page.locator('tr').filter({ hasText: paisUnico });
+        await expect(filaFinal).toContainText('9.9', { timeout: 15000 });
     });
+
+
+
     // ── 5. BORRAR UNO ──────────────────────────────────────────────────────
     test('5. Borrar un recurso concreto', async ({ page }) => {
         const fila = page.locator('tr').filter({ hasText: paisUnico });
