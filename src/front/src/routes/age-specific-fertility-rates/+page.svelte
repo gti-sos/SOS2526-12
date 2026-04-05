@@ -106,7 +106,7 @@
             mostrarMensaje("Faltan datos o el formato es incorrecto.", "error");
         } 
         else if (res.status === 409) {
-            mostrarMensaje(`El registro de ${newCountryCode} en el ano ${newYear} ya existe.`, "error");
+            mostrarMensaje(`El registro de ${newCountryCode} en el anio ${newYear} ya existe.`, "error");
         } 
         else {
             mostrarMensaje("Error inesperado al guardar.", "error");
@@ -127,7 +127,7 @@
 
     // @ts-ignore
     async function deleteOne(country_code, year) {
-        if (confirm(`Borrar el registro de ${country_code} del ano ${year}?`)) {
+        if (confirm(`Borrar el registro de ${country_code} del anio ${year}?`)) {
             const res = await fetch(`${API}/${country_code}/${year}`, { method: "DELETE" });
             if (res.ok) {
                 getFertility(); 
@@ -203,9 +203,9 @@
     <div class="panel">
         <h3>Buscador (Filtros)</h3>
         <input type="text" placeholder="Pais (ej. Spain)" bind:value={searchCountry} />
-        <input type="number" placeholder="Ano exacto" bind:value={searchYear} />
-        <input type="number" placeholder="Desde ano" bind:value={searchFrom} />
-        <input type="number" placeholder="Hasta ano" bind:value={searchTo} />
+        <input type="number" placeholder="Anio exacto" bind:value={searchYear} />
+        <input type="number" placeholder="Desde anio" bind:value={searchFrom} />
+        <input type="number" placeholder="Hasta anio" bind:value={searchTo} />
         <button class="btn-secondary" onclick={getFertility}>Buscar</button>
         <button class="btn-warning" onclick={limpiarBusqueda}>Limpiar</button>
     </div>
@@ -214,7 +214,7 @@
         <h3>Anadir Nuevo Registro</h3>
         <input type="text" placeholder="Codigo (ej. ES)" bind:value={newCountryCode} />
         <input type="text" placeholder="Pais (ej. Espana)" bind:value={newCountryName} />
-        <input type="number" placeholder="Ano (ej. 2022)" bind:value={newYear} />
+        <input type="number" placeholder="Anio (ej. 2022)" bind:value={newYear} />
         <input type="number" placeholder="Tasa 15-19" bind:value={newFert15_19} step="0.1" />
         <input type="number" placeholder="Tasa 20-24" bind:value={newFert20_24} step="0.1" />
         <button class="btn-primary" onclick={insertFertility}>Anadir</button>
@@ -225,9 +225,9 @@
             <tr>
                 <th>Codigo de Pais</th>
                 <th>Nombre del Pais</th>
-                <th>Ano</th>
-                <th>Tasa (15 a 19 anos)</th>
-                <th>Tasa (20 a 24 anos)</th>
+                <th>Anio</th>
+                <th>Tasa (15 a 19 anios)</th>
+                <th>Tasa (20 a 24 anios)</th>
                 <th>Acciones</th>
             </tr>
         </thead>
