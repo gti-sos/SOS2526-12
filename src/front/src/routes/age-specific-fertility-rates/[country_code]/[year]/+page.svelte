@@ -3,7 +3,7 @@
     import { goto } from "$app/navigation";
     import { dev } from "$app/environment";
 
-    // 1. Sacamos los parámetros de la URL gracias a las carpetas con corchetes []
+    // 1. Sacamos los parametros de la URL gracias a las carpetas con corchetes []
     let country_code = $page.params.country_code;
     let year = $page.params.year;
 
@@ -20,7 +20,7 @@
         API = "http://localhost:3000" + API;
     }
 
-    // 3. Función para cargar los datos actuales (GET específico)
+    // 3. Funcion para cargar los datos actuales (GET especifico)
     async function getRecurso() {
         const res = await fetch(`${API}/${country_code}/${year}`);
         if (res.ok) {
@@ -35,13 +35,13 @@
         }
     }
 
-    // 4. Función para guardar los cambios (PUT)
+    // 4. Funcion para guardar los cambios (PUT)
     async function updateRecurso() {
-        // --- NUEVA VALIDACIÓN: Comprobar que no hay campos vacíos ---
+        // --- NUEVA VALIDACION: Comprobar que no hay campos vacios ---
         if (!country_name || fert_15_19 === "" || fert_15_19 === null || fert_20_24 === "" || fert_20_24 === null) {
-            mensajeTexto = "No puedes dejar ningún campo en blanco.";
+            mensajeTexto = "No puedes dejar ningun campo en blanco.";
             mensajeTipo = "error";
-            return; // Corta la función aquí y no envía la petición al servidor
+            return; // Corta la funcion aqui y no envia la peticion al servidor
         }
 
         const updatedRecord = {
@@ -60,8 +60,8 @@
         });
 
         if (res.ok) {
-            alert("Recurso actualizado con éxito");
-            // El usuario no tiene que darle a atrás, lo mandamos nosotros automáticamente:
+            alert("Recurso actualizado con exito");
+            // El usuario no tiene que darle a atras, lo mandamos nosotros automaticamente:
             goto("/age-specific-fertility-rates");
         } else if (res.status === 400) {
             mensajeTexto = "Faltan datos o el formato es incorrecto.";
@@ -72,7 +72,7 @@
         }
     }
 
-    // Se ejecuta al cargar la página
+    // Se ejecuta al cargar la pagina
     $effect(() => {
         getRecurso();
     });
@@ -101,27 +101,27 @@
 
     <div class="form-container">
         <div class="input-group">
-            <label>Código de País</label>
+            <label>Codigo de Pais</label>
             <input type="text" value={country_code} disabled />
         </div>
 
         <div class="input-group">
-            <label>Año</label>
+            <label>Anio</label>
             <input type="number" value={year} disabled />
         </div>
 
         <div class="input-group">
-            <label>Nombre del País</label>
+            <label>Nombre del Pais</label>
             <input type="text" bind:value={country_name} />
         </div>
 
         <div class="input-group">
-            <label>Tasa (15 a 19 años)</label>
+            <label>Tasa (15 a 19 anios)</label>
             <input type="number" bind:value={fert_15_19} step="0.1" />
         </div>
 
         <div class="input-group">
-            <label>Tasa (20 a 24 años)</label>
+            <label>Tasa (20 a 24 anios)</label>
             <input type="number" bind:value={fert_20_24} step="0.1" />
         </div>
 
