@@ -37,9 +37,13 @@
 
 	async function cargarDatos(filtros = {}) {
 		const params = new URLSearchParams();
+		// @ts-ignore
 		if (filtros.pais) params.append('country_name', filtros.pais);
+		// @ts-ignore
 		if (filtros.anio) params.append('year', filtros.anio);
+		// @ts-ignore
 		if (filtros.natalidad) params.append('crude_birth_rate', filtros.natalidad);
+		// @ts-ignore
 		if (filtros.mortalidad) params.append('crude_death_rate', filtros.mortalidad);
 
 		const queryString = params.toString();
