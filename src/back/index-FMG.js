@@ -161,7 +161,7 @@ function loadBackend(app) {
     // DOCS: Redirección a Postman
     app.get(BASE_URL_API + "/age-specific-fertility-rates/docs", (req, res) => {
         res.redirect(DOC_URL);    
-    });
+    }); 
 }
 
 export { loadBackend };
