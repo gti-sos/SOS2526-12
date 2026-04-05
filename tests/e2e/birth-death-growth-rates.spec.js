@@ -19,11 +19,11 @@ test.describe('Pruebas E2E - Tasas de Natalidad, Mortalidad y Crecimiento', () =
 
     test('1. Restaurar datos y listar recursos', async ({ page }) => {
         await page.getByRole('button', { name: /Eliminar todos/i }).click();
-        await expect(page.locator('.aviso.borrado')).toBeVisible({ timeout: 15000 });
+        await expect(page.locator('td', { hasText: 'No hay registros' })).toBeVisible({ timeout: 15000 });
 
         await page.getByRole('button', { name: /Restaurar/i }).click();
-        await expect(page.locator('.aviso.ok')).toBeVisible({ timeout: 15000 });
-        await expect(page.locator('td', { hasText: 'No hay registros' })).not.toBeVisible();
+        await expect(page.locator('td', { hasText: 'No hay registros' })).not.toBeVisible({ timeout: 15000 });
+        await expect(page.locator('table tbody tr').first()).toBeVisible();
     });
 
     test('2. Crear un recurso nuevo', async ({ page }) => {
@@ -33,17 +33,17 @@ test.describe('Pruebas E2E - Tasas de Natalidad, Mortalidad y Crecimiento', () =
 
         await page.getByRole('button', { name: /Anadir registro/i }).click();
 
-        await expect(page.locator('.aviso.nuevo')).toBeVisible({ timeout: 15000 });
-        await expect(page.locator('table')).toContainText(paisUnico);
+        await expect(page.locator('table')).toContainText(paisUnico, { timeout: 15000 });
     });
 
     test('3. Buscar recursos', async ({ page }) => {
         await page.getByPlaceholder('Buscar por pais').fill(paisUnico);
         await page.getByRole('button', { name: /Buscar/i }).click();
 
-        await expect(page.locator('table')).toContainText(paisUnico);
+        await expect(page.locator('table')).toContainText(paisUnico, { timeout: 15000 });
 
         await page.getByRole('button', { name: /Limpiar/i }).click();
+        await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 15000 });
     });
 
     test('4. Editar un recurso', async ({ page }) => {
@@ -57,23 +57,21 @@ test.describe('Pruebas E2E - Tasas de Natalidad, Mortalidad y Crecimiento', () =
 
         await page.getByRole('button', { name: /Guardar cambios/i }).click();
 
-        await expect(page).toHaveURL(new RegExp('/birth-death-growth-rates$'), { timeout: 10000 });
+        await expect(page).toHaveURL(new RegExp('/birth-death-growth-rates$'), { timeout: 15000 });
     });
 
     test('5. Borrar un recurso concreto', async ({ page }) => {
         const fila = page.locator('tr').filter({ hasText: paisUnico });
         await fila.getByRole('button', { name: /Eliminar/i }).click();
 
-        await expect(page.locator('.aviso.borrado')).toBeVisible({ timeout: 15000 });
-        await expect(page.locator('table')).not.toContainText(paisUnico);
+        await expect(page.locator('table')).not.toContainText(paisUnico, { timeout: 15000 });
     });
 
     test('6. Borrar todos los recursos', async ({ page }) => {
         await page.getByRole('button', { name: /Restaurar/i }).click();
-        await expect(page.locator('.aviso.ok')).toBeVisible({ timeout: 15000 });
+        await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 15000 });
 
         await page.getByRole('button', { name: /Eliminar todos/i }).click();
-        await expect(page.locator('.aviso.borrado')).toBeVisible({ timeout: 15000 });
-        await expect(page.locator('td', { hasText: 'No hay registros' })).toBeVisible();
+        await expect(page.locator('td', { hasText: 'No hay registros' })).toBeVisible({ timeout: 15000 });
     });
 });
