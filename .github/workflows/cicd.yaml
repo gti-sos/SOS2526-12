@@ -35,7 +35,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: ⏳ Esperar a que Render despliegue (3 minutos)
-        run: sleep 500
+        run: sleep 750
 
       - name: Run Playwright tests
         run: npx playwright test
