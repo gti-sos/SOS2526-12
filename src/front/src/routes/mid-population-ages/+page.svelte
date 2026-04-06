@@ -43,17 +43,37 @@
 
     // OBTENER Y BUSCAR DATOS
     async function getPopulations() {
-        let url = API;
-        let queryParams = [];
+        const params = new URLSearchParams();
+        const country = searchCountry.trim();
+        const hasFrom = searchFrom !== "";
+        const hasTo = searchTo !== "";
 
-        // Usamos from y to para enviarlos al backend
-        if (searchCountry) queryParams.push(`country_name=${searchCountry}`);
-        if (searchFrom) queryParams.push(`from=${searchFrom}`);
-        if (searchTo) queryParams.push(`to=${searchTo}`);
-
-        if (queryParams.length > 0) {
-            url += '?' + queryParams.join('&');
+        if (country) {
+            params.append("country_name", country);
         }
+
+        if (hasFrom || hasTo) {
+            const fromYear = hasFrom ? Number(searchFrom) : null;
+            const toYear = hasTo ? Number(searchTo) : null;
+
+            if ((hasFrom && Number.isNaN(fromYear)) || (hasTo && Number.isNaN(toYear))) {
+                mostrarMensaje("❌ El rango de años no es válido.", "error");
+                return;
+            }
+
+            if (hasFrom && hasTo) {
+                const lower = Math.min(fromYear, toYear);
+                const upper = Math.max(fromYear, toYear);
+                params.append("year", `${lower}-${upper}`);
+            } else if (hasFrom) {
+                params.append("year", `>=${fromYear}`);
+            } else {
+                params.append("year", `<=${toYear}`);
+            }
+        }
+
+        const queryString = params.toString();
+        const url = queryString ? `${API}?${queryString}` : API;
 
         const res = await fetch(url, { method: "GET" });
         if (res.ok) {
