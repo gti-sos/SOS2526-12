@@ -13,10 +13,12 @@
     let nuevoCrecimientoNatural = $state('');
     let nuevaTasaCrecimiento = $state('');
 
+    // Filtros de búsqueda
+    let buscarCodigo = $state('');
     let buscarPais = $state('');
-    let buscarAnio = $state('');
-    let buscarNatalidad = $state('');
-    let buscarMortalidad = $state('');
+    let buscarAnioExacto = $state('');
+    let buscarAnioDesde = $state('');
+    let buscarAnioHasta = $state('');
 
     let API = '/api/v2/birth-death-growth-rates';
     if (dev) {
@@ -37,14 +39,30 @@
 
     async function cargarDatos(filtros = {}) {
         const params = new URLSearchParams();
+
+        // @ts-ignore
+        if (filtros.codigo) params.append('country_code', filtros.codigo);
         // @ts-ignore
         if (filtros.pais) params.append('country_name', filtros.pais);
+
+        // Lógica de año: exacto tiene prioridad, si no rango desde/hasta
         // @ts-ignore
-        if (filtros.anio) params.append('year', filtros.anio);
+        if (filtros.anioExacto) {
+            // @ts-ignore
+            params.append('year', filtros.anioExacto);
         // @ts-ignore
-        if (filtros.natalidad) params.append('crude_birth_rate', filtros.natalidad);
+        } else if (filtros.anioDesde && filtros.anioHasta) {
+            // @ts-ignore
+            params.append('year', `${filtros.anioDesde}-${filtros.anioHasta}`);
         // @ts-ignore
-        if (filtros.mortalidad) params.append('crude_death_rate', filtros.mortalidad);
+        } else if (filtros.anioDesde) {
+            // @ts-ignore
+            params.append('year', `>=${filtros.anioDesde}`);
+        // @ts-ignore
+        } else if (filtros.anioHasta) {
+            // @ts-ignore
+            params.append('year', `<=${filtros.anioHasta}`);
+        }
 
         const queryString = params.toString();
         const url = queryString ? `${API}?${queryString}` : API;
@@ -52,6 +70,9 @@
         const res = await fetch(url);
         if (res.ok) {
             registros = await res.json();
+            if (registros.length === 0 && queryString) {
+                mostrarMensaje('No se encontraron registros con esos filtros.', 'error');
+            }
         } else if (res.status === 404) {
             registros = [];
             if (queryString) mostrarMensaje('No se encontraron registros con esos filtros.', 'error');
@@ -61,19 +82,25 @@
     }
 
     function buscar() {
+        if (buscarAnioExacto && (buscarAnioDesde || buscarAnioHasta)) {
+            mostrarMensaje('Usa el año exacto O el rango desde/hasta, no ambos a la vez.', 'error');
+            return;
+        }
         cargarDatos({
+            codigo: buscarCodigo,
             pais: buscarPais,
-            anio: buscarAnio,
-            natalidad: buscarNatalidad,
-            mortalidad: buscarMortalidad
+            anioExacto: buscarAnioExacto,
+            anioDesde: buscarAnioDesde,
+            anioHasta: buscarAnioHasta
         });
     }
 
     function limpiarBusqueda() {
+        buscarCodigo = '';
         buscarPais = '';
-        buscarAnio = '';
-        buscarNatalidad = '';
-        buscarMortalidad = '';
+        buscarAnioExacto = '';
+        buscarAnioDesde = '';
+        buscarAnioHasta = '';
         cargarDatos();
     }
 
@@ -175,36 +202,53 @@
         <button class="btn-rojo" onclick={borrarTodo}>Eliminar todos los registros</button>
     </div>
 
-    <div class="formulario">
-        <input type="text" placeholder="Buscar por pais" bind:value={buscarPais} />
-        <input type="number" placeholder="Buscar por anio" bind:value={buscarAnio} />
-        <input type="number" placeholder="Tasa natalidad" bind:value={buscarNatalidad} step="0.01" />
-        <input type="number" placeholder="Tasa mortalidad" bind:value={buscarMortalidad} step="0.01" />
-        <button class="btn-azul" onclick={buscar}>Buscar</button>
-        <button class="btn-gris" onclick={limpiarBusqueda}>Limpiar</button>
-    </div>
+    <!-- Formulario de búsqueda -->
+    <section class="seccion-busqueda">
+        <h2 class="seccion-titulo">Buscar registros</h2>
+        <div class="formulario">
+            <div class="campo-busqueda">
+                <label for="buscar-codigo">Código de país</label>
+                <input id="buscar-codigo" type="text" placeholder="Ej: ES" bind:value={buscarCodigo} />
+            </div>
+            <div class="campo-busqueda">
+                <label for="buscar-pais">Nombre de país</label>
+                <input id="buscar-pais" type="text" placeholder="Ej: Spain" bind:value={buscarPais} />
+            </div>
+            <div class="campo-busqueda">
+                <label for="buscar-anio-exacto">Año exacto</label>
+                <input id="buscar-anio-exacto" type="number" placeholder="Ej: 2022" bind:value={buscarAnioExacto} />
+            </div>
+            <div class="separador-o">ó</div>
+            <div class="campo-busqueda">
+                <label for="buscar-desde">Año desde</label>
+                <input id="buscar-desde" type="number" placeholder="Ej: 2000" bind:value={buscarAnioDesde} />
+            </div>
+            <div class="campo-busqueda">
+                <label for="buscar-hasta">Año hasta</label>
+                <input id="buscar-hasta" type="number" placeholder="Ej: 2022" bind:value={buscarAnioHasta} />
+            </div>
+            <div class="botones-busqueda">
+                <button class="btn-azul" onclick={buscar}>Buscar</button>
+                <button class="btn-gris" onclick={limpiarBusqueda}>Limpiar</button>
+            </div>
+        </div>
+    </section>
 
-    <div class="formulario">
-        <input type="text" placeholder="Codigo (ej. ES) *" bind:value={nuevoCodigo} />
-        <input type="text" placeholder="Pais (ej. Espana) *" bind:value={nuevoPais} />
-        <input type="number" placeholder="Anio (ej. 2022) *" bind:value={nuevoAnio} />
-        <input type="number" placeholder="Tasa natalidad" bind:value={nuevoNacimientos} step="0.01" />
-        <input type="number" placeholder="Tasa mortalidad" bind:value={nuevoDefunciones} step="0.01" />
-        <input type="number" placeholder="Migracion neta" bind:value={nuevaMigracion} step="0.01" />
-        <input
-            type="number"
-            placeholder="Crecimiento natural"
-            bind:value={nuevoCrecimientoNatural}
-            step="0.01"
-        />
-        <input
-            type="number"
-            placeholder="Tasa de crecimiento"
-            bind:value={nuevaTasaCrecimiento}
-            step="0.01"
-        />
-        <button class="btn-azul" onclick={anadirRegistro}>Anadir registro</button>
-    </div>
+    <!-- Formulario de añadir -->
+    <section class="seccion-busqueda">
+        <h2 class="seccion-titulo">Añadir registro</h2>
+        <div class="formulario">
+            <input type="text" placeholder="Codigo (ej. ES) *" bind:value={nuevoCodigo} />
+            <input type="text" placeholder="Pais (ej. Espana) *" bind:value={nuevoPais} />
+            <input type="number" placeholder="Anio (ej. 2022) *" bind:value={nuevoAnio} />
+            <input type="number" placeholder="Tasa natalidad" bind:value={nuevoNacimientos} step="0.01" />
+            <input type="number" placeholder="Tasa mortalidad" bind:value={nuevoDefunciones} step="0.01" />
+            <input type="number" placeholder="Migracion neta" bind:value={nuevaMigracion} step="0.01" />
+            <input type="number" placeholder="Crecimiento natural" bind:value={nuevoCrecimientoNatural} step="0.01" />
+            <input type="number" placeholder="Tasa de crecimiento" bind:value={nuevaTasaCrecimiento} step="0.01" />
+            <button class="btn-azul" onclick={anadirRegistro}>Anadir registro</button>
+        </div>
+    </section>
 
     <table>
         <thead>
@@ -273,13 +317,38 @@
         margin-bottom: 1rem;
     }
 
+    .seccion-busqueda {
+        margin-bottom: 1.5rem;
+    }
+
+    .seccion-titulo {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #888;
+        margin-bottom: 0.5rem;
+    }
+
     .formulario {
         display: flex;
         flex-wrap: wrap;
+        align-items: flex-end;
         gap: 0.6rem;
         padding: 1rem 0;
-        margin-bottom: 1.5rem;
         border-bottom: 0.5px solid #ccc;
+    }
+
+    .campo-busqueda {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .campo-busqueda label {
+        font-size: 0.72rem;
+        color: #888;
+        font-weight: 500;
     }
 
     .formulario input {
@@ -288,12 +357,26 @@
         border-bottom: 1.5px solid #ccc;
         background: transparent;
         font-size: 0.9rem;
-        width: 150px;
+        width: 130px;
         outline: none;
     }
 
     .formulario input:focus {
         border-bottom-color: #222;
+    }
+
+    .separador-o {
+        font-size: 0.8rem;
+        color: #aaa;
+        align-self: flex-end;
+        padding-bottom: 0.45rem;
+        user-select: none;
+    }
+
+    .botones-busqueda {
+        display: flex;
+        gap: 0.4rem;
+        align-self: flex-end;
     }
 
     .aviso {
