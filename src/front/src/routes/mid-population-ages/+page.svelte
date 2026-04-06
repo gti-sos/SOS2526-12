@@ -16,12 +16,12 @@
     let newPop75 = $state("");
     let newPop100 = $state("");
 
-    // Variables para el buscador
+    // --- NUEVAS: Variables para el buscador por rango ---
     let searchCountry = $state("");
-    let searchYear = $state("");
+    let searchStartYear = $state("");
+    let searchEndYear = $state("");
 
     // APUNTAMOS A LA API V2
-
     let API = '/api/v2/mid-population-ages';
     if (dev) {
         API = "http://localhost:3000" + API;
@@ -48,7 +48,8 @@
 
         // Añadimos los parámetros de búsqueda si el usuario ha escrito algo
         if (searchCountry) queryParams.push(`country_name=${searchCountry}`);
-        if (searchYear) queryParams.push(`year=${searchYear}`);
+        if (searchStartYear) queryParams.push(`start_year=${searchStartYear}`);
+        if (searchEndYear) queryParams.push(`end_year=${searchEndYear}`);
 
         if (queryParams.length > 0) {
             url += '?' + queryParams.join('&');
@@ -58,7 +59,7 @@
         if (res.ok) {
             populations = await res.json();
             // Avisar si la búsqueda no dio resultados
-            if (populations.length === 0 && (searchCountry || searchYear)) {
+            if (populations.length === 0 && (searchCountry || searchStartYear || searchEndYear)) {
                  mostrarMensaje("ℹ️ No se encontraron registros con esos datos de búsqueda.", "exito");
             }
         } else if (res.status === 404) {
@@ -71,7 +72,8 @@
     // LIMPIAR BÚSQUEDA
     function limpiarBusqueda() {
         searchCountry = "";
-        searchYear = "";
+        searchStartYear = "";
+        searchEndYear = "";
         getPopulations();
     }
 
@@ -87,10 +89,9 @@
 
     async function insertPopulation() {
         // --- VALIDACIÓN FRONTEND (EL GUARDIA DE SEGURIDAD) ---
-        // Comprobamos si el país, el año o el sexo están vacíos
         if (newCountryName.trim() === "" || newYear === "" || newSex === "") {
             mostrarMensaje("❌ ¡Alto ahí! Debes rellenar obligatoriamente el País, el Año y el Sexo.", "error");
-            return; // El 'return' hace que la función se detenga aquí y no envíe nada
+            return; 
         }
         // -----------------------------------------------------
 
@@ -181,10 +182,10 @@
         animation: aparecer 0.3s ease-in-out;
     }
     
-    .mensaje-exito { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }      /* Verde */
-    .mensaje-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }      /* Rojo pálido (error) */
-    .mensaje-creacion { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }   /* Azul */
-    .mensaje-borrado { background-color: #f8d7da; color: #721c24; border: 2px solid #dc3545; }    /* Rojo intenso (borrado intencionado) */
+    .mensaje-exito { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }      
+    .mensaje-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }      
+    .mensaje-creacion { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }   
+    .mensaje-borrado { background-color: #f8d7da; color: #721c24; border: 2px solid #dc3545; }    
     
     @keyframes aparecer {
         from { opacity: 0; transform: translateY(-10px); }
@@ -225,7 +226,8 @@
     <div class="form-container" style="background-color: #e9ecef;">
         <h3 style="margin: 0 100%; width: 100%; font-size: 1rem; color: #555;">🔍 Buscador</h3>
         <input type="text" placeholder="Buscar por País..." bind:value={searchCountry} />
-        <input type="number" placeholder="Buscar por Año..." bind:value={searchYear} />
+        <input type="number" placeholder="Año Desde..." bind:value={searchStartYear} />
+        <input type="number" placeholder="Año Hasta..." bind:value={searchEndYear} />
         <button class="btn-primary" onclick={getPopulations}>Buscar Registros</button>
         <button class="btn-warning" onclick={limpiarBusqueda}>Limpiar Búsqueda</button>
     </div>
