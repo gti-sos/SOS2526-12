@@ -4,7 +4,7 @@
     // @ts-ignore
     let populations = $state([]);
     
-    // Variables de estado para tu formulario de creación
+    // Variables para el formulario de CREACIÓN
     let newCountryCode = $state("");
     let newCountryName = $state("");
     let newYear = $state("");
@@ -16,7 +16,7 @@
     let newPop75 = $state("");
     let newPop100 = $state("");
 
-    // --- NUEVAS: Variables para el buscador por rango ---
+    // Variables para el formulario de BÚSQUEDA
     let searchCountry = $state("");
     let searchStartYear = $state("");
     let searchEndYear = $state("");
@@ -29,7 +29,7 @@
 
     // --- SISTEMA DE MENSAJES MULTICOLOR ---
     let mensajeTexto = $state("");
-    let mensajeTipo = $state(""); // 'exito', 'error', 'creacion', 'borrado'
+    let mensajeTipo = $state(""); 
 
     // @ts-ignore
     function mostrarMensaje(texto, tipo = "exito") {
@@ -41,24 +41,23 @@
     }
     // --------------------------------------------
 
-// OBTENER Y BUSCAR DATOS
+    // OBTENER Y BUSCAR DATOS (Conectado al backend)
     async function getPopulations() {
         let url = API;
         let queryParams = [];
 
-        // Añadimos los parámetros de búsqueda a la URL para enviarlos al Backend
+        // Preparamos los parámetros que el Backend está esperando
         if (searchCountry) queryParams.push(`country_name=${searchCountry}`);
         if (searchStartYear) queryParams.push(`start_year=${searchStartYear}`);
         if (searchEndYear) queryParams.push(`end_year=${searchEndYear}`);
 
-        // Construimos la URL final (ej: /api/v2/... ?country_name=Azerbaijan&start_year=1989&end_year=1993)
+        // Si hay parámetros, los unimos a la URL
         if (queryParams.length > 0) {
             url += '?' + queryParams.join('&');
         }
 
         const res = await fetch(url, { method: "GET" });
         if (res.ok) {
-            // Recibimos los datos ya filtrados por el servidor
             populations = await res.json();
             
             // Avisar si la búsqueda no dio resultados
@@ -71,7 +70,7 @@
             mostrarMensaje("❌ Tuvimos un problema al intentar cargar la lista. Inténtalo más tarde.", "error");
         }
     }
-    
+
     // LIMPIAR BÚSQUEDA
     function limpiarBusqueda() {
         searchCountry = "";
@@ -80,6 +79,7 @@
         getPopulations();
     }
 
+    // ... [RESTO DE TUS FUNCIONES POST, DELETE, ETC SE MANTIENEN IGUAL] ...
     async function loadInitialData() {
         const res = await fetch(API + "/loadInitialData", { method: "GET" });
         if (res.ok) {
@@ -91,12 +91,10 @@
     }
 
     async function insertPopulation() {
-        // --- VALIDACIÓN FRONTEND (EL GUARDIA DE SEGURIDAD) ---
         if (newCountryName.trim() === "" || newYear === "" || newSex === "") {
             mostrarMensaje("❌ ¡Alto ahí! Debes rellenar obligatoriamente el País, el Año y el Sexo.", "error");
             return; 
         }
-        // -----------------------------------------------------
 
         const newResource = {
             country_code: newCountryCode,
@@ -119,10 +117,8 @@
 
         if (res.ok || res.status === 201) {
             getPopulations(); 
-            // Limpiamos los campos
             newCountryCode = ""; newCountryName = ""; newYear = ""; newSex = ""; newMaxAge = "";
             newPop0 = ""; newPop25 = ""; newPop50 = ""; newPop75 = ""; newPop100 = "";
-            
             mostrarMensaje("ℹ️ Nuevo registro añadido a la lista con éxito.", "creacion");
         } 
         else if (res.status === 400) {
@@ -174,27 +170,12 @@
 
 <style>
     main { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 1200px; margin: auto; }
-    
-    /* ESTILOS DE LOS MENSAJES POR COLORES */
-    .mensaje-alerta {
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 8px;
-        font-weight: bold;
-        text-align: center;
-        animation: aparecer 0.3s ease-in-out;
-    }
-    
+    .mensaje-alerta { padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: bold; text-align: center; animation: aparecer 0.3s ease-in-out; }
     .mensaje-exito { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }      
     .mensaje-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }      
     .mensaje-creacion { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }   
     .mensaje-borrado { background-color: #f8d7da; color: #721c24; border: 2px solid #dc3545; }    
-    
-    @keyframes aparecer {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
+    @keyframes aparecer { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
     th { background-color: #f8f9fa; color: #333; }
@@ -239,7 +220,9 @@
         <h3 style="margin: 0 100%; width: 100%; font-size: 1rem; color: #555;">➕ Añadir Nuevo Registro</h3>
         <input type="text" placeholder="Cód. País" bind:value={newCountryCode} />
         <input type="text" placeholder="País" bind:value={newCountryName} />
+        
         <input type="number" placeholder="Año" bind:value={newYear} />
+        
         <select bind:value={newSex}>
             <option value="">Sexo...</option>
             <option value="Male">Hombre</option>
