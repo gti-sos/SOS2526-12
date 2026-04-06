@@ -64,6 +64,7 @@
         const updatedResource = {
             country_code: editCountryCode,
             country_name: urlCountry, // Se saca de la URL
+            // @ts-ignore
             year: parseInt(urlYear),  // Se saca de la URL
             sex: urlSex,              // Se saca de la URL
             max_age: parseInt(editMaxAge),
