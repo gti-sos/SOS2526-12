@@ -45,42 +45,48 @@ export function loadBackend(app) {
     // 2. GET A LA COLECCIÓN (Búsqueda y Paginación)
     // ==========================================
     app.get(BASE_URL_API + "/mid-population-ages", (req, res) => {
-        const query = {};
-        
+        let query = {};
         let offset = 0;
         let limit = Number.MAX_SAFE_INTEGER;
 
+        // Paginación
         if (req.query.offset) {
             offset = parseInt(req.query.offset);
-            delete req.query.offset;
         }
         if (req.query.limit) {
             limit = parseInt(req.query.limit);
-            delete req.query.limit;
         }
 
-        // --- FILTRO ACTUALIZADO USANDO FROM Y TO ---
+        // --- FILTRO DE RANGO (from / to) ---
         if (req.query.from || req.query.to) {
-            query.year = {}; 
-            
+            query.year = {};
             if (req.query.from) {
-                query.year.$gte = parseInt(req.query.from); 
-                delete req.query.from; 
+                query.year.$gte = Number(req.query.from);
             }
-            
             if (req.query.to) {
-                query.year.$lte = parseInt(req.query.to);   
-                delete req.query.to; 
+                query.year.$lte = Number(req.query.to);
             }
         }
-        // -------------------------------------------
 
+        // --- FILTROS ADICIONALES ---
         const operatorMap = { ">": "$gt", "<": "$lt", ">=": "$gte", "<=": "$lte" };
         const operators = [">=", "<=", ">", "<"];
 
         Object.keys(req.query).forEach(key => {
-            const value = req.query[key];
+            // Saltamos los parámetros ya procesados
+            if (["from", "to", "offset", "limit"].includes(key)) return;
 
+            const value = req.query[key];
+            if (value === "" || value === undefined) return;
+
+            // Evitar sobrescribir query.year si ya fue configurado por from/to
+            // A menos que el parámetro sea específicamente "year"
+            if (key === "year" && query.year && typeof value === "string") {
+                 // Si ya hay rango, y además viene "year", podríamos decidir qué hacer.
+                 // Para simplicidad, si viene "year", permitimos que sobrescriba o se añada.
+            }
+
+            // Lógica de guión (rango) para cualquier campo
             if (typeof value === "string" && value.includes("-")) {
                 const [min, max] = value.split("-");
                 query[key] = {};
@@ -89,17 +95,21 @@ export function loadBackend(app) {
                 return;
             }
 
+            // Lógica de operadores (>=, <=, >, <)
             for (const op of operators) {
                 if (typeof value === "string" && value.startsWith(op)) {
                     const valStr = value.slice(op.length);
                     const valParsed = isNaN(valStr) ? valStr : Number(valStr);
-                    if (!query[key]) query[key] = {};
+                    if (!query[key] || typeof query[key] !== "object") query[key] = {};
                     query[key][operatorMap[op]] = valParsed;
                     return;
                 }
             }
 
-            query[key] = isNaN(value) ? value : Number(value);
+            // Valor exacto (convertir a número si es posible, pero solo si no es un objeto ya)
+            if (!query[key] || typeof query[key] !== "object") {
+                query[key] = isNaN(value) ? value : Number(value);
+            }
         });
 
         db.find(query).skip(offset).limit(limit).exec((err, records) => {
