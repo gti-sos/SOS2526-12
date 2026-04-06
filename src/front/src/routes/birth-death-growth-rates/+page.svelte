@@ -208,11 +208,11 @@
         <div class="formulario">
             <div class="campo-busqueda">
                 <label for="buscar-codigo">Código de país</label>
-                <input id="buscar-codigo" type="text" placeholder="Ej: ES" bind:value={buscarCodigo} />
+                <input id="buscar-codigo" type="text" placeholder="Buscar por codigo" bind:value={buscarCodigo} />
             </div>
             <div class="campo-busqueda">
                 <label for="buscar-pais">Nombre de país</label>
-                <input id="buscar-pais" type="text" placeholder="Ej: Spain" bind:value={buscarPais} />
+                <input id="buscar-pais" type="text" placeholder="Buscar por pais" bind:value={buscarPais} />
             </div>
             <div class="campo-busqueda">
                 <label for="buscar-anio-exacto">Año exacto</label>
