@@ -6,14 +6,14 @@
     // @ts-ignore
     let fertility = $state([]);
     
-    // --- FORMULARIO DE CREACIÓN ---
+    // --- FORMULARIO DE CREACION ---
     let newCountryCode = $state("");
     let newCountryName = $state("");
     let newYear = $state("");
     let newFert15_19 = $state("");
     let newFert20_24 = $state("");
 
-    // --- FORMULARIO DE BÚSQUEDA ---
+    // --- FORMULARIO DE BUSQUEDA ---
     let searchCountry = $state("");
     let searchYear = $state("");
     let searchFrom = $state("");
@@ -37,7 +37,7 @@
         }, 4000);
     }
 
-    // --- GET (CON SOPORTE PARA BÚSQUEDAS) ---
+    // --- GET (CON SOPORTE PARA BUSQUEDAS) ---
     async function getFertility() {
         const params = new URLSearchParams();
         
@@ -51,14 +51,13 @@
 
         const res = await fetch(fetchUrl, { method: "GET" });
         
-        
         if (res.ok) {
             fertility = await res.json();
         } else if (res.status === 404) {
             fertility = []; 
-            if (queryString) mostrarMensaje("⚠️ No se encontraron registros con esos filtros.", "error");
+            if (queryString) mostrarMensaje("No se encontraron registros con esos filtros.", "error");
         } else {
-            mostrarMensaje("❌ Tuvimos un problema al intentar cargar la lista.", "error");
+            mostrarMensaje("Tuvimos un problema al intentar cargar la lista.", "error");
         }
     }
 
@@ -72,17 +71,16 @@
         const res = await fetch(API + "/loadInitialData", { method: "GET" });
         if (res.ok) {
             getFertility();
-            mostrarMensaje("✅ Se han restaurado los datos de prueba.", "exito");
+            mostrarMensaje("Se han restaurado los datos de prueba.", "exito");
         } else {
-            mostrarMensaje("❌ Error al restaurar los datos.", "error");
+            mostrarMensaje("Error al restaurar los datos.", "error");
         }
     }
 
     async function insertFertility() {
-        // --- NUEVO: Nuestro "portero" que comprueba que no haya campos vacíos ---
         if (!newCountryCode || !newCountryName || newYear === "" || newYear === null || newFert15_19 === "" || newFert15_19 === null || newFert20_24 === "" || newFert20_24 === null) {
-            mostrarMensaje("⚠️ ¡Eh! No puedes dejar ningún campo en blanco.", "error");
-            return; // Corta la función aquí y no envía el POST
+            mostrarMensaje("No puedes dejar ningun campo en blanco.", "error");
+            return; 
         }
 
         const newResource = {
@@ -102,40 +100,40 @@
         if (res.ok || res.status === 201) {
             getFertility(); 
             newCountryCode = ""; newCountryName = ""; newYear = ""; newFert15_19 = ""; newFert20_24 = "";
-            mostrarMensaje("ℹ️ Nuevo registro añadido a la lista con éxito.", "creacion");
+            mostrarMensaje("Nuevo registro anadido a la lista con exito.", "creacion");
         } 
         else if (res.status === 400) {
-            mostrarMensaje("❌ Faltan datos o el formato es incorrecto.", "error");
+            mostrarMensaje("Faltan datos o el formato es incorrecto.", "error");
         } 
         else if (res.status === 409) {
-            mostrarMensaje(`⚠️ El registro de ${newCountryCode} en el año ${newYear} ya existe.`, "error");
+            mostrarMensaje(`El registro de ${newCountryCode} en el anio ${newYear} ya existe.`, "error");
         } 
         else {
-            mostrarMensaje("❌ Error inesperado al guardar.", "error");
+            mostrarMensaje("Error inesperado al guardar.", "error");
         }
     }
 
     async function deleteAll() {
-        if (confirm("🚨 ¿Estás seguro de vaciar toda la tabla?")) {
+        if (confirm("Estas seguro de vaciar toda la tabla?")) {
             const res = await fetch(API, { method: "DELETE" });
             if (res.ok) {
                 getFertility(); 
-                mostrarMensaje("🗑️ Tabla vaciada correctamente.", "borrado");
+                mostrarMensaje("Tabla vaciada correctamente.", "borrado");
             } else {
-                mostrarMensaje("❌ Error al vaciar la tabla.", "error");
+                mostrarMensaje("Error al vaciar la tabla.", "error");
             }
         }
     }
 
     // @ts-ignore
     async function deleteOne(country_code, year) {
-        if (confirm(`¿Borrar el registro de ${country_code} del año ${year}?`)) {
+        if (confirm(`Borrar el registro de ${country_code} del anio ${year}?`)) {
             const res = await fetch(`${API}/${country_code}/${year}`, { method: "DELETE" });
             if (res.ok) {
                 getFertility(); 
-                mostrarMensaje(`🗑️ ${country_code} (${year}) eliminado con éxito.`, "borrado");
+                mostrarMensaje(`${country_code} (${year}) eliminado con exito.`, "borrado");
             } else {
-                mostrarMensaje("❌ Error al intentar eliminar el registro.", "error");
+                mostrarMensaje("Error al intentar eliminar el registro.", "error");
             }
         }
     }
@@ -168,7 +166,7 @@
     .panel h3 { width: 100%; margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: #495057; }
     
     input { padding: 8px; width: 140px; border: 1px solid #ccc; border-radius: 4px; }
-    button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s; }
+    button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s; font-size: 14px; font-family: inherit;}
     
     .btn-primary { background: #007bff; color: white; }
     .btn-primary:hover { background: #0056b3; }
@@ -181,15 +179,15 @@
     .btn-secondary { background: #6c757d; color: white; }
     .btn-secondary:hover { background: #5a6268; }
     
-    /* NUEVO ESTILO PARA EL ENLACE DEL PAÍS */
-    .enlace-pais { color: #007bff; text-decoration: none; font-weight: bold; }
-    .enlace-pais:hover { text-decoration: underline; color: #0056b3; }
+    /* Clases para agrupar los botones de la tabla y dar estilo de boton al enlace */
+    .acciones-celda { display: flex; gap: 8px; align-items: center; }
+    .btn-enlace { display: inline-block; padding: 10px 15px; border-radius: 4px; font-weight: bold; text-decoration: none; text-align: center; font-size: 14px; font-family: inherit;}
     
     .actions-header { display: flex; justify-content: space-between; align-items: center; }
 </style>
 
 <main>
-    <h1>Tasas de Fertilidad por Países</h1>
+    <h1>Tasas de Fertilidad por Paises</h1>
 
     {#if mensajeTexto !== ""}
         <div class="mensaje-alerta mensaje-{mensajeTipo}">
@@ -198,38 +196,38 @@
     {/if}
 
     <div class="actions-header">
-        <button class="btn-success" onclick={loadInitialData}>📥 Restaurar datos</button>
-        <button class="btn-danger" onclick={deleteAll}>🗑️ Vaciar tabla</button>
+        <button class="btn-success" onclick={loadInitialData}>Restaurar datos</button>
+        <button class="btn-danger" onclick={deleteAll}>Vaciar tabla</button>
     </div>
 
     <div class="panel">
-        <h3>🔍 Buscador (Filtros)</h3>
-        <input type="text" placeholder="País (ej. Spain)" bind:value={searchCountry} />
-        <input type="number" placeholder="Año exacto" bind:value={searchYear} />
-        <input type="number" placeholder="Desde año" bind:value={searchFrom} />
-        <input type="number" placeholder="Hasta año" bind:value={searchTo} />
+        <h3>Buscador (Filtros)</h3>
+        <input type="text" placeholder="Pais (ej. Spain)" bind:value={searchCountry} />
+        <input type="number" placeholder="Anio exacto" bind:value={searchYear} />
+        <input type="number" placeholder="Desde anio" bind:value={searchFrom} />
+        <input type="number" placeholder="Hasta anio" bind:value={searchTo} />
         <button class="btn-secondary" onclick={getFertility}>Buscar</button>
         <button class="btn-warning" onclick={limpiarBusqueda}>Limpiar</button>
     </div>
 
     <div class="panel">
-        <h3>➕ Añadir Nuevo Registro</h3>
-        <input type="text" placeholder="Código (ej. ES)" bind:value={newCountryCode} />
-        <input type="text" placeholder="País (ej. España)" bind:value={newCountryName} />
-        <input type="number" placeholder="Año (ej. 2022)" bind:value={newYear} />
+        <h3>Anadir Nuevo Registro</h3>
+        <input type="text" placeholder="Codigo (ej. ES)" bind:value={newCountryCode} />
+        <input type="text" placeholder="Pais (ej. Espana)" bind:value={newCountryName} />
+        <input type="number" placeholder="Anio (ej. 2022)" bind:value={newYear} />
         <input type="number" placeholder="Tasa 15-19" bind:value={newFert15_19} step="0.1" />
         <input type="number" placeholder="Tasa 20-24" bind:value={newFert20_24} step="0.1" />
-        <button class="btn-primary" onclick={insertFertility}>Añadir</button>
+        <button class="btn-primary" onclick={insertFertility}>Anadir</button>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Código de País</th>
-                <th>Nombre del País</th>
-                <th>Año</th>
-                <th>Tasa (15 a 19 años)</th>
-                <th>Tasa (20 a 24 años)</th>
+                <th>Codigo de Pais</th>
+                <th>Nombre del Pais</th>
+                <th>Anio</th>
+                <th>Tasa (15 a 19 anios)</th>
+                <th>Tasa (20 a 24 anios)</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -244,20 +242,19 @@
             {#each fertility as fert (fert.country_code + "-" + fert.year)}
                 <tr>
                     <td>{fert.country_code}</td>
-                    
-                    <td>
-                        <a href="/age-specific-fertility-rates/{fert.country_code}/{fert.year}" class="enlace-pais" title="Haz clic para editar este registro">
-                            {fert.country_name} ✏️
-                        </a>
-                    </td>
-                    
+                    <td>{fert.country_name}</td>
                     <td>{fert.year}</td>
                     <td>{fert.fert_15_19}</td>
                     <td>{fert.fert_20_24}</td>
                     <td>
-                        <button class="btn-danger" onclick={() => deleteOne(fert.country_code, fert.year)}>
-                            🗑️ Eliminar
-                        </button>
+                        <div class="acciones-celda">
+                            <a href="/age-specific-fertility-rates/{fert.country_code}/{fert.year}" class="btn-warning btn-enlace">
+                                Editar
+                            </a>
+                            <button class="btn-danger" onclick={() => deleteOne(fert.country_code, fert.year)}>
+                                Eliminar
+                            </button>
+                        </div>
                     </td>
                 </tr>
             {/each}
