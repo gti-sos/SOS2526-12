@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const URL = 'https://sos2526-12.onrender.com/birth-death-growth-rates';
+const URL = '/birth-death-growth-rates';
 
 test.describe('Pruebas E2E - Tasas de Natalidad, Mortalidad y Crecimiento', () => {
 
@@ -72,7 +72,7 @@ test.describe('Pruebas E2E - Tasas de Natalidad, Mortalidad y Crecimiento', () =
 
     // 3c. Buscar por año exacto
     test('3c. Buscar por anio exacto', async ({ page }) => {
-        await page.getByPlaceholder('Ej: 2022').fill(anioUnico);
+        await page.getByLabel('Año exacto').fill(anioUnico);
         await page.getByRole('button', { name: /Buscar/i }).click();
 
         await expect(page.locator('table')).toContainText(paisUnico, { timeout: 15000 });
