@@ -60,6 +60,22 @@ export function loadBackend(app) {
             delete req.query.limit;
         }
 
+        // --- NUEVO FILTRO DE RANGO DE AÑOS PARA NEDB ---
+        if (req.query.start_year || req.query.end_year) {
+            query.year = {}; 
+            
+            if (req.query.start_year) {
+                query.year.$gte = parseInt(req.query.start_year); // $gte = Mayor o igual que
+                delete req.query.start_year; // Borramos para que no interfiera abajo
+            }
+            
+            if (req.query.end_year) {
+                query.year.$lte = parseInt(req.query.end_year);   // $lte = Menor o igual que
+                delete req.query.end_year; // Borramos para que no interfiera abajo
+            }
+        }
+        // -----------------------------------------------
+
         const operatorMap = { ">": "$gt", "<": "$lt", ">=": "$gte", "<=": "$lte" };
         const operators = [">=", "<=", ">", "<"];
 
