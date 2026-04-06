@@ -41,23 +41,26 @@
     }
     // --------------------------------------------
 
-    // OBTENER Y BUSCAR DATOS
+// OBTENER Y BUSCAR DATOS
     async function getPopulations() {
         let url = API;
         let queryParams = [];
 
-        // Añadimos los parámetros de búsqueda si el usuario ha escrito algo
+        // Añadimos los parámetros de búsqueda a la URL para enviarlos al Backend
         if (searchCountry) queryParams.push(`country_name=${searchCountry}`);
         if (searchStartYear) queryParams.push(`start_year=${searchStartYear}`);
         if (searchEndYear) queryParams.push(`end_year=${searchEndYear}`);
 
+        // Construimos la URL final (ej: /api/v2/... ?country_name=Azerbaijan&start_year=1989&end_year=1993)
         if (queryParams.length > 0) {
             url += '?' + queryParams.join('&');
         }
 
         const res = await fetch(url, { method: "GET" });
         if (res.ok) {
+            // Recibimos los datos ya filtrados por el servidor
             populations = await res.json();
+            
             // Avisar si la búsqueda no dio resultados
             if (populations.length === 0 && (searchCountry || searchStartYear || searchEndYear)) {
                  mostrarMensaje("ℹ️ No se encontraron registros con esos datos de búsqueda.", "exito");
@@ -68,7 +71,7 @@
             mostrarMensaje("❌ Tuvimos un problema al intentar cargar la lista. Inténtalo más tarde.", "error");
         }
     }
-
+    
     // LIMPIAR BÚSQUEDA
     function limpiarBusqueda() {
         searchCountry = "";
