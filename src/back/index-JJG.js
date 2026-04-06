@@ -6,7 +6,6 @@ let DOCS_URL = "https://documenter.getpostman.com/view/52368982/2sBXigMtBS";
 
 export function loadBackend(app) {
 
-    // Datos iniciales de tu ficha de trabajo (10 campos)
     let initialRecords = [
         { country_code: "AF", country_name: "Afghanistan", year: 1979, sex: "Male", max_age: 100, population_age_0: 318425, population_age_25: 127876, population_age_50: 49804, population_age_75: 9729, population_age_100: 2 },
         { country_code: "AJ", country_name: "Azerbaijan", year: 1992, sex: "Female", max_age: 100, population_age_0: 108912, population_age_25: 67871, population_age_50: 31250, population_age_75: 4571, population_age_100: 3 },
@@ -60,21 +59,21 @@ export function loadBackend(app) {
             delete req.query.limit;
         }
 
-        // --- NUEVO FILTRO DE RANGO DE AÑOS PARA NEDB ---
-        if (req.query.start_year || req.query.end_year) {
+        // --- FILTRO ACTUALIZADO USANDO FROM Y TO ---
+        if (req.query.from || req.query.to) {
             query.year = {}; 
             
-            if (req.query.start_year) {
-                query.year.$gte = parseInt(req.query.start_year); // $gte = Mayor o igual que
-                delete req.query.start_year; // Borramos para que no interfiera abajo
+            if (req.query.from) {
+                query.year.$gte = parseInt(req.query.from); 
+                delete req.query.from; 
             }
             
-            if (req.query.end_year) {
-                query.year.$lte = parseInt(req.query.end_year);   // $lte = Menor o igual que
-                delete req.query.end_year; // Borramos para que no interfiera abajo
+            if (req.query.to) {
+                query.year.$lte = parseInt(req.query.to);   
+                delete req.query.to; 
             }
         }
-        // -----------------------------------------------
+        // -------------------------------------------
 
         const operatorMap = { ">": "$gt", "<": "$lt", ">=": "$gte", "<=": "$lte" };
         const operators = [">=", "<=", ">", "<"];
@@ -114,7 +113,6 @@ export function loadBackend(app) {
     // ==========================================
     // 3. GET A RECURSO CONCRETO (Objeto)
     // ==========================================
-    // El ID compuesto es: país, año y sexo
     app.get(BASE_URL_API + "/mid-population-ages/:country_name/:year/:sex", (req, res) => {
         const country_name = req.params.country_name;
         const year = parseInt(req.params.year);
@@ -137,7 +135,6 @@ export function loadBackend(app) {
         
         if (newRecord._id) delete newRecord._id;
 
-        // Validación estricta JSON (Error 400) - 10 campos
         const expectedFields = [
             "country_code", "country_name", "year", "sex", "max_age", 
             "population_age_0", "population_age_25", "population_age_50", 
@@ -185,7 +182,6 @@ export function loadBackend(app) {
 
         if (updatedRecord._id) delete updatedRecord._id;
 
-        // Validación estricta JSON (Error 400) - 10 campos
         const expectedFields = [
             "country_code", "country_name", "year", "sex", "max_age", 
             "population_age_0", "population_age_25", "population_age_50", 

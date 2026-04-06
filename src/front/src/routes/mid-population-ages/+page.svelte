@@ -16,10 +16,10 @@
     let newPop75 = $state("");
     let newPop100 = $state("");
 
-    // Variables para el formulario de BÚSQUEDA
+    // Variables para el buscador (from / to)
     let searchCountry = $state("");
-    let searchStartYear = $state("");
-    let searchEndYear = $state("");
+    let searchFrom = $state("");
+    let searchTo = $state("");
 
     // APUNTAMOS A LA API V2
     let API = '/api/v2/mid-population-ages';
@@ -41,17 +41,16 @@
     }
     // --------------------------------------------
 
-    // OBTENER Y BUSCAR DATOS (Conectado al backend)
+    // OBTENER Y BUSCAR DATOS
     async function getPopulations() {
         let url = API;
         let queryParams = [];
 
-        // Preparamos los parámetros que el Backend está esperando
+        // Usamos from y to para enviarlos al backend
         if (searchCountry) queryParams.push(`country_name=${searchCountry}`);
-        if (searchStartYear) queryParams.push(`start_year=${searchStartYear}`);
-        if (searchEndYear) queryParams.push(`end_year=${searchEndYear}`);
+        if (searchFrom) queryParams.push(`from=${searchFrom}`);
+        if (searchTo) queryParams.push(`to=${searchTo}`);
 
-        // Si hay parámetros, los unimos a la URL
         if (queryParams.length > 0) {
             url += '?' + queryParams.join('&');
         }
@@ -60,8 +59,7 @@
         if (res.ok) {
             populations = await res.json();
             
-            // Avisar si la búsqueda no dio resultados
-            if (populations.length === 0 && (searchCountry || searchStartYear || searchEndYear)) {
+            if (populations.length === 0 && (searchCountry || searchFrom || searchTo)) {
                  mostrarMensaje("ℹ️ No se encontraron registros con esos datos de búsqueda.", "exito");
             }
         } else if (res.status === 404) {
@@ -74,12 +72,11 @@
     // LIMPIAR BÚSQUEDA
     function limpiarBusqueda() {
         searchCountry = "";
-        searchStartYear = "";
-        searchEndYear = "";
+        searchFrom = "";
+        searchTo = "";
         getPopulations();
     }
 
-    // ... [RESTO DE TUS FUNCIONES POST, DELETE, ETC SE MANTIENEN IGUAL] ...
     async function loadInitialData() {
         const res = await fetch(API + "/loadInitialData", { method: "GET" });
         if (res.ok) {
@@ -210,8 +207,8 @@
     <div class="form-container" style="background-color: #e9ecef;">
         <h3 style="margin: 0 100%; width: 100%; font-size: 1rem; color: #555;">🔍 Buscador</h3>
         <input type="text" placeholder="Buscar por País..." bind:value={searchCountry} />
-        <input type="number" placeholder="Año Desde..." bind:value={searchStartYear} />
-        <input type="number" placeholder="Año Hasta..." bind:value={searchEndYear} />
+        <input type="number" placeholder="Año (Desde)" bind:value={searchFrom} />
+        <input type="number" placeholder="Año (Hasta)" bind:value={searchTo} />
         <button class="btn-primary" onclick={getPopulations}>Buscar Registros</button>
         <button class="btn-warning" onclick={limpiarBusqueda}>Limpiar Búsqueda</button>
     </div>
@@ -220,9 +217,7 @@
         <h3 style="margin: 0 100%; width: 100%; font-size: 1rem; color: #555;">➕ Añadir Nuevo Registro</h3>
         <input type="text" placeholder="Cód. País" bind:value={newCountryCode} />
         <input type="text" placeholder="País" bind:value={newCountryName} />
-        
         <input type="number" placeholder="Año" bind:value={newYear} />
-        
         <select bind:value={newSex}>
             <option value="">Sexo...</option>
             <option value="Male">Hombre</option>
