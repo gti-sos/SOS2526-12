@@ -52,10 +52,26 @@
         const res = await fetch(fetchUrl, { method: "GET" });
         
         if (res.ok) {
-            fertility = await res.json();
+            const data = await res.json();
+            fertility = data;
+
+            // NUEVA LÓGICA: Si se ha buscado algo y el array vuelve vacío
+            if (queryString && fertility.length === 0) {
+                if (searchCountry) {
+                    mostrarMensaje(`No hay ningún registro con el nombre: ${searchCountry}`, "error");
+                } else {
+                    mostrarMensaje("No se encontraron registros con esos filtros.", "error");
+                }
+            }
         } else if (res.status === 404) {
             fertility = []; 
-            if (queryString) mostrarMensaje("No se encontraron registros con esos filtros.", "error");
+            if (queryString) {
+                if (searchCountry) {
+                    mostrarMensaje(`No hay ningún registro con el nombre: ${searchCountry}`, "error");
+                } else {
+                    mostrarMensaje("No se encontraron registros con esos filtros.", "error");
+                }
+            }
         } else {
             mostrarMensaje("Tuvimos un problema al intentar cargar la lista.", "error");
         }
@@ -179,7 +195,6 @@
     .btn-secondary { background: #6c757d; color: white; }
     .btn-secondary:hover { background: #5a6268; }
     
-    /* Clases para agrupar los botones de la tabla y dar estilo de boton al enlace */
     .acciones-celda { display: flex; gap: 8px; align-items: center; }
     .btn-enlace { display: inline-block; padding: 10px 15px; border-radius: 4px; font-weight: bold; text-decoration: none; text-align: center; font-size: 14px; font-family: inherit;}
     
