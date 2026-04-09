@@ -23,7 +23,6 @@ The project relies on Open Data from international census records (Kaggle/Census
 
 ## URL
 * https://sos2526-12.onrender.com
-* https://sos252612-tiu2dwhq.b4a.run/ (URL for extra points)
 
 ## API V1:
 - https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/docs (Developed by Francisco de Paula Mediavilla García)
@@ -34,5 +33,10 @@ The project relies on Open Data from international census records (Kaggle/Census
 - https://sos2526-12.onrender.com/api/v2/age-specific-fertility-rates/docs (Developed by Francisco de Paula Mediavilla García)
 - https://sos2526-12.onrender.com/api/v2/birth-death-growth-rates/docs (Developed by Lucca Pereira)
 - https://sos2526-12.onrender.com/api/v2/age-specific-fertility-rates/docs (Developed by Javier Jimenez Garcia)
+
+## Puntos extra Lucca Pereira Heasman
+* https://sos252612-tiu2dwhq.b4a.run/
+* OAuth en [index.js](https://sos2526-12.onrender.com/api/v1/birth-death-growth-rates)
+
 ---
 *Repository for the Service-Oriented Systems course (2025/2026).*
