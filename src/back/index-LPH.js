@@ -1,7 +1,11 @@
 import dataStore from 'nedb';
+import passport from 'passport';
+import { Strategy as GitHubStrategy } from 'passport-github2';
+import session from 'express-session';
 
 let BASE_URL_API = "/api/v2";
 let db = new dataStore({ filename: 'birth-death-growth-rates.db', autoload: true });
+let connectionsDb = new dataStore({ filename: 'connections.db', autoload: true });
 let DOCS_URL_V1 = "https://documenter.getpostman.com/view/52398391/2sBXigLYdf";
 let DOCS_URL_V2 = "https://documenter.getpostman.com/view/52398391/2sBXijJBsJ";
 
@@ -10,6 +14,31 @@ function isValidRecord(record) {
     if (!record.country_name || record.country_name === "") return false;
     if (record.year === undefined || record.year === null || record.year === "" || isNaN(record.year)) return false;
     return true;
+}
+
+// Configure GitHub OAuth strategy
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID || 'Ov23liCCYPSTIv9iuB76',
+    clientSecret: process.env.GITHUB_CLIENT_SECRET || '00d1d4d875b4b9d48117ec0bb7c11f647e5aead9',
+    callbackURL: process.env.CALLBACK_URL || 'http://localhost:3000/auth/github/callback'
+}, (accessToken, refreshToken, profile, done) => {
+    // Log each login to the connections database
+    connectionsDb.insert({
+        username: profile.username,
+        displayName: profile.displayName || profile.username,
+        avatar: profile.photos?.[0]?.value || null,
+        timestamp: new Date().toISOString()
+    });
+    return done(null, profile);
+}));
+
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+
+// Middleware to protect routes — returns 401 if not logged in
+function isAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) return next();
+    res.status(401).json({ message: "Unauthorized. Please login at /auth/github" });
 }
 
 const initialRecords = [
@@ -29,6 +58,40 @@ const initialRecords = [
 
 export function loadBackend(app) {
 
+    // Session and passport middleware
+    app.use(session({
+        secret: process.env.SESSION_SECRET || 'sos2526-lph-secret',
+        resave: false,
+        saveUninitialized: false
+    }));
+    app.use(passport.initialize());
+    app.use(passport.session());
+
+    // --- Auth routes ---
+    app.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+    app.get('/auth/github/callback',
+        passport.authenticate('github', { failureRedirect: '/auth/failure' }),
+        (req, res) => res.redirect('/')
+    );
+
+    app.get('/auth/logout', (req, res) => {
+        req.logout(() => res.json({ message: 'Logged out successfully' }));
+    });
+
+    app.get('/auth/status', (req, res) => {
+        if (req.isAuthenticated()) {
+            res.json({ authenticated: true, user: req.user.username, avatar: req.user.photos?.[0]?.value });
+        } else {
+            res.json({ authenticated: false });
+        }
+    });
+
+    app.get('/auth/failure', (req, res) => {
+        res.status(401).json({ message: 'GitHub authentication failed' });
+    });
+
+    // --- API routes ---
     app.get("/api/v1/birth-death-growth-rates/docs", (req, res) => {
         res.redirect(DOCS_URL_V1);
     });
@@ -44,6 +107,15 @@ export function loadBackend(app) {
                 const clean = inserted.map(({ _id, ...rest }) => rest);
                 res.status(200).json(clean);
             });
+        });
+    });
+
+    // Connection history — who has logged in and when
+    app.get(BASE_URL_API + "/birth-death-growth-rates/connections", (req, res) => {
+        connectionsDb.find({}, (err, records) => {
+            if (err) return res.status(500).json({ message: "Database error" });
+            const clean = records.map(({ _id, ...rest }) => rest);
+            res.status(200).json(clean);
         });
     });
 
@@ -90,7 +162,8 @@ export function loadBackend(app) {
         });
     });
 
-    app.post(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+    // POST, PUT, DELETE require authentication
+    app.post(BASE_URL_API + "/birth-death-growth-rates", isAuthenticated, (req, res) => {
         const newRecord = req.body;
 
         if (!isValidRecord(newRecord)) {
@@ -113,7 +186,7 @@ export function loadBackend(app) {
         res.status(405).json({ message: "Method Not Allowed" });
     });
 
-    app.put(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
+    app.put(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", isAuthenticated, (req, res) => {
         const country_code = req.params.country_code;
         const year = Number(req.params.year);
         const updatedRecord = req.body;
@@ -142,14 +215,14 @@ export function loadBackend(app) {
         res.status(405).json({ message: "Method Not Allowed" });
     });
 
-    app.delete(BASE_URL_API + "/birth-death-growth-rates", (req, res) => {
+    app.delete(BASE_URL_API + "/birth-death-growth-rates", isAuthenticated, (req, res) => {
         db.remove({}, { multi: true }, (err) => {
             if (err) return res.status(500).json({ message: "Database error" });
             res.status(200).json({ message: "All records deleted successfully" });
         });
     });
 
-    app.delete(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
+    app.delete(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", isAuthenticated, (req, res) => {
         const country_code = req.params.country_code;
         const year = Number(req.params.year);
 

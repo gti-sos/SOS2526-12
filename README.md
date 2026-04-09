@@ -23,6 +23,7 @@ The project relies on Open Data from international census records (Kaggle/Census
 
 ## URL
 * https://sos2526-12.onrender.com
+* https://sos252612-tiu2dwhq.b4a.run/ (URL for extra points)
 
 ## API V1:
 - https://sos2526-12.onrender.com/api/v1/age-specific-fertility-rates/docs (Developed by Francisco de Paula Mediavilla García)
