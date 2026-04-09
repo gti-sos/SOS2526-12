@@ -139,6 +139,9 @@ vite.config.ts.timestamp-*
 # NeDB database files
 *.db
 
+# Claude Code instructions
+CLAUDE.md
+
 # Playwright
 /test-results/
 /playwright-report/
