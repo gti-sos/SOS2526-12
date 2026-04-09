@@ -2,8 +2,10 @@ import dataStore from 'nedb';
 import passport from 'passport';
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import session from 'express-session';
+import jwt from 'jsonwebtoken';
 
 let BASE_URL_API = "/api/v2";
+let JWT_SECRET = process.env.JWT_SECRET || 'sos2526-lph-jwt-secret';
 let db = new dataStore({ filename: 'birth-death-growth-rates.db', autoload: true });
 let connectionsDb = new dataStore({ filename: 'connections.db', autoload: true });
 let DOCS_URL_V1 = "https://documenter.getpostman.com/view/52398391/2sBXigLYdf";
@@ -38,6 +40,17 @@ passport.deserializeUser((user, done) => done(null, user));
 // Middleware to protect routes — returns 401 if not logged in
 function isAuthenticated(req, res, next) {
     if (req.isAuthenticated()) return next();
+    // Also accept a valid JWT in the Authorization header
+    const authHeader = req.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.slice(7);
+        try {
+            req.jwtUser = jwt.verify(token, JWT_SECRET);
+            return next();
+        } catch {
+            return res.status(401).json({ message: "Invalid or expired token" });
+        }
+    }
     res.status(401).json({ message: "Unauthorized. Please login at /auth/github" });
 }
 
@@ -89,6 +102,31 @@ export function loadBackend(app) {
 
     app.get('/auth/failure', (req, res) => {
         res.status(401).json({ message: 'GitHub authentication failed' });
+    });
+
+    // Test-only endpoint: issue a JWT without OAuth (disabled in production)
+    if (process.env.NODE_ENV !== 'production') {
+        app.get('/auth/test-token', (req, res) => {
+            const token = jwt.sign(
+                { username: 'playwright-test', avatar: null },
+                JWT_SECRET,
+                { expiresIn: '1h' }
+            );
+            res.json({ token });
+        });
+    }
+
+    // Issue a JWT for the currently logged-in user (session must exist)
+    app.get('/auth/jwt', (req, res) => {
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ message: 'Not logged in. Go to /auth/github first.' });
+        }
+        const token = jwt.sign(
+            { username: req.user.username, avatar: req.user.photos?.[0]?.value || null },
+            JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        res.json({ token });
     });
 
     // --- API routes ---

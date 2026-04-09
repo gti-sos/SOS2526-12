@@ -33,7 +33,21 @@
         if (res.ok) {
             const data = await res.json();
             usuario = data.authenticated ? data.user : null;
+            // If logged in via session, fetch and cache a JWT
+            if (data.authenticated && !localStorage.getItem('lph_jwt')) {
+                const tokenRes = await fetch(BASE + '/auth/jwt');
+                if (tokenRes.ok) {
+                    const { token } = await tokenRes.json();
+                    localStorage.setItem('lph_jwt', token);
+                }
+            }
         }
+    }
+
+    function authHeaders() {
+        const token = localStorage.getItem('lph_jwt');
+        return token ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                     : { 'Content-Type': 'application/json' };
     }
 
     function iniciarSesion() {
@@ -46,6 +60,7 @@
 
     async function cerrarSesion() {
         await fetch(BASE + '/auth/logout');
+        localStorage.removeItem('lph_jwt');
         usuario = null;
         mostrarMensaje('Sesión cerrada.', 'info');
     }
@@ -150,7 +165,7 @@
 
         const res = await fetch(API, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders(),
             body: JSON.stringify(nuevo)
         });
 
@@ -186,7 +201,7 @@
             )
         )
             return;
-        const res = await fetch(API, { method: 'DELETE' });
+        const res = await fetch(API, { method: 'DELETE', headers: authHeaders() });
         if (res.ok) {
             await cargarDatos();
             mostrarMensaje('Se han eliminado todos los registros.', 'borrado');
@@ -200,7 +215,7 @@
     // @ts-ignore
     async function borrarUno(codigo, anio) {
         if (!confirm(`¿Eliminar el registro de ${codigo} (${anio})?`)) return;
-        const res = await fetch(`${API}/${codigo}/${anio}`, { method: 'DELETE' });
+        const res = await fetch(`${API}/${codigo}/${anio}`, { method: 'DELETE', headers: authHeaders() });
         if (res.ok) {
             await cargarDatos();
             mostrarMensaje(`Registro de ${codigo} (${anio}) eliminado.`, 'borrado');
