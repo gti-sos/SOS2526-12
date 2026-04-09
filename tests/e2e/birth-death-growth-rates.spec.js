@@ -11,7 +11,36 @@ test.describe('Pruebas E2E - Tasas de Natalidad, Mortalidad y Crecimiento', () =
     const paisUnico = 'PaisTest';
     const anioUnico = '2030';
 
+    let testToken;
+
+    test.beforeAll(async ({ request }) => {
+        const res = await request.get('/auth/test-token');
+        const data = await res.json();
+        testToken = data.token;
+    });
+
     test.beforeEach(async ({ page }) => {
+        // Mock auth/status so the page thinks we're logged in
+        await page.route('**/auth/status', route => {
+            route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ authenticated: true, user: 'playwright-test', avatar: null })
+            });
+        });
+        // Mock auth/jwt to return our test token
+        await page.route('**/auth/jwt', route => {
+            route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ token: testToken })
+            });
+        });
+        // Pre-inject the JWT into localStorage before the page loads
+        await page.addInitScript((token) => {
+            localStorage.setItem('lph_jwt', token);
+        }, testToken);
+
         page.on('dialog', dialog => dialog.accept());
         await page.goto(URL, { waitUntil: 'networkidle', timeout: 60000 });
         await expect(page.locator('h1', { hasText: 'Tasas de Natalidad' })).toBeVisible({ timeout: 30000 });

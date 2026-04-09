@@ -51,9 +51,13 @@
             growth_rate: parseFloat(growth_rate) || 0
         };
 
+        const token = localStorage.getItem('lph_jwt');
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
         const res = await fetch(API, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers,
             body: JSON.stringify(updated)
         });
 
