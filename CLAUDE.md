@@ -112,3 +112,6 @@ Each extra is worth **+0.25pt** (max 2pt individual + 0.25pt group).
 4. OAuth backend (~45 min) — passport.js
 5. Auth0 frontend (~1.5h) — Auth0 tenant + Svelte integration
 6. React/Vue frontend (~2h) — parallel frontend for LPH resource
+
+### End of task update
+Whn finishing a task, update README-LPH.md with the changes and how it works for better understanding at a later date and to study.

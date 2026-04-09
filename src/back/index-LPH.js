@@ -116,6 +116,25 @@ export function loadBackend(app) {
         });
     }
 
+    // Exchange an Auth0 ID token for our own backend JWT
+    app.post('/auth/jwt-from-auth0', (req, res) => {
+        const { idToken } = req.body;
+        if (!idToken) return res.status(400).json({ message: 'ID token required' });
+        try {
+            // Decode the Auth0 ID token to extract user claims
+            const payload = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString());
+            if (!payload.sub) return res.status(401).json({ message: 'Invalid token' });
+            const token = jwt.sign(
+                { username: payload.nickname || payload.name || payload.email, avatar: payload.picture || null },
+                JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+            res.json({ token });
+        } catch {
+            res.status(500).json({ message: 'Error processing token' });
+        }
+    });
+
     // Issue a JWT for the currently logged-in user (session must exist)
     app.get('/auth/jwt', (req, res) => {
         if (!req.isAuthenticated()) {
