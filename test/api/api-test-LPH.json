@@ -8,6 +8,34 @@
   },
   "item": [
     {
+      "name": "Get test JWT",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.collectionVariables.set('jwt_token', json.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/auth/test-token",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "test-token"]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "Delete toda la coleccion",
       "event": [
         {
@@ -28,7 +56,9 @@
       ],
       "request": {
         "method": "DELETE",
-        "header": [],
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
         "url": {
           "raw": "{{base_url}}/api/v2/birth-death-growth-rates",
           "host": ["{{base_url}}"],
@@ -234,7 +264,10 @@
       ],
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"country_code\": \"TEST\",\n  \"country_name\": \"Test Country\",\n  \"year\": 2023,\n  \"crude_birth_rate\": 10.0,\n  \"crude_death_rate\": 5.0\n}",
@@ -304,7 +337,10 @@
       ],
       "request": {
         "method": "PUT",
-        "header": [],
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\r\n  \"country_code\": \"TEST\",\r\n  \"country_name\": \"Test Country Updated\",\r\n  \"year\": 2023,\r\n  \"crude_birth_rate\": 12.0,\r\n  \"crude_death_rate\": 6.0\r\n}",
@@ -339,7 +375,9 @@
       ],
       "request": {
         "method": "DELETE",
-        "header": [],
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
         "url": {
           "raw": "{{base_url}}/api/v2/birth-death-growth-rates/TEST/2023",
           "host": ["{{base_url}}"],
@@ -391,7 +429,10 @@
       ],
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\r\n  \"crude_birth_rate\": 10.0\r\n}",
@@ -422,7 +463,10 @@
       ],
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\r\n  \"country_code\": \"SI\",\r\n  \"country_name\": \"Slovenia\",\r\n  \"year\": 2022,\r\n  \"crude_birth_rate\": 9.0,\r\n  \"crude_death_rate\": 10.0\r\n}",
@@ -453,7 +497,10 @@
       ],
       "request": {
         "method": "PUT",
-        "header": [],
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\r\n  \"country_code\": \"XX\",\r\n  \"country_name\": \"Wrong Country\",\r\n  \"year\": 9999,\r\n  \"crude_birth_rate\": 1.0,\r\n  \"crude_death_rate\": 1.0\r\n}",
