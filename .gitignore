@@ -142,6 +142,9 @@ vite.config.ts.timestamp-*
 # Claude Code instructions
 CLAUDE.md
 
+# Personal notes
+README-LPH.md
+
 # Playwright
 /test-results/
 /playwright-report/

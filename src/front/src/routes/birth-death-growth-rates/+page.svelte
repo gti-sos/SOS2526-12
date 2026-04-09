@@ -1,9 +1,11 @@
 <script>
     import { dev } from '$app/environment';
+    import { createAuth0Client } from '@auth0/auth0-spa-js';
 
     // @ts-ignore
     let registros = $state([]);
-    let usuario = $state(null); // GitHub username if logged in, null otherwise
+    let usuario = $state(null);
+    let auth0Client = null;
 
     let nuevoCodigo = $state('');
     let nuevoPais = $state('');
@@ -28,19 +30,53 @@
     let tipoMensaje = $state('');
     let mostrarModalAuth = $state(false);
 
-    async function cargarAuth() {
-        const res = await fetch(BASE + '/auth/status');
-        if (res.ok) {
-            const data = await res.json();
-            usuario = data.authenticated ? data.user : null;
-            // If logged in via session, fetch and cache a JWT
-            if (data.authenticated && !localStorage.getItem('lph_jwt')) {
-                const tokenRes = await fetch(BASE + '/auth/jwt');
-                if (tokenRes.ok) {
-                    const { token } = await tokenRes.json();
+    async function initAuth() {
+        // Fast path: if a valid JWT is already in localStorage (e.g. injected by tests), use it directly
+        const existingToken = localStorage.getItem('lph_jwt');
+        if (existingToken) {
+            try {
+                // base64url → base64 before decoding
+                const base64 = existingToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+                const payload = JSON.parse(atob(base64));
+                if (payload.exp * 1000 > Date.now()) {
+                    usuario = payload.username;
+                    return;
+                }
+            } catch { /* fall through to Auth0 */ }
+            localStorage.removeItem('lph_jwt');
+        }
+
+        // Initialize Auth0
+        auth0Client = await createAuth0Client({
+            domain: 'sos2526-12.eu.auth0.com',
+            clientId: 'psixhrpR89WtLqsrPLJa8LvcxIV6zgBf',
+            authorizationParams: {
+                redirect_uri: window.location.href.split('?')[0]
+            }
+        });
+
+        // Handle redirect callback from Auth0
+        if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+            await auth0Client.handleRedirectCallback();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        if (await auth0Client.isAuthenticated()) {
+            const user = await auth0Client.getUser();
+            usuario = user?.nickname || user?.name || user?.email || 'Usuario';
+            // Exchange Auth0 ID token for our backend JWT
+            try {
+                const claims = await auth0Client.getIdTokenClaims();
+                const res = await fetch(BASE + '/auth/jwt-from-auth0', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken: claims.__raw })
+                });
+                if (res.ok) {
+                    const { token } = await res.json();
                     localStorage.setItem('lph_jwt', token);
                 }
-            }
+            } catch { /* API calls may fail without JWT but UI still works */ }
         }
     }
 
@@ -50,8 +86,12 @@
                      : { 'Content-Type': 'application/json' };
     }
 
-    function iniciarSesion() {
-        window.location.href = BASE + '/auth/github';
+    async function iniciarSesion() {
+        await auth0Client.loginWithRedirect({
+            authorizationParams: {
+                redirect_uri: window.location.href.split('?')[0]
+            }
+        });
     }
 
     function mostrarAuthRequerida() {
@@ -59,10 +99,11 @@
     }
 
     async function cerrarSesion() {
-        await fetch(BASE + '/auth/logout');
         localStorage.removeItem('lph_jwt');
         usuario = null;
-        mostrarMensaje('Sesión cerrada.', 'info');
+        await auth0Client.logout({
+            logoutParams: { returnTo: window.location.href.split('?')[0] }
+        });
     }
 
     // @ts-ignore
@@ -229,8 +270,7 @@
     }
 
     $effect(() => {
-        cargarAuth();
-        cargarDatos();
+        initAuth().then(() => cargarDatos());
     });
 </script>
 
@@ -238,12 +278,9 @@
     <div class="modal-overlay" onclick={() => mostrarModalAuth = false}>
         <div class="modal-card" onclick={(e) => e.stopPropagation()}>
             <p class="modal-titulo">Acción no permitida</p>
-            <p class="modal-texto">Debes iniciar sesión con GitHub para añadir, editar o eliminar registros.</p>
+            <p class="modal-texto">Debes iniciar sesión con Auth0 para añadir, editar o eliminar registros.</p>
             <div class="modal-botones">
-                <button class="btn-github" onclick={iniciarSesion}>
-                    <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle;margin-right:6px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-                    Iniciar sesión con GitHub
-                </button>
+                <button class="btn-auth0" onclick={iniciarSesion}>Iniciar sesión con Auth0</button>
                 <button class="btn-gris" onclick={() => mostrarModalAuth = false}>Cancelar</button>
             </div>
         </div>
@@ -259,9 +296,8 @@
             <button class="btn-gris" onclick={cerrarSesion}>Cerrar sesión</button>
         {:else}
             <span class="auth-info">Inicia sesión para añadir, editar o eliminar registros</span>
-            <button class="btn-github" onclick={iniciarSesion}>
-                <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle;margin-right:6px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-                Iniciar sesión con GitHub
+            <button class="btn-auth0" onclick={iniciarSesion}>
+                Iniciar sesión con Auth0
             </button>
         {/if}
     </div>
@@ -647,8 +683,8 @@
         justify-content: center;
     }
 
-    .btn-github {
-        background: #24292e;
+    .btn-auth0 {
+        background: #eb5424;
         color: white;
         display: flex;
         align-items: center;
@@ -661,8 +697,8 @@
         transition: background 0.15s;
     }
 
-    .btn-github:hover {
-        background: #444d56;
+    .btn-auth0:hover {
+        background: #c94a1f;
         opacity: 1;
     }
 </style>
