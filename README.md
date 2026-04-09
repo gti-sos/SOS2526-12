@@ -36,7 +36,7 @@ The project relies on Open Data from international census records (Kaggle/Census
 
 ## Puntos extra Lucca Pereira Heasman
 * https://sos252612-tiu2dwhq.b4a.run/
-* OAuth en [index.js](https://sos2526-12.onrender.com/api/v1/birth-death-growth-rates)
+* OAuth en [index.js](https://sos2526-12.onrender.com/api/v2/birth-death-growth-rates)
 
 ---
 *Repository for the Service-Oriented Systems course (2025/2026).*
