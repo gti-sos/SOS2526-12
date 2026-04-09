@@ -3,6 +3,7 @@
 
     // @ts-ignore
     let registros = $state([]);
+    let usuario = $state(null); // GitHub username if logged in, null otherwise
 
     let nuevoCodigo = $state('');
     let nuevoPais = $state('');
@@ -20,13 +21,34 @@
     let buscarAnioDesde = $state('');
     let buscarAnioHasta = $state('');
 
-    let API = '/api/v2/birth-death-growth-rates';
-    if (dev) {
-        API = 'http://localhost:3000' + API;
-    }
+    let BASE = dev ? 'http://localhost:3000' : '';
+    let API = BASE + '/api/v2/birth-death-growth-rates';
 
     let mensaje = $state('');
     let tipoMensaje = $state('');
+    let mostrarModalAuth = $state(false);
+
+    async function cargarAuth() {
+        const res = await fetch(BASE + '/auth/status');
+        if (res.ok) {
+            const data = await res.json();
+            usuario = data.authenticated ? data.user : null;
+        }
+    }
+
+    function iniciarSesion() {
+        window.location.href = BASE + '/auth/github';
+    }
+
+    function mostrarAuthRequerida() {
+        mostrarModalAuth = true;
+    }
+
+    async function cerrarSesion() {
+        await fetch(BASE + '/auth/logout');
+        usuario = null;
+        mostrarMensaje('Sesión cerrada.', 'info');
+    }
 
     // @ts-ignore
     function mostrarMensaje(texto, tipo = 'info') {
@@ -143,6 +165,8 @@
             nuevoCrecimientoNatural = '';
             nuevaTasaCrecimiento = '';
             mostrarMensaje('Registro anadido con exito.', 'nuevo');
+        } else if (res.status === 401) {
+            mostrarAuthRequerida();
         } else if (res.status === 400) {
             mostrarMensaje(
                 'Faltan campos obligatorios: codigo de pais, nombre del pais y anio son necesarios.',
@@ -166,6 +190,8 @@
         if (res.ok) {
             await cargarDatos();
             mostrarMensaje('Se han eliminado todos los registros.', 'borrado');
+        } else if (res.status === 401) {
+            mostrarAuthRequerida();
         } else {
             mostrarMensaje('No se pudo vaciar la tabla. Intentalo de nuevo.', 'error');
         }
@@ -178,6 +204,8 @@
         if (res.ok) {
             await cargarDatos();
             mostrarMensaje(`Registro de ${codigo} (${anio}) eliminado.`, 'borrado');
+        } else if (res.status === 401) {
+            mostrarAuthRequerida();
         } else if (res.status === 404) {
             mostrarMensaje(`No se encontro ningun registro de ${codigo} para el anio ${anio}.`, 'error');
         } else {
@@ -186,21 +214,53 @@
     }
 
     $effect(() => {
+        cargarAuth();
         cargarDatos();
     });
 </script>
 
+{#if mostrarModalAuth}
+    <div class="modal-overlay" onclick={() => mostrarModalAuth = false}>
+        <div class="modal-card" onclick={(e) => e.stopPropagation()}>
+            <p class="modal-titulo">Acción no permitida</p>
+            <p class="modal-texto">Debes iniciar sesión con GitHub para añadir, editar o eliminar registros.</p>
+            <div class="modal-botones">
+                <button class="btn-github" onclick={iniciarSesion}>
+                    <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle;margin-right:6px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                    Iniciar sesión con GitHub
+                </button>
+                <button class="btn-gris" onclick={() => mostrarModalAuth = false}>Cancelar</button>
+            </div>
+        </div>
+    </div>
+{/if}
+
 <main>
     <h1>Tasas de Natalidad, Mortalidad y Crecimiento por Pais</h1>
+
+    <div class="auth-bar">
+        {#if usuario}
+            <span class="auth-usuario">Conectado como <strong>{usuario}</strong></span>
+            <button class="btn-gris" onclick={cerrarSesion}>Cerrar sesión</button>
+        {:else}
+            <span class="auth-info">Inicia sesión para añadir, editar o eliminar registros</span>
+            <button class="btn-github" onclick={iniciarSesion}>
+                <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle;margin-right:6px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                Iniciar sesión con GitHub
+            </button>
+        {/if}
+    </div>
 
     {#if mensaje}
         <div class="aviso {tipoMensaje}">{mensaje}</div>
     {/if}
 
+    {#if usuario}
     <div class="acciones-cabecera">
         <button class="btn-verde" onclick={restaurarDatos}>Restaurar datos de ejemplo</button>
         <button class="btn-rojo" onclick={borrarTodo}>Eliminar todos los registros</button>
     </div>
+    {/if}
 
     <!-- Formulario de búsqueda -->
     <section class="seccion-busqueda">
@@ -234,7 +294,8 @@
         </div>
     </section>
 
-    <!-- Formulario de añadir -->
+    <!-- Formulario de añadir (solo visible si autenticado) -->
+    {#if usuario}
     <section class="seccion-busqueda">
         <h2 class="seccion-titulo">Añadir registro</h2>
         <div class="formulario">
@@ -249,6 +310,7 @@
             <button class="btn-azul" onclick={anadirRegistro}>Anadir registro</button>
         </div>
     </section>
+    {/if}
 
     <table>
         <thead>
@@ -507,5 +569,85 @@
         background: transparent;
         border: 1px solid #ccc;
         color: #666;
+    }
+
+    .auth-bar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding: 0.6rem 1rem;
+        background: #f6f8fa;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+    }
+
+    .auth-info {
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    .auth-usuario {
+        font-size: 0.85rem;
+        color: #444;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+    }
+
+    .modal-card {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        max-width: 380px;
+        width: 90%;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        text-align: center;
+    }
+
+    .modal-titulo {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #222;
+    }
+
+    .modal-texto {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-botones {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+
+    .btn-github {
+        background: #24292e;
+        color: white;
+        display: flex;
+        align-items: center;
+        padding: 0.4rem 0.9rem;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .btn-github:hover {
+        background: #444d56;
+        opacity: 1;
     }
 </style>

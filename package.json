@@ -37,7 +37,10 @@
     "body-parser": "^2.2.2",
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "nedb": "^1.8.0"
+    "express-session": "^1.18.1",
+    "nedb": "^1.8.0",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
