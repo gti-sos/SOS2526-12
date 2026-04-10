@@ -1,3 +1,13 @@
+---
+title: SOS2526-12
+emoji: 🌍
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 3000
+pinned: false
+---
+
 # International Population Dynamics
 
 Welcome to the repository for the **SOS2526-12** group.
