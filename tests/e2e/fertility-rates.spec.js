@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const URL_FRONTEND = 'https://sos2526-12.onrender.com/age-specific-fertility-rates';
+const URL_FRONTEND = '/age-specific-fertility-rates';
 //const URL_FRONTEND = 'https://localhost:3000/age-specific-fertility-rates';
 
 

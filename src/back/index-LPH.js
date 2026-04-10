@@ -3,6 +3,8 @@ import passport from 'passport';
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import session from 'express-session';
 import jwt from 'jsonwebtoken';
+import admin from 'firebase-admin';
+import { readFileSync, existsSync } from 'fs';
 
 let BASE_URL_API = "/api/v2";
 let JWT_SECRET = process.env.JWT_SECRET || 'sos2526-lph-jwt-secret';
@@ -10,6 +12,45 @@ let db = new dataStore({ filename: 'birth-death-growth-rates.db', autoload: true
 let connectionsDb = new dataStore({ filename: 'connections.db', autoload: true });
 let DOCS_URL_V1 = "https://documenter.getpostman.com/view/52398391/2sBXigLYdf";
 let DOCS_URL_V2 = "https://documenter.getpostman.com/view/52398391/2sBXijJBsJ";
+
+// Initialize Firebase (key file locally, env var in production)
+const KEY_PATH = 'sos2526-12-firebase-adminsdk-fbsvc-190658bab5.json';
+let fbCollection = null;
+try {
+    let serviceAccount;
+    if (existsSync(KEY_PATH)) {
+        serviceAccount = JSON.parse(readFileSync(KEY_PATH, 'utf8'));
+    } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString());
+    }
+    if (serviceAccount && !admin.apps.length) {
+        admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    }
+    if (admin.apps.length) {
+        fbCollection = admin.firestore().collection('birth-death-growth-rates');
+    }
+} catch (e) {
+    console.warn('Firebase not available:', e.message);
+}
+
+// Fire-and-forget Firestore write — never blocks the NeDB response
+function fbSet(docId, data) {
+    if (fbCollection) fbCollection.doc(docId).set(data).catch(e => console.warn('Firebase set error:', e.message));
+}
+function fbDelete(docId) {
+    if (fbCollection) fbCollection.doc(docId).delete().catch(e => console.warn('Firebase delete error:', e.message));
+}
+async function fbDeleteAll() {
+    if (!fbCollection) return;
+    try {
+        const snapshot = await fbCollection.get();
+        const batch = admin.firestore().batch();
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+    } catch (e) {
+        console.warn('Firebase deleteAll error:', e.message);
+    }
+}
 
 function isValidRecord(record) {
     if (!record.country_code || record.country_code === "") return false;
@@ -162,6 +203,10 @@ export function loadBackend(app) {
             db.insert(initialRecords, (err, inserted) => {
                 if (err) return res.status(500).json({ message: "Database error" });
                 const clean = inserted.map(({ _id, ...rest }) => rest);
+                // Mirror to Firestore
+                fbDeleteAll().then(() => {
+                    initialRecords.forEach(r => fbSet(`${r.country_code}_${r.year}`, r));
+                });
                 res.status(200).json(clean);
             });
         });
@@ -234,6 +279,8 @@ export function loadBackend(app) {
             db.insert(newRecord, (err, inserted) => {
                 if (err) return res.status(500).json({ message: "Database error" });
                 const { _id, ...clean } = inserted;
+                // Mirror to Firestore
+                fbSet(`${clean.country_code}_${clean.year}`, clean);
                 res.status(201).json(clean);
             });
         });
@@ -263,6 +310,8 @@ export function loadBackend(app) {
             const { _id } = records[0];
             db.update({ _id }, { $set: updatedRecord }, {}, (err) => {
                 if (err) return res.status(500).json({ message: "Database error" });
+                // Mirror to Firestore
+                fbSet(`${country_code}_${year}`, updatedRecord);
                 res.status(200).json(updatedRecord);
             });
         });
@@ -275,6 +324,8 @@ export function loadBackend(app) {
     app.delete(BASE_URL_API + "/birth-death-growth-rates", isAuthenticated, (req, res) => {
         db.remove({}, { multi: true }, (err) => {
             if (err) return res.status(500).json({ message: "Database error" });
+            // Mirror to Firestore
+            fbDeleteAll();
             res.status(200).json({ message: "All records deleted successfully" });
         });
     });
@@ -289,6 +340,8 @@ export function loadBackend(app) {
             }
             db.remove({ country_code, year }, {}, (err) => {
                 if (err) return res.status(500).json({ message: "Database error" });
+                // Mirror to Firestore
+                fbDelete(`${country_code}_${year}`);
                 res.status(200).json({ message: "Record deleted successfully" });
             });
         });
