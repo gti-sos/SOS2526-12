@@ -25,7 +25,11 @@
     "test-mid-population-ages": "npm run test-local-JJG",
     "test-online": "npm run test-online-FMG && npm run test-online-LPH && npm run test-online-JJG",
     "test-local": "npm run test-local-FMG && npm run test-local-LPH && npm run test-local-JJG",
-    "test": "npm run test-local"
+    "test": "npm run test-local",
+    "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest --coverage --coverageReporters=lcov --coverageReporters=text"
+  },
+  "jest": {
+    "transform": {}
   },
   "repository": {
     "type": "git",
