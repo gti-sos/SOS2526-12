@@ -51,5 +51,9 @@ The project relies on Open Data from international census records (Kaggle/Census
 * Firebase implementation: 
 ![](image.png)
 
+## Badges
+[![codecov](https://codecov.io/gh/gti-sos/SOS2526-12/graph/badge.svg?token=bZe7NgbiRF)](https://codecov.io/gh/gti-sos/SOS2526-12)
+[![Known Vulnerabilities](https://snyk.io/test/github/gti-sos/SOS2526-12/badge.svg)](https://snyk.io/test/github/gti-sos/SOS2526-12)
+
 ---
 *Repository for the Service-Oriented Systems course (2025/2026).*
