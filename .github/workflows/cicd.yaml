@@ -46,3 +46,11 @@ jobs:
 
       - name: Run test
         run: npm test
+        
+      - name: Deploy to Hugging Face Spaces
+        if: github.event_name == 'push' 
+        run: |
+          git config user.email "ci@github.com"
+          git config user.name "GitHub Actions"
+          git remote add huggingface https://lucperhea:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/lucperhea/sos2526-12
+          git push huggingface main --force
