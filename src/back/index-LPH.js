@@ -25,9 +25,13 @@ try {
     }
     if (serviceAccount && !admin.apps.length) {
         admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+        console.log('Firebase initialized successfully');
+    } else if (!serviceAccount) {
+        console.warn('Firebase: no service account found');
     }
     if (admin.apps.length) {
         fbCollection = admin.firestore().collection('birth-death-growth-rates');
+        console.log('Firestore collection ready');
     }
 } catch (e) {
     console.warn('Firebase not available:', e.message);

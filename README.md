@@ -45,10 +45,11 @@ The project relies on Open Data from international census records (Kaggle/Census
 - https://sos2526-12.onrender.com/api/v2/age-specific-fertility-rates/docs (Developed by Javier Jimenez Garcia)
 
 ## Puntos extra Lucca Pereira Heasman
-* Despliegue en otra nube (Hugging Face): https://lucperhea-sos2526-12.hf.space
-* OAuth (GitHub) en backend: https://sos2526-12.onrender.com/auth/github
-* JWT authentication en backend
-* Auth0 con social login en frontend: https://sos2526-12.onrender.com/birth-death-growth-rates
+* Hugging Face (Render alternative): https://lucperhea-sos2526-12.hf.space
+* JWT authentication in backend
+* Auth0 with social login: https://sos2526-12.onrender.com/birth-death-growth-rates
+* Firebase implementation: 
+![](image.png)
 
 ---
 *Repository for the Service-Oriented Systems course (2025/2026).*
