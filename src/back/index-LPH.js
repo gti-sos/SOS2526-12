@@ -5,6 +5,7 @@ import session from 'express-session';
 import jwt from 'jsonwebtoken';
 import admin from 'firebase-admin';
 import { readFileSync, existsSync } from 'fs';
+import { isValidRecord } from './validate-LPH.js';
 
 let BASE_URL_API = "/api/v2";
 let JWT_SECRET = process.env.JWT_SECRET || 'sos2526-lph-jwt-secret';
@@ -54,13 +55,6 @@ async function fbDeleteAll() {
     } catch (e) {
         console.warn('Firebase deleteAll error:', e.message);
     }
-}
-
-function isValidRecord(record) {
-    if (!record.country_code || record.country_code === "") return false;
-    if (!record.country_name || record.country_name === "") return false;
-    if (record.year === undefined || record.year === null || record.year === "" || isNaN(record.year)) return false;
-    return true;
 }
 
 // Configure GitHub OAuth strategy
