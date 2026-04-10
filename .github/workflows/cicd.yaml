@@ -59,6 +59,14 @@ jobs:
       - name: Run test
         run: npm test
 
+      - name: Run unit tests with coverage
+        run: npm run test:unit
+      - name: Upload coverage to Codecov 
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info 
+
       - name: Run Snyk security scan
         uses: snyk/actions/node@master
         env:
