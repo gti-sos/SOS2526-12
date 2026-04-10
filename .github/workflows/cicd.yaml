@@ -78,7 +78,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: lucperheasos/sos2526-12:latest
+          tags: | 
+            lucperheasos/sos2526-12:latest
+            lucperheasos/sos2526-12:${{ github.run_number }}
 
       - name: Run Snyk security scan
         uses: snyk/actions/node@master
