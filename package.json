@@ -29,7 +29,8 @@
     "test:unit": "NODE_OPTIONS=--experimental-vm-modules npx jest --coverage --coverageReporters=lcov --coverageReporters=text"
   },
   "jest": {
-    "transform": {}
+    "transform": {},
+    "testMatch": ["**/test/unit/**/*.test.js"]
   },
   "repository": {
     "type": "git",
