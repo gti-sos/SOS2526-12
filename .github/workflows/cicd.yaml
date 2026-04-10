@@ -29,6 +29,8 @@ jobs:
         working-directory: ./src/front
         run: npm run build
 
+      - name: Install root dependecies
+        run: npm ci
       
       - name: Install Playwright dependencies in Root
         run: npm install -D @playwright/test
