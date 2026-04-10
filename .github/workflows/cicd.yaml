@@ -58,6 +58,14 @@ jobs:
 
       - name: Run test
         run: npm test
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+          continue-on-error: true
         
       - name: Deploy to Hugging Face Spaces
         if: github.event_name == 'push' 
