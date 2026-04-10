@@ -66,6 +66,11 @@ jobs:
         with:
           args: --severity-threshold=high
           continue-on-error: true
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
         
       - name: Deploy to Hugging Face Spaces
         if: github.event_name == 'push' 
