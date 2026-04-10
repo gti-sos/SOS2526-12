@@ -64,8 +64,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high
-          continue-on-error: true
+          args: --severity-threshold=critical
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
