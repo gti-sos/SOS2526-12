@@ -1,13 +1,10 @@
 <script>
-    import { dev } from '$app/environment';
-    import { createAuth0Client } from '@auth0/auth0-spa-js';
-    import { replaceState } from '$app/navigation';
-    // --- ESTADOS ---
-    let populations = $state([]);
-    let usuario = $state(null);
-    let auth0Client = null;
+    import { dev } from "$app/environment";
 
-    // Formulario
+    // @ts-ignore
+    let populations = $state([]);
+    
+    // Variables para el formulario de CREACIÓN
     let newCountryCode = $state("");
     let newCountryName = $state("");
     let newYear = $state("");
@@ -19,228 +16,274 @@
     let newPop75 = $state("");
     let newPop100 = $state("");
 
-    // Buscador
+    // Variables para el buscador (from / to)
     let searchCountry = $state("");
     let searchFrom = $state("");
     let searchTo = $state("");
 
-    // API
-    let BASE = dev ? 'http://localhost:3000' : '';
-    let API = BASE + '/api/v2/mid-population-ages';
+    // APUNTAMOS A LA API V2
+    let API = '/api/v2/mid-population-ages';
+    if (dev) {
+        API = "http://localhost:3000" + API;
+    }
 
-    // UI
+    // --- SISTEMA DE MENSAJES MULTICOLOR ---
     let mensajeTexto = $state("");
-    let mensajeTipo = $state("");
-    let mostrarModalAuth = $state(false);
+    let mensajeTipo = $state(""); 
 
-    async function initAuth() {
-        try {
-            auth0Client = await createAuth0Client({
-                domain: 'dev-416mme2qmv7b1nil.us.auth0.com',
-                clientId: 'WkEmXDHoliiv81TQ3FMuOhIssZ2MhXNS',
-                authorizationParams: {
-                    redirect_uri: window.location.href.split('?')[0]
-                }
-            });
+    // @ts-ignore
+    function mostrarMensaje(texto, tipo = "exito") {
+        mensajeTexto = texto;
+        mensajeTipo = tipo;
+        setTimeout(() => {
+            mensajeTexto = "";
+        }, 4000);
+    }
+    // --------------------------------------------
 
-            if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-                await auth0Client.handleRedirectCallback();
-                replaceState(window.location.pathname, {}); 
+    // OBTENER Y BUSCAR DATOS
+    async function getPopulations() {
+        const params = new URLSearchParams();
+        const country = searchCountry.trim();
+        const hasFrom = searchFrom !== "";
+        const hasTo = searchTo !== "";
+
+        if (country) {
+            params.append("country_name", country);
+        }
+
+        if (hasFrom || hasTo) {
+            const fromYear = hasFrom ? Number(searchFrom) : null;
+            const toYear = hasTo ? Number(searchTo) : null;
+
+            if ((hasFrom && Number.isNaN(fromYear)) || (hasTo && Number.isNaN(toYear))) {
+                mostrarMensaje("❌ El rango de años no es válido.", "error");
+                return;
             }
 
-            const isAuthenticated = await auth0Client.isAuthenticated();
-            if (isAuthenticated) {
-                const user = await auth0Client.getUser();
-                usuario = user?.name || user?.nickname || 'Usuario';
-
-                // Solo intercambiamos si no tenemos ya un token válido en localStorage
-                const existingToken = localStorage.getItem('jjg_jwt');
-                if (!existingToken) {
-                    const claims = await auth0Client.getIdTokenClaims();
-                    const res = await fetch(BASE + '/auth/jwt-from-auth0', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ idToken: claims.__raw })
-                    });
-
-                    if (res.ok) {
-                        const { token } = await res.json();
-                        localStorage.setItem('jjg_jwt', token);
-                        console.log("✅ Nuevo token JJG guardado");
-                    }
-                }
+            if (hasFrom && hasTo) {
+                const lower = Math.min(fromYear, toYear);
+                const upper = Math.max(fromYear, toYear);
+                params.append("year", `${lower}-${upper}`);
+            } else if (hasFrom) {
+                params.append("year", `>=${fromYear}`);
             } else {
-                usuario = null;
-                localStorage.removeItem('jjg_jwt');
+                params.append("year", `<=${toYear}`);
             }
-        } catch (e) {
-            console.error("Error en la autenticación:", e);
+        }
+
+        const queryString = params.toString();
+        const url = queryString ? `${API}?${queryString}` : API;
+
+        const res = await fetch(url, { method: "GET" });
+        if (res.ok) {
+            populations = await res.json();
+            
+            if (populations.length === 0 && (searchCountry || searchFrom || searchTo)) {
+                 mostrarMensaje("ℹ️ No se encontraron registros con esos datos de búsqueda.", "exito");
+            }
+        } else if (res.status === 404) {
+            populations = []; 
+        } else {
+            mostrarMensaje("❌ Tuvimos un problema al intentar cargar la lista. Inténtalo más tarde.", "error");
         }
     }
 
-    function authHeaders() {
-        const token = localStorage.getItem('jjg_jwt');
-        console.log("Enviando token:", token ? "SI" : "NO");
-        return token ? { 
-            'Authorization': `Bearer ${token}`, 
-            'Content-Type': 'application/json' 
-        } : { 'Content-Type': 'application/json' };
-    }
-
-    async function getPopulations() {
-        const params = new URLSearchParams();
-        if (searchCountry) params.append("country_name", searchCountry.trim());
-        if (searchFrom && searchTo) params.append("year", `${searchFrom}-${searchTo}`);
-        else if (searchFrom) params.append("year", `>=${searchFrom}`);
-        else if (searchTo) params.append("year", `<=${searchTo}`);
-
-        const url = params.toString() ? `${API}?${params.toString()}` : API;
-        const res = await fetch(url);
-        populations = res.ok ? await res.json() : [];
+    // LIMPIAR BÚSQUEDA
+    function limpiarBusqueda() {
+        searchCountry = "";
+        searchFrom = "";
+        searchTo = "";
+        getPopulations();
     }
 
     async function loadInitialData() {
-        const res = await fetch(API + "/loadInitialData");
+        const res = await fetch(API + "/loadInitialData", { method: "GET" });
         if (res.ok) {
-            await getPopulations();
-            mostrarMensaje("✅ Datos restaurados");
+            getPopulations();
+            mostrarMensaje("✅ Se han restaurado los datos de prueba correctamente.", "exito");
+        } else {
+            mostrarMensaje("❌ Error en nuestros servidores al restaurar los datos.", "error");
         }
     }
 
     async function insertPopulation() {
-        if (!newCountryName || !newYear || !newSex) {
-            mostrarMensaje("❌ Rellena los campos obligatorios", "error");
-            return;
+        if (newCountryName.trim() === "" || newYear === "" || newSex === "") {
+            mostrarMensaje("❌ ¡Alto ahí! Debes rellenar obligatoriamente el País, el Año y el Sexo.", "error");
+            return; 
         }
+
+        const newResource = {
+            country_code: newCountryCode,
+            country_name: newCountryName,
+            year: parseInt(newYear), 
+            sex: newSex,
+            max_age: parseInt(newMaxAge),
+            population_age_0: parseInt(newPop0),
+            population_age_25: parseInt(newPop25),
+            population_age_50: parseInt(newPop50),
+            population_age_75: parseInt(newPop75),
+            population_age_100: parseInt(newPop100)
+        };
+
         const res = await fetch(API, {
             method: "POST",
-            headers: authHeaders(),
-            body: JSON.stringify({
-                country_code: newCountryCode, country_name: newCountryName, year: parseInt(newYear),
-                sex: newSex, max_age: parseInt(newMaxAge), population_age_0: parseInt(newPop0) || 0,
-                population_age_25: parseInt(newPop25) || 0, population_age_50: parseInt(newPop50) || 0,
-                population_age_75: parseInt(newPop75) || 0, population_age_100: parseInt(newPop100) || 0
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newResource)
         });
-        if (res.ok) { await getPopulations(); mostrarMensaje("✅ Registro añadido"); }
-        else if (res.status === 401) { mostrarModalAuth = true; }
-    }
 
-    async function deleteOne(pais, anio, sexo) {
-        if (!confirm(`¿Borrar registro de ${pais}?`)) return;
-        const res = await fetch(`${API}/${encodeURIComponent(pais)}/${anio}/${sexo}`, { 
-            method: "DELETE", 
-            headers: authHeaders() 
-        });
-        if (res.ok) { await getPopulations(); mostrarMensaje("🗑️ Registro eliminado"); }
-        else if (res.status === 401) { mostrarModalAuth = true; }
-        else { mostrarMensaje("❌ Error al eliminar", "error"); }
+        if (res.ok || res.status === 201) {
+            getPopulations(); 
+            newCountryCode = ""; newCountryName = ""; newYear = ""; newSex = ""; newMaxAge = "";
+            newPop0 = ""; newPop25 = ""; newPop50 = ""; newPop75 = ""; newPop100 = "";
+            mostrarMensaje("ℹ️ Nuevo registro añadido a la lista con éxito.", "creacion");
+        } 
+        else if (res.status === 400) {
+            mostrarMensaje("❌ Faltan datos: Por favor, asegúrate de escribir los datos y las poblaciones correctamente.", "error");
+        } 
+        else if (res.status === 409) {
+            mostrarMensaje(`⚠️ Atención: Ya tienes apuntado a ${newCountryName} en el año ${newYear} (${newSex}). No se pueden duplicar.`, "error");
+        } 
+        else {
+            mostrarMensaje("❌ Ha ocurrido un error inesperado al intentar guardar los datos.", "error");
+        }
     }
 
     async function deleteAll() {
-        if (!confirm("🚨 ¿VACIAR TODA LA TABLA?")) return;
-        const res = await fetch(API, { 
-            method: "DELETE", 
-            headers: authHeaders() 
-        });
-        if (res.ok) {
-            await getPopulations();
-            mostrarMensaje("🗑️ Tabla vaciada con éxito", "exito");
-        } else if (res.status === 401) {
-            mostrarModalAuth = true; 
-        } else {
-            console.error("Error al vaciar:", res.status);
-            mostrarMensaje("❌ Error al vaciar la tabla", "error");
+        if (confirm("🚨 ¿Estás seguro de que quieres vaciar toda la tabla? Esta acción no se puede deshacer.")) {
+            const res = await fetch(API, { method: "DELETE" });
+            if (res.ok) {
+                getPopulations(); 
+                mostrarMensaje("🗑️ Toda la tabla ha sido vaciada correctamente.", "borrado");
+            } else {
+                mostrarMensaje("❌ Hubo un error en el sistema al intentar vaciar la tabla.", "error");
+            }
         }
     }
 
-    function mostrarMensaje(texto, tipo = "exito") {
-        mensajeTexto = texto; mensajeTipo = tipo;
-        setTimeout(() => mensajeTexto = "", 4000);
+    // @ts-ignore
+    async function deleteOne(country_name, year, sex) {
+        if (confirm(`¿Quieres borrar el registro de ${country_name} del año ${year} (${sex})?`)) {
+            const res = await fetch(`${API}/${country_name}/${year}/${sex}`, { method: "DELETE" });
+            
+            if (res.ok) {
+                getPopulations(); 
+                mostrarMensaje(`🗑️ Registro de ${country_name} (${year} - ${sex}) eliminado con éxito.`, "borrado");
+            } 
+            else if (res.status === 404) {
+                mostrarMensaje(`❌ No hemos podido borrar: No existe ningún registro de ${country_name} en el año ${year}.`, "error");
+                getPopulations(); 
+            }
+            else {
+                mostrarMensaje("❌ No se pudo eliminar el registro debido a un error del sistema.", "error");
+            }
+        }
     }
 
     $effect(() => {
-        initAuth().then(getPopulations);
+        getPopulations();
     });
 </script>
 
-{#if mostrarModalAuth}
-    <div class="modal-overlay" onclick={() => mostrarModalAuth = false}>
-        <div class="modal-card" onclick={(e) => e.stopPropagation()}>
-            <p class="modal-titulo">Acceso Denegado</p>
-            <p class="modal-texto">Tu sesión no tiene permisos o ha caducado. Por favor, pulsa el botón para entrar.</p>
-            <div class="modal-botones">
-                <button class="btn-auth0" onclick={() => auth0Client.loginWithRedirect()}>Login con Auth0</button>
-                <button class="btn-gris" onclick={() => mostrarModalAuth = false}>Cerrar</button>
-            </div>
-        </div>
-    </div>
-{/if}
+<style>
+    main { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 1200px; margin: auto; }
+    .mensaje-alerta { padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: bold; text-align: center; animation: aparecer 0.3s ease-in-out; }
+    .mensaje-exito { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }      
+    .mensaje-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }      
+    .mensaje-creacion { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }   
+    .mensaje-borrado { background-color: #f8d7da; color: #721c24; border: 2px solid #dc3545; }    
+    @keyframes aparecer { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background-color: #f8f9fa; color: #333; }
+    .form-container { background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #ddd;}
+    input, select { padding: 8px; width: 130px; border: 1px solid #ccc; border-radius: 4px; }
+    button, .btn-warning { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s; text-decoration: none; display: inline-block;}
+    .btn-primary { background: #007bff; color: white; }
+    .btn-primary:hover { background: #0056b3; }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-danger:hover { background: #c82333; }
+    .btn-success { background: #28a745; color: white; margin-bottom: 15px;}
+    .btn-success:hover { background: #218838; }
+    .btn-warning { background: #ffc107; color: black; margin-right: 5px; }
+    .btn-warning:hover { background: #e0a800; }
+    .actions-header { display: flex; justify-content: space-between; align-items: center; }
+</style>
 
 <main>
-    <h1>Tasas de Edades de Población (JJG)</h1>
+    <h1>Tasas de Edades de Población</h1>
 
-    <div class="auth-bar">
-        {#if usuario}
-            <span>Hola, <strong>{usuario}</strong></span>
-            <button class="btn-gris" onclick={() => {localStorage.removeItem('jjg_jwt'); location.reload();}}>Cerrar sesión</button>
-        {:else}
-            <button class="btn-auth0" onclick={() => auth0Client.loginWithRedirect()}>Entrar con Auth0</button>
-        {/if}
-    </div>
-
-    {#if mensajeTexto}
-        <div class="mensaje-alerta mensaje-{mensajeTipo}">{mensajeTexto}</div>
+    {#if mensajeTexto !== ""}
+        <div class="mensaje-alerta mensaje-{mensajeTipo}">
+            {mensajeTexto}
+        </div>
     {/if}
 
     <div class="actions-header">
-        <button class="btn-success" onclick={loadInitialData}>Restaurar datos</button>
-        {#if usuario}
-            <button class="btn-danger" onclick={deleteAll}>Vaciar tabla</button>
-        {/if}
+        <button class="btn-success" onclick={loadInitialData}>📥 Restaurar datos de prueba</button>
+        <button class="btn-danger" onclick={deleteAll}>🗑️ Vaciar toda la tabla</button>
+    </div>
+
+    <div class="form-container" style="background-color: #e9ecef;">
+        <h3 style="margin: 0 100%; width: 100%; font-size: 1rem; color: #555;">🔍 Buscador</h3>
+        <input type="text" placeholder="Buscar por País..." bind:value={searchCountry} />
+        <input type="number" placeholder="Año (Desde)" bind:value={searchFrom} />
+        <input type="number" placeholder="Año (Hasta)" bind:value={searchTo} />
+        <button class="btn-primary" onclick={getPopulations}>Buscar Registros</button>
+        <button class="btn-warning" onclick={limpiarBusqueda}>Limpiar Búsqueda</button>
     </div>
 
     <div class="form-container">
-        <input placeholder="País..." bind:value={searchCountry} />
-        <input type="number" placeholder="Año desde" bind:value={searchFrom} style="width: 100px"/>
-        <input type="number" placeholder="Año hasta" bind:value={searchTo} style="width: 100px"/>
-        <button class="btn-primary" onclick={getPopulations}>Buscar</button>
-    </div>
-
-    {#if usuario}
-    <div class="form-container" style="background: #e9ecef;">
-        <input placeholder="País" bind:value={newCountryName} />
-        <input type="number" placeholder="Año" bind:value={newYear} style="width: 80px"/>
+        <h3 style="margin: 0 100%; width: 100%; font-size: 1rem; color: #555;">➕ Añadir Nuevo Registro</h3>
+        <input type="text" placeholder="Cód. País" bind:value={newCountryCode} />
+        <input type="text" placeholder="País" bind:value={newCountryName} />
+        <input type="number" placeholder="Año" bind:value={newYear} />
         <select bind:value={newSex}>
             <option value="">Sexo...</option>
-            <option value="Male">H</option>
-            <option value="Female">M</option>
+            <option value="Male">Hombre</option>
+            <option value="Female">Mujer</option>
         </select>
-        <button class="btn-primary" onclick={insertPopulation}>Añadir</button>
+        <input type="number" placeholder="Edad Máx" bind:value={newMaxAge} />
+        <input type="number" placeholder="Pob. 0" bind:value={newPop0} />
+        <input type="number" placeholder="Pob. 25" bind:value={newPop25} />
+        <input type="number" placeholder="Pob. 50" bind:value={newPop50} />
+        <input type="number" placeholder="Pob. 75" bind:value={newPop75} />
+        <input type="number" placeholder="Pob. 100" bind:value={newPop100} />
+        <button class="btn-primary" onclick={insertPopulation}>Añadir a la lista</button>
     </div>
-    {/if}
 
     <table>
         <thead>
             <tr>
-                <th>País (Año)</th>
+                <th>País</th>
+                <th>Año</th>
                 <th>Sexo</th>
-                <th>Población (0/25/50)</th>
+                <th>Edad Máx</th>
+                <th>Población (0/25/50/75/100)</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {#each populations as pop (pop.country_name + pop.year + pop.sex)}
+            {#if populations.length === 0}
                 <tr>
-                    <td><strong>{pop.country_name}</strong> ({pop.year})</td>
+                    <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
+                        No hay datos para mostrar. Añade un registro, restaura los datos de prueba o prueba con otra búsqueda.
+                    </td>
+                </tr>
+            {/if}
+            {#each populations as pop (pop.country_name + "-" + pop.year + "-" + pop.sex)}
+                <tr>
+                    <td><strong>{pop.country_name}</strong> ({pop.country_code})</td>
+                    <td>{pop.year}</td>
                     <td>{pop.sex === 'Male' ? 'Hombre' : 'Mujer'}</td>
-                    <td>{pop.population_age_0}/{pop.population_age_25}/{pop.population_age_50}</td>
+                    <td>{pop.max_age}</td>
+                    <td>{pop.population_age_0} / {pop.population_age_25} / {pop.population_age_50} / {pop.population_age_75} / {pop.population_age_100}</td>
                     <td>
-                        <a href={`/mid-population-ages/${encodeURIComponent(pop.country_name)}/${pop.year}/${pop.sex}`} class="btn-warning">
+                        <a href={`/mid-population-ages/${pop.country_name}/${pop.year}/${pop.sex}`} class="btn-warning">
                             Editar
                         </a>
-                        <button class="btn-outline-danger" onclick={() => deleteOne(pop.country_name, pop.year, pop.sex)}>
-                            Borrar
+                        <button class="btn-danger" onclick={() => deleteOne(pop.country_name, pop.year, pop.sex)}>
+                            Eliminar
                         </button>
                     </td>
                 </tr>
@@ -248,26 +291,3 @@
         </tbody>
     </table>
 </main>
-
-<style>
-    main { font-family: sans-serif; max-width: 1000px; margin: auto; padding: 20px; }
-    .auth-bar { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 10px; border-radius: 5px; }
-    .form-container { display: flex; gap: 10px; margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; flex-wrap: wrap; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-    th { background-color: #212529; color: white; }
-    .btn-auth0 { background: #eb5424; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-    .btn-danger { background: #dc3545; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-    .btn-success { background: #198754; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-bottom: 10px;}
-    .btn-primary { background: #0d6efd; color: white; border: none; padding: 8px 20px; cursor: pointer; border-radius: 4px; }
-    .btn-warning { background: #ffc107; color: black; text-decoration: none; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; display: inline-block; margin-right: 5px; }
-    .btn-outline-danger { background: transparent; border: 1px solid #dc3545; color: #dc3545; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
-    .mensaje-alerta { padding: 12px; margin-bottom: 20px; border-radius: 4px; text-align: center; font-weight: bold; }
-    .mensaje-exito { background: #d1e7dd; color: #0f5132; }
-    .mensaje-error { background: #f8d7da; color: #842029; }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-card { background: white; padding: 30px; border-radius: 10px; max-width: 400px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-    .modal-titulo { font-size: 1.25rem; font-weight: bold; margin-bottom: 10px; color: #dc3545; }
-    .modal-botones { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
-    .btn-gris { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
-</style>
