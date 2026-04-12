@@ -16,8 +16,6 @@ RUN cd src/front && npm run build
 # Copy the rest of the app
 COPY . .
 
-# AJUSTE PARA HUGGING FACE
-ENV PORT=7860
-EXPOSE 7860
+EXPOSE 3000
 
 CMD ["node", "index.js"]

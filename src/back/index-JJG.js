@@ -1,122 +1,11 @@
 import dataStore from 'nedb';
-import jwt from 'jsonwebtoken';
-import admin from 'firebase-admin';
-import { readFileSync, existsSync } from 'fs';
 
 let BASE_URL_API = "/api/v2";
-
-// === TU SECRETO ÚNICO (No compartido) ===
-let JWT_SECRET = process.env.JWT_SECRET || 'sos2526-jjg-secret-unique'; 
-
 let db = new dataStore();
 let DOCS_URL = "https://documenter.getpostman.com/view/52368982/2sBXigMtBS"; 
 
-// ==========================================
-// CONFIGURACIÓN FIREBASE (Tu persistencia)
-// ==========================================
-const KEY_PATH = 'sos2526-12-jjg-firebase-adminsdk-fbsvc-47e15de4ef.json';
-let fbCollection = null;
-
-try {
-    let serviceAccount;
-    if (existsSync(KEY_PATH)) {
-        serviceAccount = JSON.parse(readFileSync(KEY_PATH, 'utf8'));
-    } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    
-        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    }
-    if (serviceAccount && !admin.apps.length) {
-        admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-        console.log('Firebase initialized successfully (JJG)');
-    }
-    if (admin.apps.length) {
-        fbCollection = admin.firestore().collection('mid-population-ages');
-    }
-} catch (e) {
-    console.warn('Firebase not available:', e.message);
-}
-
-// Funciones espejo para Firebase
-function fbSet(docId, data) {
-    if (fbCollection) fbCollection.doc(docId).set(data).catch(e => console.warn('Firebase error:', e.message));
-}
-function fbDelete(docId) {
-    if (fbCollection) fbCollection.doc(docId).delete().catch(e => console.warn('Firebase error:', e.message));
-}
-async function fbDeleteAll() {
-    if (!fbCollection) return;
-    const snapshot = await fbCollection.get();
-    const batch = admin.firestore().batch();
-    snapshot.docs.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
-}
-
-// ==========================================
-// MIDDLEWARE HÍBRIDO (Reforzado con Logs)
-// ==========================================
-function isAuthenticated(req, res, next) {
-    console.log(`[JJG Auth] Verificando ruta: ${req.method} ${req.url}`);
-    
-    // Verificación por Token Bearer (Auth0)
-    const authHeader = req.headers['authorization'];
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.slice(7);
-        try {
-            // Validamos con TU JWT_SECRET
-            const decoded = jwt.verify(token, JWT_SECRET);
-            req.jwtUser = decoded;
-            console.log(`[JJG Auth] ✅ Token válido para: ${decoded.username}`);
-            return next();
-        } catch (err) {
-            console.error(`[JJG Auth] ❌ Error verificando token: ${err.message}`);
-            return res.status(401).json({ message: "Invalid or expired token" });
-        }
-    }
-    
-    // Si no hay token en el header, probamos si ya está autenticado por sesión (Passport)
-    if (req.isAuthenticated && req.isAuthenticated()) {
-        console.log("[JJG Auth] ✅ Usuario autenticado por sesión");
-        return next();
-    }
-
-    console.warn("[JJG Auth] ⚠️ Intento de acceso sin token válido");
-    res.status(401).json({ message: "Unauthorized. Please login with Auth0." });
-}
-
 export function loadBackend(app) {
 
-    // ==========================================
-    // RUTA DE INTERCAMBIO (Estructura compañero / Tu Secreto)
-    // ==========================================
-    app.post("/auth/jwt-from-auth0", (req, res) => {
-        const { idToken } = req.body;
-        if (!idToken) return res.status(400).json({ message: 'ID token required' });
-        
-        try {
-            // Decodificamos el idToken de TU Auth0 para sacar TU nombre real (base64url safe)
-            const base64Payload = idToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-            const payload = JSON.parse(Buffer.from(base64Payload, 'base64').toString());
-            
-            // Creamos TU token firmado con TU secreto
-            const token = jwt.sign(
-                { 
-                    username: payload.nickname || payload.name || "Usuario_JJG",
-                    avatar: payload.picture || null 
-                },
-                JWT_SECRET,
-                { expiresIn: '24h' }
-            );
-            
-            console.log(`✅ JWT propio generado para: ${payload.name || payload.nickname}`);
-            res.json({ token });
-        } catch (e) {
-            res.status(500).json({ message: 'Error processing token' });
-        }
-    });
-
-    // ==========================================
-    // TUS RUTAS API (Sin cambios en la lógica)
-    // ==========================================
     let initialRecords = [
         { country_code: "AF", country_name: "Afghanistan", year: 1979, sex: "Male", max_age: 100, population_age_0: 318425, population_age_25: 127876, population_age_50: 49804, population_age_75: 9729, population_age_100: 2 },
         { country_code: "AJ", country_name: "Azerbaijan", year: 1992, sex: "Female", max_age: 100, population_age_0: 108912, population_age_25: 67871, population_age_50: 31250, population_age_75: 4571, population_age_100: 3 },
@@ -129,109 +18,243 @@ export function loadBackend(app) {
         { country_code: "BD", country_name: "Bermuda", year: 1992, sex: "Male", max_age: 99, population_age_0: 427, population_age_25: 506, population_age_50: 324, population_age_75: 100, population_age_100: 0 },
         { country_code: "BF", country_name: "Bahamas The", year: 1980, sex: "Male", max_age: 96, population_age_0: 2574, population_age_25: 17171, population_age_50: 628, population_age_75: 149, population_age_100: 0 }
     ];
-
+    
+    // ==========================================
+    // 1. CARGA DE DATOS INICIALES
+    // ==========================================
     app.get(BASE_URL_API + "/mid-population-ages/loadInitialData", (req, res) => {
-        db.remove({}, { multi: true }, () => {
-            db.insert(initialRecords, (err, newDocs) => {
-                fbDeleteAll().then(() => {
-                    initialRecords.forEach(r => fbSet(`${r.country_name}_${r.year}_${r.sex}`, r));
+        db.find({}, (err, records) => {
+            if (err) return res.status(500).json({ message: "Error interno de la base de datos" });
+            
+            if (records.length === 0) {
+                db.insert(initialRecords, (err, newDocs) => {
+                    if (err) {
+                        console.error(" Error de NeDB al insertar:", err);
+                        return res.status(500).json({ message: "Error al insertar datos" });
+                    }
+                    console.log(`Cargados ${newDocs.length} registros iniciales.`);
+                    res.status(201).json(newDocs.map(({ _id, ...rest }) => rest)); 
                 });
-                res.status(201).json(newDocs.map(({ _id, ...rest }) => rest));
-            });
+            } else {
+                res.status(200).json({ message: "Los datos ya estaban cargados previamente" });
+            }
         });
     });
 
+    // ==========================================
+    // 2. GET A LA COLECCIÓN (Búsqueda y Paginación)
+    // ==========================================
     app.get(BASE_URL_API + "/mid-population-ages", (req, res) => {
         let query = {};
-        if (req.query.country_name) query.country_name = req.query.country_name;
-        
-        // Soporte para filtrado por año (simple o rango)
-        if (req.query.year) {
-            const y = req.query.year;
-            if (y.includes("-")) {
-                const [from, to] = y.split("-").map(n => parseInt(n));
-                query.year = { $gte: from, $lte: to };
-            } else if (y.startsWith(">=")) {
-                query.year = { $gte: parseInt(y.slice(2)) };
-            } else if (y.startsWith("<=")) {
-                query.year = { $lte: parseInt(y.slice(2)) };
-            } else {
-                query.year = parseInt(y);
+        let offset = 0;
+        let limit = Number.MAX_SAFE_INTEGER;
+
+        // Paginación
+        if (req.query.offset) {
+            offset = parseInt(req.query.offset);
+        }
+        if (req.query.limit) {
+            limit = parseInt(req.query.limit);
+        }
+
+        // --- FILTRO DE RANGO (from / to) ---
+        if (req.query.from || req.query.to) {
+            query.year = {};
+            if (req.query.from) {
+                query.year.$gte = Number(req.query.from);
+            }
+            if (req.query.to) {
+                query.year.$lte = Number(req.query.to);
             }
         }
 
-        db.find(query, (err, records) => {
-            res.status(200).json(records.map(({ _id, ...rest }) => rest));
+        // --- FILTROS ADICIONALES ---
+        const operatorMap = { ">": "$gt", "<": "$lt", ">=": "$gte", "<=": "$lte" };
+        const operators = [">=", "<=", ">", "<"];
+
+        Object.keys(req.query).forEach(key => {
+            // Saltamos los parámetros ya procesados
+            if (["from", "to", "offset", "limit"].includes(key)) return;
+
+            const value = req.query[key];
+            if (value === "" || value === undefined) return;
+
+            // Evitar sobrescribir query.year si ya fue configurado por from/to
+            // A menos que el parámetro sea específicamente "year"
+            if (key === "year" && query.year && typeof value === "string") {
+                 // Si ya hay rango, y además viene "year", podríamos decidir qué hacer.
+                 // Para simplicidad, si viene "year", permitimos que sobrescriba o se añada.
+            }
+
+            // Lógica de guión (rango) para cualquier campo
+            if (typeof value === "string" && value.includes("-")) {
+                const [min, max] = value.split("-");
+                query[key] = {};
+                if (min !== "") query[key]["$gte"] = isNaN(min) ? min : Number(min);
+                if (max !== "") query[key]["$lte"] = isNaN(max) ? max : Number(max);
+                return;
+            }
+
+            // Lógica de operadores (>=, <=, >, <)
+            for (const op of operators) {
+                if (typeof value === "string" && value.startsWith(op)) {
+                    const valStr = value.slice(op.length);
+                    const valParsed = isNaN(valStr) ? valStr : Number(valStr);
+                    if (!query[key] || typeof query[key] !== "object") query[key] = {};
+                    query[key][operatorMap[op]] = valParsed;
+                    return;
+                }
+            }
+
+            // Valor exacto (convertir a número si es posible, pero solo si no es un objeto ya)
+            if (!query[key] || typeof query[key] !== "object") {
+                query[key] = isNaN(value) ? value : Number(value);
+            }
+        });
+
+        db.find(query).skip(offset).limit(limit).exec((err, records) => {
+            if (err) return res.status(500).json({ message: "Error en la base de datos" });
+            
+            const cleanRecords = records.map(({ _id, ...rest }) => rest);
+            res.status(200).json(cleanRecords);
         });
     });
 
-    // 5. POST (Protegido)
-    app.post(BASE_URL_API + "/mid-population-ages", isAuthenticated, (req, res) => {
-        const newData = req.body;
-        if (!newData.country_name || !newData.year || !newData.sex) {
-            return res.status(400).send("Faltan campos obligatorios");
-        }
-        
-        db.findOne({ country_name: newData.country_name, year: newData.year, sex: newData.sex }, (err, doc) => {
-            if (doc) return res.status(409).send("Ya existe el registro");
-            db.insert(newData, (err, newDoc) => {
-                fbSet(`${newData.country_name}_${newData.year}_${newData.sex}`, newData);
-                res.status(201).json(newDoc);
-            });
-        });
-    });
-
-    // 6. GET ONE
+    // ==========================================
+    // 3. GET A RECURSO CONCRETO (Objeto)
+    // ==========================================
     app.get(BASE_URL_API + "/mid-population-ages/:country_name/:year/:sex", (req, res) => {
-        const { country_name, year, sex } = req.params;
-        db.findOne({ country_name, year: parseInt(year), sex }, (err, record) => {
-            if (!record) return res.status(404).send("Not found");
-            const { _id, ...rest } = record;
-            res.status(200).json(rest);
+        const country_name = req.params.country_name;
+        const year = parseInt(req.params.year);
+        const sex = req.params.sex;
+
+        db.find({ country_name, year, sex }, (err, records) => {
+            if (err) return res.status(500).json({ message: "Error interno" });
+            if (records.length === 0) return res.status(404).json({ message: "Recurso no encontrado" });
+            
+            const { _id, ...cleanRecord } = records[0];
+            res.status(200).json(cleanRecord);
         });
     });
 
-    // 7. PUT (Protegido)
-    app.put(BASE_URL_API + "/mid-population-ages/:country_name/:year/:sex", isAuthenticated, (req, res) => {
-        const { country_name, year, sex } = req.params;
-        const updatedData = req.body;
+    // ==========================================
+    // 4. POST A LA COLECCIÓN
+    // ==========================================
+    app.post(BASE_URL_API + "/mid-population-ages", (req, res) => {
+        const newRecord = req.body;
+        
+        if (newRecord._id) delete newRecord._id;
 
-        if (country_name !== updatedData.country_name || parseInt(year) !== updatedData.year || sex !== updatedData.sex) {
-            return res.status(400).send("Los campos clave no coinciden con la URL");
+        const expectedFields = [
+            "country_code", "country_name", "year", "sex", "max_age", 
+            "population_age_0", "population_age_25", "population_age_50", 
+            "population_age_75", "population_age_100"
+        ];
+        const receivedFields = Object.keys(newRecord);
+        
+        const hasAllFields = expectedFields.every(field => receivedFields.includes(field));
+        const hasExtraFields = receivedFields.length > expectedFields.length;
+
+        if (!hasAllFields || hasExtraFields) {
+            return res.status(400).json({ message: "Bad request. La estructura JSON debe tener exactamente los 10 campos esperados." });
         }
 
-        db.update({ country_name, year: parseInt(year), sex }, { $set: updatedData }, {}, (err, num) => {
-            if (num === 0) return res.status(404).send("Not found");
-            fbSet(`${country_name}_${year}_${sex}`, updatedData);
-            res.status(200).send("Updated");
-        });
-    });
-
-    // 8. DELETE ALL (Protegido)
-    app.delete(BASE_URL_API + "/mid-population-ages", isAuthenticated, (req, res) => {
-        console.log("[JJG API] Petición para vaciar toda la tabla");
-        db.remove({}, { multi: true }, (err, numRemoved) => {
-            if (err) {
-                console.error("[JJG API] Error al vaciar NeDB:", err);
-                return res.status(500).send("Error en la base de datos");
-            }
-            fbDeleteAll().then(() => {
-                console.log(`[JJG API] ✅ Tabla vaciada (${numRemoved} registros)`);
-                res.status(200).json({ message: `Deleted all (${numRemoved} records)` });
-            }).catch(e => {
-                console.error("[JJG API] Error al vaciar Firebase:", e);
-                res.status(500).send("Error al vaciar persistencia externa");
+        db.find({ country_name: newRecord.country_name, year: newRecord.year, sex: newRecord.sex }, (err, records) => {
+            if (err) return res.status(500).json({ message: "Error interno" });
+            if (records.length > 0) return res.status(409).json({ message: "Conflicto: El recurso ya existe" });
+            
+            db.insert(newRecord, (err, insertedDoc) => {
+                if (err) {
+                    console.error(" Error de NeDB en el POST:", err);
+                    return res.status(500).json({ message: "Error interno" });
+                }
+                const { _id, ...cleanDoc } = insertedDoc;
+                res.status(201).json(cleanDoc);
             });
         });
     });
 
-    // 9. DELETE ONE (Protegido)
-    app.delete(BASE_URL_API + "/mid-population-ages/:country_name/:year/:sex", isAuthenticated, (req, res) => {
-        const { country_name, year, sex } = req.params;
-        db.remove({ country_name, year: parseInt(year), sex }, {}, (err, num) => {
-            if (num === 0) return res.status(404).send("Not found");
-            fbDelete(`${country_name}_${year}_${sex}`);
-            res.status(200).send("Deleted");
+    // ==========================================
+    // 5. POST A RECURSO CONCRETO (No permitido)
+    // ==========================================
+    app.post(BASE_URL_API + "/mid-population-ages/:country_name/:year/:sex", (req, res) => {
+        res.status(405).json({ message: "Method Not Allowed" });
+    });
+
+    // ==========================================
+    // 6. PUT A RECURSO CONCRETO
+    // ==========================================
+    app.put(BASE_URL_API + "/mid-population-ages/:country_name/:year/:sex", (req, res) => {
+        const country_name = req.params.country_name;
+        const year = parseInt(req.params.year);
+        const sex = req.params.sex;
+        const updatedRecord = req.body;
+
+        if (updatedRecord._id) delete updatedRecord._id;
+
+        const expectedFields = [
+            "country_code", "country_name", "year", "sex", "max_age", 
+            "population_age_0", "population_age_25", "population_age_50", 
+            "population_age_75", "population_age_100"
+        ];
+        const receivedFields = Object.keys(updatedRecord);
+        
+        const hasAllFields = expectedFields.every(field => receivedFields.includes(field));
+        const hasExtraFields = receivedFields.length > expectedFields.length;
+
+        if (!hasAllFields || hasExtraFields) {
+            return res.status(400).json({ message: "Bad request. La estructura JSON debe tener exactamente los 10 campos esperados." });
+        }
+
+        if (updatedRecord.country_name !== country_name || updatedRecord.year !== year || updatedRecord.sex !== sex) {
+            return res.status(400).json({ message: "Los parámetros del ID en la URL deben coincidir con el body" });
+        }
+
+        db.update({ country_name, year, sex }, updatedRecord, {}, (err, numReplaced) => {
+            if (err) return res.status(500).json({ message: "Error interno" });
+            if (numReplaced === 0) return res.status(404).json({ message: "Recurso no encontrado" });
+            
+            res.status(200).json(updatedRecord);
         });
+    });
+
+    // ==========================================
+    // 7. PUT A LA COLECCIÓN (No permitido)
+    // ==========================================
+    app.put(BASE_URL_API + "/mid-population-ages", (req, res) => {
+        res.status(405).json({ message: "Method Not Allowed" });
+    });
+
+    // ==========================================
+    // 8. DELETE A LA COLECCIÓN
+    // ==========================================
+    app.delete(BASE_URL_API + "/mid-population-ages", (req, res) => {
+        db.remove({}, { multi: true }, (err, numRemoved) => {
+            if (err) return res.status(500).json({ message: "Error interno" });
+            res.status(200).json({ message: `Se han borrado todos los registros (${numRemoved})` });
+        });
+    });
+
+    // ==========================================
+    // 9. DELETE A RECURSO CONCRETO
+    // ==========================================
+    app.delete(BASE_URL_API + "/mid-population-ages/:country_name/:year/:sex", (req, res) => {
+        const country_name = req.params.country_name;
+        const year = parseInt(req.params.year);
+        const sex = req.params.sex;
+
+        db.remove({ country_name, year, sex }, {}, (err, numRemoved) => {
+            if (err) return res.status(500).json({ message: "Error interno" });
+            if (numRemoved === 0) return res.status(404).json({ message: "Recurso no encontrado" });
+            
+            res.status(200).json({ message: "Recurso borrado correctamente" });
+        });
+    });
+
+    // ==========================================
+    // 10. REDIRECCIÓN A DOCS (Postman)
+    // ==========================================
+    app.get(BASE_URL_API + "/mid-population-ages/docs", (req, res) => {
+        res.redirect(DOCS_URL);
     });
 }
