@@ -30,7 +30,9 @@
   },
   "jest": {
     "transform": {},
-    "testMatch": ["**/test/unit/**/*.test.js"]
+    "testMatch": [
+      "**/test/unit/**/*.test.js"
+    ]
   },
   "repository": {
     "type": "git",
@@ -39,10 +41,11 @@
   "author": "SOS2526-12",
   "license": "ISC",
   "dependencies": {
+    "@auth0/auth0-spa-js": "^2.19.0",
     "body-parser": "^2.2.2",
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "express-session": "^1.18.1",
+    "express-session": "^1.19.0",
     "firebase-admin": "^13.8.0",
     "jsonwebtoken": "^9.0.3",
     "nedb": "^1.8.0",
