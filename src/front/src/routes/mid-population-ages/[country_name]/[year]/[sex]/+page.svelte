@@ -8,7 +8,7 @@
     const urlYear = $page.params.year;
     const urlSex = $page.params.sex;
 
-    // 2. Variables de estado individuales (Misma estructura que tu +page.svelte principal)
+    // 2. Variables de estado individuales
     let editCountryCode = $state("");
     let editMaxAge = $state("");
     let editPop0 = $state("");
@@ -20,123 +20,94 @@
     // Variable para saber si ya hemos recibido la respuesta del backend
     let datosCargados = $state(false);
 
-    let API = `/api/v2/mid-population-ages/${urlCountry}/${urlYear}/${urlSex}`;
-    if (dev) {
-        API = "http://localhost:3000" + API;
-    }
+    let BASE = dev ? 'http://localhost:3000' : '';
+    let API = `${BASE}/api/v2/mid-population-ages/${encodeURIComponent(urlCountry)}/${urlYear}/${urlSex}`;
 
     // --- SISTEMA DE MENSAJES MULTICOLOR ---
     let mensajeTexto = $state("");
     let mensajeTipo = $state("");
 
-    // @ts-ignore
     function mostrarMensaje(texto, tipo = "exito") {
         mensajeTexto = texto;
         mensajeTipo = tipo;
         setTimeout(() => { mensajeTexto = ""; }, 4000);
     }
-    // --------------------------------------------
+
+    function authHeaders() {
+        const token = localStorage.getItem('jjg_jwt');
+        return token ? { 
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json' 
+        } : { 'Content-Type': 'application/json' };
+    }
 
     async function getRecord() {
-        const res = await fetch(API, { method: "GET" });
-        if (res.ok) {
-            const data = await res.json();
-            
-            // Rellenamos las variables de estado con los datos que llegaron
-            editCountryCode = data.country_code;
-            editMaxAge = data.max_age;
-            editPop0 = data.population_age_0;
-            editPop25 = data.population_age_25;
-            editPop50 = data.population_age_50;
-            editPop75 = data.population_age_75;
-            editPop100 = data.population_age_100;
-            
-            datosCargados = true;
-        } else if (res.status === 404) {
-            mostrarMensaje(`❌ No se encontró el registro de ${urlCountry} (${urlYear}).`, "error");
-        } else {
-            mostrarMensaje("❌ Tuvimos un problema al intentar cargar los datos.", "error");
+        try {
+            const res = await fetch(API);
+            if (res.ok) {
+                const data = await res.json();
+                editCountryCode = data.country_code;
+                editMaxAge = data.max_age;
+                editPop0 = data.population_age_0;
+                editPop25 = data.population_age_25;
+                editPop50 = data.population_age_50;
+                editPop75 = data.population_age_75;
+                editPop100 = data.population_age_100;
+                datosCargados = true;
+            } else if (res.status === 404) {
+                mostrarMensaje(`❌ No se encontró el registro.`, "error");
+            } else {
+                mostrarMensaje("❌ Error al cargar los datos.", "error");
+            }
+        } catch (e) {
+            console.error(e);
+            mostrarMensaje("❌ Error de conexión.", "error");
         }
     }
 
     async function updatePopulation() {
-        // Construimos el objeto justo antes de enviarlo
         const updatedResource = {
             country_code: editCountryCode,
-            country_name: urlCountry, // Se saca de la URL
-            // @ts-ignore
-            year: parseInt(urlYear),  // Se saca de la URL
-            sex: urlSex,              // Se saca de la URL
+            country_name: urlCountry,
+            year: parseInt(urlYear),
+            sex: urlSex,
             max_age: parseInt(editMaxAge),
-            population_age_0: parseInt(editPop0),
-            population_age_25: parseInt(editPop25),
-            population_age_50: parseInt(editPop50),
-            population_age_75: parseInt(editPop75),
-            population_age_100: parseInt(editPop100)
+            population_age_0: parseInt(editPop0) || 0,
+            population_age_25: parseInt(editPop25) || 0,
+            population_age_50: parseInt(editPop50) || 0,
+            population_age_75: parseInt(editPop75) || 0,
+            population_age_100: parseInt(editPop100) || 0
         };
 
         const res = await fetch(API, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: authHeaders(),
             body: JSON.stringify(updatedResource)
         });
 
         if (res.ok) {
-            // Usamos un alert nativo para que lea el mensaje antes de que la página cambie rápidamente
             alert("✅ Los cambios se han guardado correctamente."); 
-            goto("/mid-population-ages"); // Redirige a la tabla principal
+            goto("/mid-population-ages");
         } 
+        else if (res.status === 401) {
+            mostrarMensaje("❌ No autorizado. Inicia sesión en la página principal.", "error");
+        }
         else if (res.status === 400) {
-            mostrarMensaje("❌ Faltan datos: Asegúrate de que las poblaciones sean números correctos.", "error");
+            mostrarMensaje("❌ Datos inválidos.", "error");
         } 
         else {
-            mostrarMensaje("❌ Ha ocurrido un error inesperado al intentar guardar los datos.", "error");
+            mostrarMensaje("❌ Error al guardar.", "error");
         }
     }
 
     function cancelar() {
-        goto("/mid-population-ages"); // Vuelve a la tabla sin guardar
+        goto("/mid-population-ages");
     }
 
     $effect(() => {
         getRecord();
     });
 </script>
-
-<style>
-    /* Estilos idénticos a los de tu archivo principal */
-    main { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 700px; margin: auto; }
-    
-    .mensaje-alerta {
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 8px;
-        font-weight: bold;
-        text-align: center;
-        animation: aparecer 0.3s ease-in-out;
-    }
-    
-    .mensaje-exito { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }      
-    .mensaje-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }      
-    
-    @keyframes aparecer {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .form-container { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #ddd; display: flex; flex-direction: column; gap: 12px;}
-    .form-row { display: flex; justify-content: space-between; align-items: center; }
-    .form-row label { font-weight: bold; color: #444; width: 40%; }
-    input { padding: 8px; width: 55%; border: 1px solid #ccc; border-radius: 4px; }
-    input:disabled { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; border: 1px solid #ced4da; }
-    
-    button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s; }
-    .btn-primary { background: #007bff; color: white; }
-    .btn-primary:hover { background: #0056b3; }
-    .btn-secondary { background: #6c757d; color: white; }
-    .btn-secondary:hover { background: #5a6268; }
-    .actions-header { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd;}
-</style>
 
 <main>
     <h1>✏️ Editar Registro</h1>
@@ -202,3 +173,19 @@
         </div>
     {/if}
 </main>
+
+<style>
+    main { font-family: sans-serif; padding: 20px; max-width: 700px; margin: auto; }
+    .mensaje-alerta { padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: bold; text-align: center; }
+    .mensaje-exito { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }      
+    .mensaje-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }      
+    .form-container { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #ddd; display: flex; flex-direction: column; gap: 12px;}
+    .form-row { display: flex; justify-content: space-between; align-items: center; }
+    .form-row label { font-weight: bold; color: #444; width: 40%; }
+    input { padding: 8px; width: 55%; border: 1px solid #ccc; border-radius: 4px; }
+    input:disabled { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; }
+    button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .actions-header { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd;}
+</style>
