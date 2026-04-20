@@ -36,6 +36,7 @@
     "@rollup/rollup-win32-x64-msvc": "^4.59.1"
   },
   "dependencies": {
-    "@auth0/auth0-spa-js": "^2.19.0"
+    "@auth0/auth0-spa-js": "^2.19.0",
+    "highcharts": "^12.6.0"
   }
 }

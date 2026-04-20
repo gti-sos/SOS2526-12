@@ -62,7 +62,9 @@
             }
 
             if (hasFrom && hasTo) {
+                // @ts-ignore
                 const lower = Math.min(fromYear, toYear);
+                // @ts-ignore
                 const upper = Math.max(fromYear, toYear);
                 params.append("year", `${lower}-${upper}`);
             } else if (hasFrom) {
