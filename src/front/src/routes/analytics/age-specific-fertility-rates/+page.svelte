@@ -113,5 +113,5 @@
         margin: 0 auto;
         padding: 20px;
         text-align: center;
-    }
+    }   
 </style>
