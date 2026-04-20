@@ -5,6 +5,7 @@
     // @ts-ignore
     let registros = $state([]);
     let usuario = $state(null);
+    // @ts-ignore
     let auth0Client = null;
 
     let nuevoCodigo = $state('');
@@ -63,6 +64,7 @@
 
         if (await auth0Client.isAuthenticated()) {
             const user = await auth0Client.getUser();
+            // @ts-ignore
             usuario = user?.nickname || user?.name || user?.email || 'Usuario';
             // Exchange Auth0 ID token for our backend JWT
             try {
@@ -70,6 +72,7 @@
                 const res = await fetch(BASE + '/auth/jwt-from-auth0', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    // @ts-ignore
                     body: JSON.stringify({ idToken: claims.__raw })
                 });
                 if (res.ok) {
@@ -87,6 +90,7 @@
     }
 
     async function iniciarSesion() {
+        // @ts-ignore
         await auth0Client.loginWithRedirect({
             authorizationParams: {
                 redirect_uri: window.location.href.split('?')[0]
@@ -101,6 +105,7 @@
     async function cerrarSesion() {
         localStorage.removeItem('lph_jwt');
         usuario = null;
+        // @ts-ignore
         await auth0Client.logout({
             logoutParams: { returnTo: window.location.href.split('?')[0] }
         });
@@ -206,6 +211,7 @@
 
         const res = await fetch(API, {
             method: 'POST',
+            // @ts-ignore
             headers: authHeaders(),
             body: JSON.stringify(nuevo)
         });
@@ -242,6 +248,7 @@
             )
         )
             return;
+        // @ts-ignore
         const res = await fetch(API, { method: 'DELETE', headers: authHeaders() });
         if (res.ok) {
             await cargarDatos();
@@ -256,6 +263,7 @@
     // @ts-ignore
     async function borrarUno(codigo, anio) {
         if (!confirm(`¿Eliminar el registro de ${codigo} (${anio})?`)) return;
+        // @ts-ignore
         const res = await fetch(`${API}/${codigo}/${anio}`, { method: 'DELETE', headers: authHeaders() });
         if (res.ok) {
             await cargarDatos();
