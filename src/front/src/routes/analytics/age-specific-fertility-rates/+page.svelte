@@ -27,7 +27,7 @@
                 loading = false;
 
                 Highcharts.chart('container', {
-                    chart: { type: 'bar' },
+                    chart: { type: 'areaspline' },
                     title: { text: 'Fertilidad: Muestra Aleatoria Individual' },
                     xAxis: { categories: categories },
                     yAxis: { title: { text: 'Tasa (15-19 años)' } },
