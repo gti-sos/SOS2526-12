@@ -1,117 +1,64 @@
 <script>
     import { onMount } from 'svelte';
-    import { dev } from '$app/environment';
-
-    // Ajusta la URL a tu API real
-    let BASE = dev ? 'http://localhost:3000' : '';
-    const MI_API = BASE + '/api/v2/age-specific-fertility-rates'; 
+    import Highcharts from 'highcharts';
 
     let loading = $state(true);
-    let errorMsg = $state("");
+    let error = $state(false);
 
     onMount(async () => {
         try {
-            // Importamos Highcharts
-            const HighchartsLib = await import('highcharts');
-            const Highcharts = HighchartsLib.default || HighchartsLib;
-            const AccessibilityLib = await import('highcharts/modules/accessibility');
-            const initAccessibility = AccessibilityLib.default || AccessibilityLib;
-            // @ts-ignore
-            if (typeof initAccessibility === 'function') initAccessibility(Highcharts);
+            const res = await fetch('/api/v2/age-specific-fertility-rates');
+            const fullData = await res.json();
 
-            // Fetch sencillo a tu propia API (sin tokens de compañeros)
-            const res = await fetch(MI_API);
-            if (!res.ok) throw new Error("Error obteniendo los datos de la API");
-            const data = await res.json();
+            if (fullData.length > 0) {
+                // Aleatoriedad: desordenamos y cogemos 10
+                const randomSample = fullData
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 10);
 
-            loading = false;
+                // CORRECCIÓN AQUÍ: Manejamos country_name o country
+                // @ts-ignore
+                const categories = randomSample.map(d => 
+                    `${d.country_name || d.country || 'País'} (${d.year})`
+                );
+                // @ts-ignore
+                const values = randomSample.map(d => Number(d.fert_15_19) || 0);
 
-            if (data && data.length > 0) {
-                // Damos un respiro al DOM para que dibuje el div antes de inyectar Highcharts
-                setTimeout(() => renderChart(Highcharts, data), 100);
+                loading = false;
+
+                Highcharts.chart('container', {
+                    chart: { type: 'bar' },
+                    title: { text: 'Fertilidad: Muestra Aleatoria Individual' },
+                    xAxis: { categories: categories },
+                    yAxis: { title: { text: 'Tasa (15-19 años)' } },
+                    series: [{
+                        name: 'Tasa de Fertilidad',
+                        data: values,
+                        color: '#434348'
+                    }],
+                    credits: { enabled: false }
+                });
             } else {
-                errorMsg = "Tu base de datos está vacía en este momento.";
+                // @ts-ignore
+                error = "Base de datos vacía.";
+                loading = false;
             }
-        } catch (err) {
+        } catch (e) {
+            // @ts-ignore
+            error = "Error de conexión.";
             loading = false;
-            errorMsg = "Hubo un error cargando la gráfica.";
-            console.error(err);
         }
     });
-
-    // @ts-ignore
-    function renderChart(Highcharts, data) {
-        // 1. Filtramos los datos para coger un solo año y que la gráfica no sea un caos
-        const yearBase = 2022; 
-        // @ts-ignore
-        let datosFiltrados = data.filter(d => Number(d.year) === yearBase);
-        
-        // Si no tienes datos de 2022, cogemos los primeros 10 registros que haya
-        if (datosFiltrados.length === 0) {
-            datosFiltrados = data.slice(0, 10);
-        } else {
-            datosFiltrados = datosFiltrados.slice(0, 10); // Máximo 10 países para que se lea bien
-        }
-
-        // 2. Preparamos las series
-        // @ts-ignore
-        const categorias = datosFiltrados.map(d => d.country_name || d.country);
-        // @ts-ignore
-        const valoresFertilidad = datosFiltrados.map(d => Number(d.fert_15_19) || 0);
-
-        // 3. Renderizamos la gráfica
-        Highcharts.chart('mi-grafica-individual', {
-            chart: { 
-                type: 'area' // <-- AQUÍ CUMPLIMOS LOS REQUISITOS (no es line, no es column)
-            },
-            title: { 
-                text: 'Tasa de fertilidad en mujeres de 15 a 19 años' 
-            },
-            subtitle: { 
-                text: `Visualización Individual - Año ${datosFiltrados[0]?.year || yearBase}` 
-            },
-            xAxis: { 
-                categories: categorias,
-                title: { text: 'Países' }
-            },
-            yAxis: { 
-                title: { text: 'Tasa de fertilidad' } 
-            },
-            plotOptions: {
-                area: {
-                    fillOpacity: 0.5 // Hace que el área sea semitransparente (queda más moderno)
-                }
-            },
-            series: [{
-                name: 'Fertilidad (15-19 años)',
-                data: valoresFertilidad,
-                color: '#2c3e50' // Color azul oscuro
-            }]
-        });
-    }
 </script>
 
-<main>
-    <div class="contenedor">
-        <h2>Mi Visualización Individual (FMG)</h2>
-        
-        {#if loading}
-            <p>Cargando datos del motor de visualización...</p>
-        {/if}
+<main style="padding: 20px;">
+    <h2>Visualización Individual (FMG)</h2>
 
-        {#if errorMsg}
-            <p style="color: red; font-weight: bold;">{errorMsg}</p>
-        {/if}
+    {#if loading}
+        <p>Cargando datos aleatorios...</p>
+    {:else if error}
+        <p style="color: red;">{error}</p>
+    {/if}
 
-        <div id="mi-grafica-individual" style="width: 100%; height: 500px;"></div>
-    </div>
+    <div id="container" style="width: 100%; height: 500px;"></div>
 </main>
-
-<style>
-    .contenedor {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 20px;
-        text-align: center;
-    }   
-</style>
