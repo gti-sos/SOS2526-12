@@ -298,6 +298,12 @@
 <main>
     <h1>Tasas de Natalidad, Mortalidad y Crecimiento por Pais</h1>
 
+    <nav class="nav-analytics">
+        <a href="/analytics/birth-death-growth-rates">Gráfico individual</a>
+        <a href="/analytics/birth-death-growth-rates/map">Mapa geoespacial</a>
+        <a href="/analytics">Analytics grupal</a>
+    </nav>
+
     <div class="auth-bar">
         {#if usuario}
             <span class="auth-usuario">Conectado como <strong>{usuario}</strong></span>
@@ -628,6 +634,27 @@
         background: transparent;
         border: 1px solid #ccc;
         color: #666;
+    }
+
+    .nav-analytics {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .nav-analytics a {
+        font-size: 0.85rem;
+        color: #0d6efd;
+        text-decoration: none;
+        padding: 0.35rem 0.75rem;
+        border: 1px solid #0d6efd;
+        border-radius: 4px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .nav-analytics a:hover {
+        background: #0d6efd;
+        color: white;
     }
 
     .auth-bar {
