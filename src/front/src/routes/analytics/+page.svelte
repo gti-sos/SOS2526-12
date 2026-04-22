@@ -129,8 +129,8 @@
                     data: categorias.map(c => findJJGData(jjg, c, yearBase, 'population_age_50') / 1000)
                 },
                 {
-                    name: 'Tasa de crecimiento (LPH)',
-                    data: categorias.map(c => findData(lph, c, yearBase, 'growth_rate'))
+                    name: 'Tasa de mortalidad (LPH)',
+                    data: categorias.map(c => findData(lph, c, yearBase, 'crude_death_rate'))
                 }
             ]
         });

@@ -53,7 +53,7 @@ The project relies on Open Data from international census records (Kaggle/Census
 
 ## Badges
 [![codecov](https://codecov.io/gh/gti-sos/SOS2526-12/graph/badge.svg?token=bZe7NgbiRF)](https://codecov.io/gh/gti-sos/SOS2526-12)
-[![Known Vulnerabilities](https://snyk.io/test/github/gti-sos/SOS2526-12/badge.svg)](https://snyk.io/test/github/gti-sos/SOS2526-12)
+[![Known Vulnerabilities](https://img.shields.io/snyk/vulnerabilities/github/gti-sos/SOS2526-12)](https://app.snyk.io/org/lucca-pereira-2/project/1d939197-d796-4e52-b8a0-59665c692652)
 [![Docker Image](https://img.shields.io/docker/pulls/lucperheasos/sos2526-12)](https://hub.docker.com/r/lucperheasos/sos2526-12)
 
 ---
