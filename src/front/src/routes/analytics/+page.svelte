@@ -4,8 +4,8 @@
 
     let BASE = dev ? 'http://localhost:3000' : '';
     const API_FMG = BASE + '/api/v2/age-specific-fertility-rates';
-    const API_JJG = BASE + '/api/v2/birth-death-growth-rates';
-    const API_LPH = BASE + '/api/v2/mid-population-ages';
+    const API_JJG = BASE + '/api/v2/mid-population-ages';
+    const API_LPH = BASE + '/api/v2/birth-death-growth-rates';
 
     // AQUÍ ESTABA EL ERROR: Svelte 5 necesita $state para actualizar la pantalla
     let loading = $state(true);
@@ -82,29 +82,29 @@
         // @ts-ignore
         const categorias = categoriasUnicas.slice(0, 8);
 
-        // Búsqueda genérica (para FMG y JJG)
+        // Búsqueda genérica (para FMG y LPH — un registro por pais/año)
         // @ts-ignore
         const findData = (dataset, country, year, field) => {
             // @ts-ignore
-            const entry = dataset.find(d => 
-                ( (d.country_name || d.country || "").toLowerCase() === country.toLowerCase() ) && 
+            const entry = dataset.find(d =>
+                ( (d.country_name || d.country || "").toLowerCase() === country.toLowerCase() ) &&
                 ( Number(d.year) === year )
             );
             return entry ? (Number(entry[field]) || 0) : 0;
         };
 
-        // Búsqueda específica para LPH (suma hombres y mujeres si existen)
+        // Búsqueda específica para JJG (suma hombres y mujeres si existen)
         // @ts-ignore
-        const findLPHData = (dataset, country, year, field) => {
+        const findJJGData = (dataset, country, year, field) => {
             // @ts-ignore
-            const entries = dataset.filter(d => 
-                ( (d.country_name || d.country || "").toLowerCase() === country.toLowerCase() ) && 
+            const entries = dataset.filter(d =>
+                ( (d.country_name || d.country || "").toLowerCase() === country.toLowerCase() ) &&
                 ( Number(d.year) === year )
             );
-            
+
             if (entries.length === 0) return 0;
-            
-            // Si hay datos (ej. Male y Female), sumamos los valores
+
+            // JJG tiene registros separados por sexo (Male y Female), sumamos
             let total = 0;
             // @ts-ignore
             entries.forEach(e => {
@@ -114,24 +114,23 @@
         };
 
         Highcharts.chart('chart-container', {
-            chart: { type: 'column' },
+            chart: { type: 'bar' },
             title: { text: 'Análisis Demográfico Combinado (SOS2526-12)' },
             subtitle: { text: `Año ${yearBase}` },
             xAxis: { categories: categorias },
             yAxis: { title: { text: 'Valor' } },
             series: [
                 {
-                    name: 'Fertilidad (FMG)',
+                    name: 'Fertilidad 15-19 (FMG)',
                     data: categorias.map(c => findData(fmg, c, yearBase, 'fert_15_19'))
                 },
                 {
-                    name: 'Crecimiento (JJG)',
-                    data: categorias.map(c => findData(jjg, c, yearBase, 'growth_rate'))
+                    name: 'Población 50 años / 1k (JJG)',
+                    data: categorias.map(c => findJJGData(jjg, c, yearBase, 'population_age_50') / 1000)
                 },
                 {
-                    name: 'Población 50 años / 1k (LPH)',
-                    // Usamos la nueva función para LPH
-                    data: categorias.map(c => findLPHData(lph, c, yearBase, 'population_age_50') / 1000)
+                    name: 'Tasa de crecimiento (LPH)',
+                    data: categorias.map(c => findData(lph, c, yearBase, 'growth_rate'))
                 }
             ]
         });
