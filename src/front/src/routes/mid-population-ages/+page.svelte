@@ -209,7 +209,26 @@
     .btn-success:hover { background: #218838; }
     .btn-warning { background: #ffc107; color: black; margin-right: 5px; }
     .btn-warning:hover { background: #e0a800; }
-    .actions-header { display: flex; justify-content: space-between; align-items: center; }
+    .actions-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    
+    /* Nuevos botones de navegación grandes */
+    .btn-nav { 
+        background: #007bff; 
+        color: white; 
+        padding: 12px 25px; 
+        text-decoration: none; 
+        border-radius: 6px; 
+        font-size: 1.1rem; 
+        font-weight: bold;
+        margin-left: 10px;
+        transition: transform 0.2s, background-color 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: inline-block;
+    }
+    .btn-nav:hover { 
+        background: #0056b3; 
+        transform: scale(1.05);
+    }
 </style>
 
 <main>
@@ -222,12 +241,18 @@
     {/if}
 
     <div class="actions-header">
-        <button class="btn-success" onclick={loadInitialData}>📥 Restaurar datos de prueba</button>
-        <button class="btn-danger" onclick={deleteAll}>🗑️ Vaciar toda la tabla</button>
+        <div>
+            <button class="btn-success" onclick={loadInitialData}>📥 Restaurar datos de prueba</button>
+            <button class="btn-danger" onclick={deleteAll}>🗑️ Vaciar toda la tabla</button>
+        </div>
+        <div>
+            <a href="/analytics/mid-population-ages" class="btn-nav">📊 Ver Gráfico</a>
+            <a href="/analytics/mid-population-ages/map" class="btn-nav">🌍 Ver Mapa</a>
+        </div>
     </div>
 
-    <div class="form-container" style="background-color: #e9ecef;">
-        <h3 style="margin: 0 100%; width: 100%; font-size: 1rem; color: #555;">🔍 Buscador</h3>
+    <div class="form-container" style="background-color: #e9ecef; justify-content: center;">
+        <h3 style="width: 100%; text-align: center; margin-top: 0; margin-bottom: 15px; font-size: 1.2rem; color: #333;">🔍 Buscador</h3>
         <input type="text" placeholder="Buscar por País..." bind:value={searchCountry} />
         <input type="number" placeholder="Año (Desde)" bind:value={searchFrom} />
         <input type="number" placeholder="Año (Hasta)" bind:value={searchTo} />
@@ -235,8 +260,8 @@
         <button class="btn-warning" onclick={limpiarBusqueda}>Limpiar Búsqueda</button>
     </div>
 
-    <div class="form-container">
-        <h3 style="margin: 0 100%; width: 100%; font-size: 1rem; color: #555;">➕ Añadir Nuevo Registro</h3>
+    <div class="form-container" style="justify-content: center;">
+        <h3 style="width: 100%; text-align: center; margin-top: 0; margin-bottom: 15px; font-size: 1.2rem; color: #333;">➕ Añadir Nuevo Registro</h3>
         <input type="text" placeholder="Cód. País" bind:value={newCountryCode} />
         <input type="text" placeholder="País" bind:value={newCountryName} />
         <input type="number" placeholder="Año" bind:value={newYear} />
