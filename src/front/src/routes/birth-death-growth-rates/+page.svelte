@@ -5,6 +5,7 @@
     // @ts-ignore
     let registros = $state([]);
     let usuario = $state(null);
+    // @ts-ignore
     let auth0Client = null;
 
     let nuevoCodigo = $state('');
@@ -63,6 +64,7 @@
 
         if (await auth0Client.isAuthenticated()) {
             const user = await auth0Client.getUser();
+            // @ts-ignore
             usuario = user?.nickname || user?.name || user?.email || 'Usuario';
             // Exchange Auth0 ID token for our backend JWT
             try {
@@ -70,6 +72,7 @@
                 const res = await fetch(BASE + '/auth/jwt-from-auth0', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    // @ts-ignore
                     body: JSON.stringify({ idToken: claims.__raw })
                 });
                 if (res.ok) {
@@ -87,6 +90,7 @@
     }
 
     async function iniciarSesion() {
+        // @ts-ignore
         await auth0Client.loginWithRedirect({
             authorizationParams: {
                 redirect_uri: window.location.href.split('?')[0]
@@ -101,6 +105,7 @@
     async function cerrarSesion() {
         localStorage.removeItem('lph_jwt');
         usuario = null;
+        // @ts-ignore
         await auth0Client.logout({
             logoutParams: { returnTo: window.location.href.split('?')[0] }
         });
@@ -206,6 +211,7 @@
 
         const res = await fetch(API, {
             method: 'POST',
+            // @ts-ignore
             headers: authHeaders(),
             body: JSON.stringify(nuevo)
         });
@@ -242,6 +248,7 @@
             )
         )
             return;
+        // @ts-ignore
         const res = await fetch(API, { method: 'DELETE', headers: authHeaders() });
         if (res.ok) {
             await cargarDatos();
@@ -256,6 +263,7 @@
     // @ts-ignore
     async function borrarUno(codigo, anio) {
         if (!confirm(`¿Eliminar el registro de ${codigo} (${anio})?`)) return;
+        // @ts-ignore
         const res = await fetch(`${API}/${codigo}/${anio}`, { method: 'DELETE', headers: authHeaders() });
         if (res.ok) {
             await cargarDatos();
@@ -289,6 +297,12 @@
 
 <main>
     <h1>Tasas de Natalidad, Mortalidad y Crecimiento por Pais</h1>
+
+    <nav class="nav-analytics">
+        <a href="/analytics/birth-death-growth-rates">Gráfico individual</a>
+        <a href="/analytics/birth-death-growth-rates/map">Mapa geoespacial</a>
+        <a href="/analytics">Analytics grupal</a>
+    </nav>
 
     <div class="auth-bar">
         {#if usuario}
@@ -620,6 +634,27 @@
         background: transparent;
         border: 1px solid #ccc;
         color: #666;
+    }
+
+    .nav-analytics {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .nav-analytics a {
+        font-size: 0.85rem;
+        color: #0d6efd;
+        text-decoration: none;
+        padding: 0.35rem 0.75rem;
+        border: 1px solid #0d6efd;
+        border-radius: 4px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .nav-analytics a:hover {
+        background: #0d6efd;
+        color: white;
     }
 
     .auth-bar {
