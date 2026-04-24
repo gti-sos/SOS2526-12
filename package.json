@@ -30,7 +30,9 @@
   },
   "jest": {
     "transform": {},
-    "testMatch": ["**/test/unit/**/*.test.js"]
+    "testMatch": [
+      "**/test/unit/**/*.test.js"
+    ]
   },
   "repository": {
     "type": "git",
@@ -44,6 +46,7 @@
     "express": "^5.2.1",
     "express-session": "^1.18.1",
     "firebase-admin": "^13.8.0",
+    "highcharts": "^12.6.0",
     "jsonwebtoken": "^9.0.3",
     "nedb": "^1.8.0",
     "passport": "^0.7.0",
