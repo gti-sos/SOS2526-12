@@ -55,7 +55,6 @@
             const data = await res.json();
             fertility = data;
 
-            // NUEVA LÓGICA: Si se ha buscado algo y el array vuelve vacío
             if (queryString && fertility.length === 0) {
                 if (searchCountry) {
                     mostrarMensaje(`No hay ningún registro con el nombre: ${searchCountry}`, "error");
@@ -82,7 +81,6 @@
         getFertility();
     }
 
-    // --- RESTO DE OPERACIONES ---
     async function loadInitialData() {
         const res = await fetch(API + "/loadInitialData", { method: "GET" });
         if (res.ok) {
@@ -181,6 +179,9 @@
     .panel { background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #ddd; align-items: center;}
     .panel h3 { width: 100%; margin-top: 0; margin-bottom: 10px; font-size: 1.1rem; color: #495057; }
     
+    /* Clase específica para el panel de navegación */
+    .nav-panel { background: #e9ecef; border-color: #dee2e6; }
+
     input { padding: 8px; width: 140px; border: 1px solid #ccc; border-radius: 4px; }
     button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s; font-size: 14px; font-family: inherit;}
     
@@ -195,6 +196,10 @@
     .btn-secondary { background: #6c757d; color: white; }
     .btn-secondary:hover { background: #5a6268; }
     
+    /* Color azul cian para la analítica individual */
+    .btn-info { background: #17a2b8; color: white; }
+    .btn-info:hover { background: #138496; }
+
     .acciones-celda { display: flex; gap: 8px; align-items: center; }
     .btn-enlace { display: inline-block; padding: 10px 15px; border-radius: 4px; font-weight: bold; text-decoration: none; text-align: center; font-size: 14px; font-family: inherit;}
     
@@ -213,6 +218,12 @@
     <div class="actions-header">
         <button class="btn-success" onclick={loadInitialData}>Restaurar datos</button>
         <button class="btn-danger" onclick={deleteAll}>Vaciar tabla</button>
+    </div>
+
+    <div class="panel nav-panel">
+        <h3>Visualizaciones y Análisis</h3>
+        <a href="/analytics" class="btn-primary btn-enlace">📈 Ver Gráfica Grupal</a>
+        <a href="/analytics/age-specific-fertility-rates" class="btn-info btn-enlace">👤 Mi Gráfica Individual</a>
     </div>
 
     <div class="panel">
