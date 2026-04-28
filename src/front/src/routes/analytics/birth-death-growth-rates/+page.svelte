@@ -2,8 +2,8 @@
     import { onMount } from 'svelte';
     import Highcharts from 'highcharts';
 
-    let loading = $state(true);
-    let error = $state(false);
+    let loading = true;
+    let error = false;
 
     onMount(async () => {
         try {
@@ -11,7 +11,6 @@
             const fullData = await res.json();
 
             if (fullData.length > 0) {
-                // Muestra aleatoria de 10 registros para no saturar el grafico
                 const sample = fullData
                     .sort(() => Math.random() - 0.5)
                     .slice(0, 10);
@@ -19,13 +18,11 @@
                 const categories = sample.map(d =>
                     `${d.country_name || d.country_code} (${d.year})`
                 );
-                const birthRates = sample.map(d => Number(d.crude_birth_rate) || 0);
-                const deathRates = sample.map(d => Number(d.crude_death_rate) || 0);
 
                 loading = false;
 
                 Highcharts.chart('container', {
-                    chart: { type: 'column' },
+                    chart: { type: 'scatter' },
                     title: { text: 'Tasas de Natalidad y Mortalidad por País' },
                     xAxis: {
                         categories,
@@ -35,22 +32,41 @@
                         title: { text: 'Tasa (por 1000 hab.)' }
                     },
                     tooltip: {
-                        shared: true,
-                        valueSuffix: ' por 1000 hab.'
+                        formatter: function() {
+                            return `<b>${this.point.name}</b><br/>${this.series.name}: ${this.y} por 1000 hab.`;
+                        }
                     },
                     series: [
-                        { name: 'Natalidad', data: birthRates, color: '#2ecc71' },
-                        { name: 'Mortalidad', data: deathRates, color: '#e74c3c' }
+                        {
+                            name: 'Natalidad',
+                            type: 'scatter',
+                            data: sample.map((d, i) => ({
+                                x: i,
+                                y: Number(d.crude_birth_rate) || 0,
+                                name: categories[i]
+                            })),
+                            color: '#2ecc71',
+                            marker: { symbol: 'circle', radius: 6 }
+                        },
+                        {
+                            name: 'Mortalidad',
+                            type: 'scatter',
+                            data: sample.map((d, i) => ({
+                                x: i,
+                                y: Number(d.crude_death_rate) || 0,
+                                name: categories[i]
+                            })),
+                            color: '#e74c3c',
+                            marker: { symbol: 'diamond', radius: 6 }
+                        }
                     ],
                     credits: { enabled: false }
                 });
             } else {
-                // @ts-ignore
                 error = "Base de datos vacía. Carga los datos iniciales primero.";
                 loading = false;
             }
         } catch (e) {
-            // @ts-ignore
             error = "Error de conexión con la API.";
             loading = false;
         }
@@ -59,7 +75,7 @@
 
 <main style="padding: 20px;">
     <h2>Visualización Individual (LPH)</h2>
-    <p>Comparación de tasas de natalidad y mortalidad — gráfico de columnas agrupadas.</p>
+    <p>Comparación de tasas de natalidad y mortalidad — gráfico de dispersión.</p>
 
     {#if loading}
         <p>Cargando datos...</p>

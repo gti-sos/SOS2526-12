@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx playwright test:*)",
+      "WebFetch(domain:snyk.io)"
+    ]
+  }
+}
