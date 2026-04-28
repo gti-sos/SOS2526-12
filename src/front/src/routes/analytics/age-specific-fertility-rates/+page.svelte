@@ -7,55 +7,78 @@
 
     onMount(async () => {
         try {
-            const res = await fetch('/api/v2/age-specific-fertility-rates');
+            const res = await fetch('/api/v2/birth-death-growth-rates');
             const fullData = await res.json();
 
             if (fullData.length > 0) {
-                // Aleatoriedad: desordenamos y cogemos 10
-                const randomSample = fullData
+                const sample = fullData
                     .sort(() => Math.random() - 0.5)
                     .slice(0, 10);
 
-                // CORRECCIÓN AQUÍ: Manejamos country_name o country
-                // @ts-ignore
-                const categories = randomSample.map(d => 
-                    `${d.country_name || d.country || 'País'} (${d.year})`
+                const categories = sample.map(d =>
+                    `${d.country_name || d.country_code} (${d.year})`
                 );
-                // @ts-ignore
-                const values = randomSample.map(d => Number(d.fert_15_19) || 0);
 
                 loading = false;
 
                 Highcharts.chart('container', {
-                    chart: { type: 'areaspline' },
-                    title: { text: 'Fertilidad: Muestra Aleatoria Individual' },
-                    xAxis: { categories: categories },
-                    yAxis: { title: { text: 'Tasa (15-19 años)' } },
-                    series: [{
-                        name: 'Tasa de Fertilidad',
-                        data: values,
-                        color: '#434348'
-                    }],
+                    chart: { type: 'scatter' },
+                    title: { text: 'Tasas de Natalidad y Mortalidad por País' },
+                    xAxis: {
+                        categories,
+                        labels: { rotation: -45 }
+                    },
+                    yAxis: {
+                        title: { text: 'Tasa (por 1000 hab.)' }
+                    },
+                    tooltip: {
+                        formatter: function() {
+                            return `<b>${this.point.name}</b><br/>${this.series.name}: ${this.y} por 1000 hab.`;
+                        }
+                    },
+                    series: [
+                        {
+                            name: 'Natalidad',
+                            type: 'scatter',
+                            data: sample.map((d, i) => ({
+                                x: i,
+                                y: Number(d.crude_birth_rate) || 0,
+                                name: categories[i]
+                            })),
+                            color: '#2ecc71',
+                            marker: { symbol: 'circle', radius: 6 }
+                        },
+                        {
+                            name: 'Mortalidad',
+                            type: 'scatter',
+                            data: sample.map((d, i) => ({
+                                x: i,
+                                y: Number(d.crude_death_rate) || 0,
+                                name: categories[i]
+                            })),
+                            color: '#e74c3c',
+                            marker: { symbol: 'diamond', radius: 6 }
+                        }
+                    ],
                     credits: { enabled: false }
                 });
             } else {
-                // @ts-ignore
-                error = "Base de datos vacía.";
+                error = "Base de datos vacía. Carga los datos iniciales primero.";
                 loading = false;
             }
         } catch (e) {
-            // @ts-ignore
-            error = "Error de conexión.";
+            error = "Error de conexión con la API.";
             loading = false;
         }
     });
 </script>
 
 <main style="padding: 20px;">
-    <h2>Visualización Individual (FMG)</h2>
+    <h2>Visualización Individual (LPH)</h2>
+    <p>Comparación de tasas de natalidad y mortalidad — gráfico de dispersión.</p>
 
     {#if loading}
-        <p>Cargando datos aleatorios...</p>
+        <p>Cargando datos...</p>
     {:else if error}
         <p style="color: red;">{error}</p>
     {/if}
