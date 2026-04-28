@@ -2,7 +2,10 @@ import dataStore from 'nedb';
 
 let BASE_URL_API = "/api/v2";
 let db = new dataStore();
-let DOCS_URL = "https://documenter.getpostman.com/view/52368982/2sBXigMtBS"; 
+
+// --- AQUÍ DEFINIMOS LOS DOS ENLACES ---
+let DOCS_URL_V1 = "https://documenter.getpostman.com/view/52368982/2sBXqJKLmr"; 
+let DOCS_URL_V2 = "https://documenter.getpostman.com/view/52368982/2sBXigMtBS"; 
 
 export function loadBackend(app) {
 
@@ -26,24 +29,20 @@ export function loadBackend(app) {
     ];
     
     // ==========================================
-    // 1. CARGA DE DATOS INICIALES
+    // 1. CARGA DE DATOS INICIALES (Versión Forzada)
     // ==========================================
     app.get(BASE_URL_API + "/mid-population-ages/loadInitialData", (req, res) => {
-        db.find({}, (err, records) => {
-            if (err) return res.status(500).json({ message: "Error interno de la base de datos" });
+        db.remove({}, { multi: true }, (err, numRemoved) => {
+            if (err) return res.status(500).json({ message: "Error al limpiar la base de datos" });
             
-            if (records.length === 0) {
-                db.insert(initialRecords, (err, newDocs) => {
-                    if (err) {
-                        console.error(" Error de NeDB al insertar:", err);
-                        return res.status(500).json({ message: "Error al insertar datos" });
-                    }
-                    console.log(`Cargados ${newDocs.length} registros iniciales.`);
-                    res.status(201).json(newDocs.map(({ _id, ...rest }) => rest)); 
-                });
-            } else {
-                res.status(200).json({ message: "Los datos ya estaban cargados previamente" });
-            }
+            db.insert(initialRecords, (err, newDocs) => {
+                if (err) {
+                    console.error(" Error al insertar:", err);
+                    return res.status(500).json({ message: "Error al insertar datos" });
+                }
+                console.log(`✅ Base de datos reseteada. Cargados ${newDocs.length} registros iniciales.`);
+                res.status(201).json(newDocs.map(({ _id, ...rest }) => rest)); 
+            });
         });
     });
 
@@ -55,44 +54,23 @@ export function loadBackend(app) {
         let offset = 0;
         let limit = Number.MAX_SAFE_INTEGER;
 
-        // Paginación
-        if (req.query.offset) {
-            offset = parseInt(req.query.offset);
-        }
-        if (req.query.limit) {
-            limit = parseInt(req.query.limit);
-        }
+        if (req.query.offset) { offset = parseInt(req.query.offset); }
+        if (req.query.limit) { limit = parseInt(req.query.limit); }
 
-        // --- FILTRO DE RANGO (from / to) ---
         if (req.query.from || req.query.to) {
             query.year = {};
-            if (req.query.from) {
-                query.year.$gte = Number(req.query.from);
-            }
-            if (req.query.to) {
-                query.year.$lte = Number(req.query.to);
-            }
+            if (req.query.from) { query.year.$gte = Number(req.query.from); }
+            if (req.query.to) { query.year.$lte = Number(req.query.to); }
         }
 
-        // --- FILTROS ADICIONALES ---
         const operatorMap = { ">": "$gt", "<": "$lt", ">=": "$gte", "<=": "$lte" };
         const operators = [">=", "<=", ">", "<"];
 
         Object.keys(req.query).forEach(key => {
-            // Saltamos los parámetros ya procesados
             if (["from", "to", "offset", "limit"].includes(key)) return;
-
             const value = req.query[key];
             if (value === "" || value === undefined) return;
 
-            // Evitar sobrescribir query.year si ya fue configurado por from/to
-            // A menos que el parámetro sea específicamente "year"
-            if (key === "year" && query.year && typeof value === "string") {
-                 // Si ya hay rango, y además viene "year", podríamos decidir qué hacer.
-                 // Para simplicidad, si viene "year", permitimos que sobrescriba o se añada.
-            }
-
-            // Lógica de guión (rango) para cualquier campo
             if (typeof value === "string" && value.includes("-")) {
                 const [min, max] = value.split("-");
                 query[key] = {};
@@ -101,7 +79,6 @@ export function loadBackend(app) {
                 return;
             }
 
-            // Lógica de operadores (>=, <=, >, <)
             for (const op of operators) {
                 if (typeof value === "string" && value.startsWith(op)) {
                     const valStr = value.slice(op.length);
@@ -112,7 +89,6 @@ export function loadBackend(app) {
                 }
             }
 
-            // Valor exacto (convertir a número si es posible, pero solo si no es un objeto ya)
             if (!query[key] || typeof query[key] !== "object") {
                 query[key] = isNaN(value) ? value : Number(value);
             }
@@ -120,7 +96,6 @@ export function loadBackend(app) {
 
         db.find(query).skip(offset).limit(limit).exec((err, records) => {
             if (err) return res.status(500).json({ message: "Error en la base de datos" });
-            
             const cleanRecords = records.map(({ _id, ...rest }) => rest);
             res.status(200).json(cleanRecords);
         });
@@ -148,7 +123,6 @@ export function loadBackend(app) {
     // ==========================================
     app.post(BASE_URL_API + "/mid-population-ages", (req, res) => {
         const newRecord = req.body;
-        
         if (newRecord._id) delete newRecord._id;
 
         const expectedFields = [
@@ -157,7 +131,6 @@ export function loadBackend(app) {
             "population_age_75", "population_age_100"
         ];
         const receivedFields = Object.keys(newRecord);
-        
         const hasAllFields = expectedFields.every(field => receivedFields.includes(field));
         const hasExtraFields = receivedFields.length > expectedFields.length;
 
@@ -204,7 +177,6 @@ export function loadBackend(app) {
             "population_age_75", "population_age_100"
         ];
         const receivedFields = Object.keys(updatedRecord);
-        
         const hasAllFields = expectedFields.every(field => receivedFields.includes(field));
         const hasExtraFields = receivedFields.length > expectedFields.length;
 
@@ -219,7 +191,6 @@ export function loadBackend(app) {
         db.update({ country_name, year, sex }, updatedRecord, {}, (err, numReplaced) => {
             if (err) return res.status(500).json({ message: "Error interno" });
             if (numReplaced === 0) return res.status(404).json({ message: "Recurso no encontrado" });
-            
             res.status(200).json(updatedRecord);
         });
     });
@@ -252,15 +223,21 @@ export function loadBackend(app) {
         db.remove({ country_name, year, sex }, {}, (err, numRemoved) => {
             if (err) return res.status(500).json({ message: "Error interno" });
             if (numRemoved === 0) return res.status(404).json({ message: "Recurso no encontrado" });
-            
             res.status(200).json({ message: "Recurso borrado correctamente" });
         });
     });
 
     // ==========================================
-    // 10. REDIRECCIÓN A DOCS (Postman)
+    // 10. REDIRECCIÓN A DOCS (Postman) - V1
+    // ==========================================
+    app.get("/api/v1/mid-population-ages/docs", (req, res) => {
+        res.redirect(DOCS_URL_V1);
+    });
+
+    // ==========================================
+    // 11. REDIRECCIÓN A DOCS (Postman) - V2
     // ==========================================
     app.get(BASE_URL_API + "/mid-population-ages/docs", (req, res) => {
-        res.redirect(DOCS_URL);
+        res.redirect(DOCS_URL_V2);
     });
 }
