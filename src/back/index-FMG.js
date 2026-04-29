@@ -1,11 +1,15 @@
 import dataStore from 'nedb';
+import cors from 'cors'
 
 let BASE_URL_API = "/api/v2";
 let db = new dataStore();
 let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXijHX4D";
 
 function loadBackend(app) {
-let initialData = [
+
+    app.use(cors());
+
+    let initialData = [
  
         { country_code: "SI", country_name: "Slovenia", year: 2022, fert_15_19: 7.5, fert_20_24: 56.4 },
         { country_code: "SI", country_name: "Slovenia", year: 2021, fert_15_19: 8.1, fert_20_24: 55.2 },
@@ -182,12 +186,5 @@ let initialData = [
         res.redirect(DOC_URL);    
     }); 
 }
-
-
-
-
-
-
-
 
 export { loadBackend };
