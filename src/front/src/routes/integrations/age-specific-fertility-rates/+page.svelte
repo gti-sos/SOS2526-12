@@ -417,7 +417,7 @@
                             GDP per cápita: <b>${this.
 // @ts-ignore
                             point.gdp}</b><br/>
-                            <i>Tasa Fertilidad (tus datos): <b>${this.
+                            <i>Tasa Fertilidad: <b>${this.
 // @ts-ignore
                             point.fertility}</b></i>`;
                 }
