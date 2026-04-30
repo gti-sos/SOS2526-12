@@ -42,7 +42,7 @@ The project relies on Open Data from international census records (Kaggle/Census
 ## API V2:
 - https://sos2526-12.onrender.com/api/v2/age-specific-fertility-rates/docs (Developed by Francisco de Paula Mediavilla García)
 - https://sos2526-12.onrender.com/api/v2/birth-death-growth-rates/docs (Developed by Lucca Pereira)
-- https://sos2526-12.onrender.com/api/v2/age-specific-fertility-rates/docs (Developed by Javier Jimenez Garcia)
+- https://sos2526-12.onrender.com/api/v2/mid-population-ages/docs (Developed by Javier Jimenez Garcia)
 
 ## Puntos extra Lucca Pereira Heasman
 * Hugging Face (Render alternative): https://lucperhea-sos2526-12.hf.space
