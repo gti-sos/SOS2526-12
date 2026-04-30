@@ -1,11 +1,16 @@
 import dataStore from 'nedb';
+import cors from 'cors'
 
 let BASE_URL_API = "/api/v2";
 let db = new dataStore();
 let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXijHX4D";
 
 function loadBackend(app) {
+
+    app.use(cors());
+
     let initialData = [
+ 
         { country_code: "SI", country_name: "Slovenia", year: 2022, fert_15_19: 7.5, fert_20_24: 56.4 },
         { country_code: "SI", country_name: "Slovenia", year: 2021, fert_15_19: 8.1, fert_20_24: 55.2 },
         { country_code: "SI", country_name: "Slovenia", year: 2020, fert_15_19: 7.8, fert_20_24: 54.9 },
@@ -16,8 +21,26 @@ function loadBackend(app) {
         { country_code: "TB", country_name: "Saint Barthelemy", year: 2022, fert_15_19: 14.3, fert_20_24: 67 },
         { country_code: "UP", country_name: "Ukraine", year: 2022, fert_15_19: 25.9, fert_20_24: 89.1 },
         { country_code: "CD", country_name: "Chad", year: 2022, fert_15_19: 153.8, fert_20_24: 247.6 },
-        { country_code: "SP", country_name: "Spain", year: 2022, fert_15_19: 100.8, fert_20_24: 199.6 },
-        { country_code: "IT", country_name: "Italy", year: 2022, fert_15_19: 123.8, fert_20_24: 207.6 }
+        { country_code: "SP", country_name: "Spain", year: 2022, fert_15_19: 6.2, fert_20_24: 28.5 },
+        { country_code: "SP", country_name: "Spain", year: 2021, fert_15_19: 6.5, fert_20_24: 29.1 },
+        { country_code: "SP", country_name: "Spain", year: 2020, fert_15_19: 6.8, fert_20_24: 30.4 },
+        { country_code: "IT", country_name: "Italy", year: 2022, fert_15_19: 4.1, fert_20_24: 22.6 },
+        { country_code: "IT", country_name: "Italy", year: 2021, fert_15_19: 4.3, fert_20_24: 23.0 },
+        { country_code: "IT", country_name: "Italy", year: 2020, fert_15_19: 4.5, fert_20_24: 24.3 },
+        { country_code: "FR", country_name: "France", year: 2022, fert_15_19: 15.2, fert_20_24: 68.4 },
+        { country_code: "DE", country_name: "Germany", year: 2022, fert_15_19: 12.1, fert_20_24: 62.5 },
+        { country_code: "PT", country_name: "Portugal", year: 2022, fert_15_19: 18.5, fert_20_24: 72.1 },
+        { country_code: "CA", country_name: "Canada", year: 2022, fert_15_19: 22.4, fert_20_24: 78.9 },
+        { country_code: "US", country_name: "USA", year: 2022, fert_15_19: 45.1, fert_20_24: 95.3 },
+        { country_code: "JP", country_name: "Japan", year: 2022, fert_15_19: 4.2, fert_20_24: 35.6 },
+        { country_code: "SP", country_name: "Spain", year: 1980, fert_15_19: 32.1, fert_20_24: 165.4 },
+        { country_code: "IT", country_name: "Italy", year: 1980, fert_15_19: 25.4, fert_20_24: 145.2 },
+        { country_code: "US", country_name: "USA", year: 1980, fert_15_19: 53.0, fert_20_24: 115.1 },
+        { country_code: "CN", country_name: "China", year: 2022, fert_15_19: 7.2, fert_20_24: 85.3 },
+        { country_code: "CN", country_name: "China", year: 1980, fert_15_19: 15.0, fert_20_24: 210.5 },
+        { country_code: "BR", country_name: "Brazil", year: 2022, fert_15_19: 48.2, fert_20_24: 92.1 },
+        { country_code: "IN", country_name: "India", year: 2022, fert_15_19: 17.4, fert_20_24: 120.6 },
+        { country_code: "IN", country_name: "India", year: 1980, fert_15_19: 95.0, fert_20_24: 245.2 }
     ];
 
     // Cargar datos iniciales (Ruta para POSTMAN y test)
@@ -163,12 +186,5 @@ function loadBackend(app) {
         res.redirect(DOC_URL);    
     }); 
 }
-
-
-
-
-
-
-
 
 export { loadBackend };
