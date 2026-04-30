@@ -33,7 +33,7 @@
     const MY_API_URL = "https://sos2526-12.onrender.com/api/v2/age-specific-fertility-rates";
     
     // TU PROXY:
-    const G11_PROXY_URL = "http://sos2526-12.onrender.com/api/v2/proxy-sos-1"; 
+    const G11_PROXY_URL = "https://sos2526-12.onrender.com/api/v2/proxy-sos-1"; 
 
     // @ts-ignore
     let matchedFatalities = [];
