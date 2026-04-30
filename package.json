@@ -42,6 +42,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^2.2.2",
+    "chart.js": "^4.5.1",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "express-session": "^1.18.1",

@@ -1,5 +1,6 @@
 import dataStore from 'nedb';
 
+
 let BASE_URL_API = "/api/v2";
 let db = new dataStore();
 
@@ -239,5 +240,34 @@ export function loadBackend(app) {
     // ==========================================
     app.get(BASE_URL_API + "/mid-population-ages/docs", (req, res) => {
         res.redirect(DOCS_URL_V2);
+    });
+
+
+    // ==========================================
+    // 12. PROXY PARA INTEGRACIÓN EXTERNA (D03.B)
+    // ==========================================
+    app.get(BASE_URL_API + "/proxy/countries", async (req, res) => {
+        try {
+            // 1. Definimos la URL de la API externa (REST Countries)
+            // Usamos una ruta específica para traer solo los campos que nos interesan (nombre, región, población) y que sea más rápido.
+            const urlExterna = "https://restcountries.com/v3.1/all?fields=name,region,population";
+
+            // 2. Hacemos la petición desde NUESTRO servidor
+            const response = await fetch(urlExterna);
+            
+            if (!response.ok) {
+                 return res.status(response.status).json({ message: "Error al acceder a la API externa" });
+            }
+
+            // 3. Obtenemos los datos en formato JSON
+            const data = await response.json();
+
+            // 4. Se los enviamos de vuelta a nuestro frontend
+            res.status(200).json(data);
+
+        } catch (error) {
+            console.error("Error en el proxy:", error);
+            res.status(500).json({ message: "Error interno del servidor en el proxy" });
+        }
     });
 }
