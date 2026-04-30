@@ -1,13 +1,22 @@
 import dataStore from 'nedb';
-import cors from 'cors'
+import cors from 'cors';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 let BASE_URL_API = "/api/v2";
 let db = new dataStore();
 let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXijHX4D";
 
 function loadBackend(app) {
-
     app.use(cors());
+
+    const API_COMPANERO_1 = "https://sos2526-11.onrender.com/api/v1/road-fatalities"; 
+
+    app.use('/api/v2/proxy-sos-1', createProxyMiddleware({
+        target: API_COMPANERO_1,
+        changeOrigin: true,
+        ignorePath: true,
+    }));
+
 
     let initialData = [
  
