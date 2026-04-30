@@ -46,7 +46,7 @@
         // ==========================================
         try {
             // Hacemos fetch directamente a su Render (no pasa por nuestro proxy)
-            const idhResponse = await fetch('/api/v2/proxy/countries');
+            const response = await fetch('https://sos2526-12.onrender.com/api/v2/proxy/countries');
             if (idhResponse.ok) {
                 const idhData = await idhResponse.json();
                 
