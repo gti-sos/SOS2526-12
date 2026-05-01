@@ -142,8 +142,9 @@ vite.config.ts.timestamp-*
 # NeDB database files
 *.db
 
-# Claude Code instructions
+# Local config
 CLAUDE.md
+.claude/
 
 # Personal notes
 README-LPH.md
