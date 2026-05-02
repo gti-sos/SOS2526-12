@@ -28,7 +28,9 @@
         // CARGA DE INTEGRACIÓN 1: Proxy REST Countries
         // ==========================================
         try {
-            const response = await fetch('http://localhost:3000/api/v2/proxy/countries'); 
+            // 👇 AQUÍ ESTÁ EL CAMBIO 👇
+            const response = await fetch('https://sos2526-12.onrender.com/api/v2/proxy/countries'); 
+            
             if (response.ok) {
                 const data = await response.json();
                 countriesData = data.slice(0, 15); 
@@ -41,29 +43,23 @@
             isLoading = false; 
         }
 
+        
         // ==========================================
-        // CARGA DE INTEGRACIÓN 2: G26 IDH (Fetch Directo a su servidor)
+        // CARGA DE INTEGRACIÓN 2: G26 IDH 
         // ==========================================
         try {
-            // Hacemos fetch directamente a su Render (no pasa por nuestro proxy)
-            const response = await fetch('https://sos2526-12.onrender.com/api/v2/proxy/countries');
+            const idhResponse = await fetch('https://sos2526-26.onrender.com/api/v2/countries-idh-per-years');
+            
             if (idhResponse.ok) {
                 const idhData = await idhResponse.json();
-                
-                
-                console.log("Datos de G26:", idhData[0]); 
-
                 const sampleData = idhData.slice(0, 10);
 
-                // Preparamos las etiquetas (eje X) y los valores (eje Y)
-                // OJO: Quizás haya que cambiar "country" o "idh" por los nombres exactos que usen ellos en su JSON
                 const labels = sampleData.map(item => `${item.country} (${item.year})`);
-                // AHORA TIENE QUE DECIR ESTO:
-                const values = sampleData.map(item => item.hdi_value);
+                // Usamos hdi_value que es el nombre correcto que descubrimos antes
+                const values = sampleData.map(item => item.hdi_value); 
 
-                // Dibujamos la gráfica
                 new Chart(chartCanvas, {
-                    type: 'bar', // Tipo de gráfica (barras)
+                    type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [{
@@ -81,7 +77,7 @@
                 idhErrorMessage = "Error al cargar la API del Grupo 26.";
             }
         } catch (error) {
-            idhErrorMessage = "Error de CORS o red con G26: " + error.message;
+            idhErrorMessage = "Error con G26: " + error.message;
         }
         // ==========================================
         // CARGA DE INTEGRACIÓN 3: G10 Muertes (Uso Textual - Fetch Directo)
@@ -276,7 +272,7 @@
         {/if}
     </section>
     <section class="integration-block">
-        <h3>4. Integración con Open-Meteo (Clima 7 días)</h3>
+        <h3>5. Integración con Open-Meteo (Clima 7 días)</h3>
         <p><strong>Tipo:</strong> Widget Gráfico (Chart.js - Radar) | <strong>API Externa:</strong> open-meteo.com</p>
 
         {#if meteoErrorMessage}
