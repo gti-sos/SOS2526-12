@@ -9,17 +9,19 @@ let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXijHX4D";
 function loadBackend(app) {
     app.use(cors());
 
-    const API_COMPANERO_1_DOMAIN = "https://sos2526-11.onrender.com"; 
+    // --- PROXY A UNA API PÚBLICA (RESTCOUNTRIES) ---
+    const PUBLIC_API_DOMAIN = "https://restcountries.com"; 
 
     app.use('/api/v2/proxy-sos-1', createProxyMiddleware({
-        target: API_COMPANERO_1_DOMAIN,
+        target: PUBLIC_API_DOMAIN,
         changeOrigin: true,
         pathRewrite: {
-            // Reemplaza tu ruta por la ruta real de su API
-            '^/api/v2/proxy-sos-1': '/api/v1/road-fatalities'
+            // Cuando tu frontend pida /api/v2/proxy-sos-1, 
+            // el proxy pedirá a internet /v3.1/all (todos los países)
+            '^/api/v2/proxy-sos-1': '/v3.1/all' 
         }
     }));
-
+    
     let initialData = [
  
         { country_code: "SI", country_name: "Slovenia", year: 2022, fert_15_19: 7.5, fert_20_24: 56.4 },
