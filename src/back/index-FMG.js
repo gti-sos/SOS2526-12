@@ -9,14 +9,16 @@ let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXijHX4D";
 function loadBackend(app) {
     app.use(cors());
 
-    const API_COMPANERO_1 = "https://sos2526-11.onrender.com/api/v1/road-fatalities"; 
+    const API_COMPANERO_1_DOMAIN = "https://sos2526-11.onrender.com"; 
 
     app.use('/api/v2/proxy-sos-1', createProxyMiddleware({
-        target: API_COMPANERO_1,
+        target: API_COMPANERO_1_DOMAIN,
         changeOrigin: true,
-        ignorePath: true,
+        pathRewrite: {
+            // Reemplaza tu ruta por la ruta real de su API
+            '^/api/v2/proxy-sos-1': '/api/v1/road-fatalities'
+        }
     }));
-
 
     let initialData = [
  

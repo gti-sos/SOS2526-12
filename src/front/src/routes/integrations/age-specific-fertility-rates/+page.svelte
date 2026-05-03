@@ -72,7 +72,7 @@
     // TU PROXY 1 (G11):
     const G11_PROXY_URL = "https://sos2526-12.onrender.com/api/v2/proxy-sos-1"; 
 
-    // API CÓLERA (Sustituye esto por la URL real asegurando que empieza por https://)
+    // API CÓLERA (Sustituye esto por la URL real
     const CHOLERA_API_URL = "https://soporte-sos.onrender.com/api/v1/cholera-stats"; 
 
     // @ts-ignore
