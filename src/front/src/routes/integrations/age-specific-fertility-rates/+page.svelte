@@ -5,6 +5,9 @@
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
     <script src="https://code.highcharts.com/modules/heatmap.js"></script>
     <script src="https://code.highcharts.com/modules/treemap.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/sankey.js"></script>
+    <script src="https://code.highcharts.com/modules/item-series.js"></script>
 </svelte:head>
 
 <main>
@@ -33,7 +36,7 @@
                 <p>
                     Gráfico de burbujas empaquetadas agrupadas por continentes/regiones de la OMS. 
                     Cruza <strong>Tasa de Fertilidad</strong> (tamaño de la burbuja) con <strong>Mortalidad por Cólera</strong>. <br>
-                    <em>*¡Prueba a arrastrar las burbujas con el ratón!</em>
+               
                 </p>
             </div>
         </section>
@@ -69,6 +72,29 @@
             </div>
         </section>
 
+    <section class="card">
+        <div id="chart-universities-sankey" style="width: 100%; height: 500px;"></div>
+        <div class="description">
+            <h3>Integración 6: Flujo de Educación vs. Fertilidad</h3>
+            <p>
+                <strong>Diagrama de Sankey:</strong> Muestra el flujo de los países según su volumen de <strong>Universidades</strong> (API HipoLabs) hacia su nivel de <strong>Fertilidad Juvenil</strong>. El grosor de la línea representa la cantidad de países en ese flujo.
+            </p>
+        </div>
+    </section>
+
+
+    <section class="card">
+        <div id="chart-labor-parliament" style="width: 100%; height: 450px;"></div>
+        <div class="description">
+            <h3>Integración 7: Participación Laboral Femenina vs. Fertilidad</h3>
+            <p>
+                <strong>Gráfico de Hemiciclo:</strong> Cada "escaño" representa un país, agrupados en bancadas según el porcentaje de mujeres en la fuerza laboral (Datos: <em>World Bank API</em>). Al pasar el cursor, se observa la <strong>Tasa de Fertilidad media</strong> de cada grupo, demostrando la correlación sociológica.
+            </p>
+        </div>
+    </section>
+
+
+
     </div>
 </main>
 
@@ -78,17 +104,19 @@
 
     // --- CONFIGURACIÓN DE ENDPOINTS ---
     const MY_API_URL = "https://sos2526-12.onrender.com/api/v2/age-specific-fertility-rates";
-    
-    // CAMBIO 1: Como ya no hay proxy, apuntamos directamente al servidor del Grupo 11 (CORS)
-    // (Asegúrate de que la URL de ellos es v1 o v2, aquí he puesto v2 por defecto)
+ 
     const G11_API_URL = "https://sos2526-11.onrender.com/api/v2/road-fatalities"; 
     
     const CHOLERA_API_URL = "https://soporte-sos.onrender.com/api/v1/cholera-stats"; 
     const HAPPINESS_API_URL = "https://sos2526-15.onrender.com/api/v2/happiness-indices";
     const WINE_API_URL = "https://sos2526-29.onrender.com/api/v1/wine-stats";
     
-    // CAMBIO: Pidiendo 'area' en lugar de 'population'
     const RESTCOUNTRIES_API_URL = "https://restcountries.com/v3.1/all?fields=name,area"; 
+
+    const UNIVERSITIES_API_URL = "https://universities.hipolabs.com/search?country=";
+
+    // La API del Banco Mundial para el % de mujeres en la fuerza laboral
+    const WORLDBANK_LABOR_API = "https://api.worldbank.org/v2/country/all/indicator/SL.TLF.CACT.FE.ZS?format=json&date=2022&per_page=300";
 
     // @ts-ignore
     let matchedFatalities = [];
@@ -100,11 +128,13 @@
         await loadInitialDataSilently();
         
         // 2. Ejecutamos todas las integraciones en paralelo
-        await fetchAndMatchData(); // G11 Fatalities (Directo)
+        await fetchAndMatchData(); 
         await fetchAndMatchCholeraPacked();
         await fetchAndMatchHappiness();
         await fetchAndMatchWine();
-        await fetchAndMatchArea(); // CAMBIO: Llamada a la nueva función de Área
+        await fetchAndMatchArea(); 
+        await fetchAndDrawUniversitiesSankey();
+        await fetchAndDrawParliament();
 
         // Dibujar Fatalities si hay datos
         if (matchedFatalities.length > 0) {
@@ -124,6 +154,10 @@
             
             // Inicializa la del vino
             await fetch(`${WINE_API_URL}/loadinitialdata`).catch(() => {});
+
+            await fetch(`${HAPPINESS_API_URL}/loadinitialdata`).catch(() => {});
+
+            await fetch(`${CHOLERA_API_URL}/loadinitialdata`).catch(() => {});
             
             console.log("✅ Inicialización de bases de datos completada.");
         } catch (e) {
@@ -504,6 +538,237 @@
             }]
         });
     }
+
+
+// --- LÓGICA SANKEY: UNIVERSIDADES VS FERTILIDAD (VERSIÓN SEGURA) ---
+    async function fetchAndDrawUniversitiesSankey() {
+        try {
+            console.log("Cargando datos para el Sankey (esto tardará un poco más para no saturar la API)...");
+
+            // 1. Obtener tus datos de fertilidad
+            const resMine = await fetch(MY_API_URL);
+            const myData = await resMine.json();
+
+            // 2. Extraer el dato más reciente por país
+            const latestFertility = {};
+            // @ts-ignore
+            myData.forEach(m => {
+                const c = m.country_name;
+                // @ts-ignore
+                if (!latestFertility[c] || latestFertility[c].year < m.year) {
+                    latestFertility[c] = m.fert_15_19;
+                }
+            });
+
+            const countries = Object.keys(latestFertility);
+            const flowCounts = {}; 
+
+            // 3. Hacer fetch a HipoLabs UNO A UNO (Secuencial) para evitar el Connection Refused
+            for (const countryName of countries) {
+                try {
+                    // Usamos http:// porque el certificado https de HipoLabs a veces falla
+                    const url = `http://universities.hipolabs.com/search?country=${encodeURIComponent(countryName)}`;
+                    const response = await fetch(url);
+                    
+                    if (response.ok) {
+                        const uniData = await response.json();
+                        const uniCount = uniData.length;
+                        // @ts-ignore
+                        const fertRate = latestFertility[countryName];
+
+                        if (uniCount > 0 && fertRate !== undefined) {
+                            // Categorizar Universidades
+                            let uniCategory = "";
+                            if (uniCount < 10) uniCategory = "Pocas Univ. (<10)";
+                            else if (uniCount <= 40) uniCategory = "Univ. Medias (10-40)";
+                            else uniCategory = "Muchas Univ. (>40)";
+
+                            // Categorizar Fertilidad
+                            let fertCategory = "";
+                            if (fertRate < 30) fertCategory = "Fertilidad Baja (<30)";
+                            else if (fertRate <= 70) fertCategory = "Fertilidad Media (30-70)";
+                            else fertCategory = "Fertilidad Alta (>70)";
+
+                            const linkKey = `${uniCategory}|${fertCategory}`;
+                            flowCounts[linkKey] = (flowCounts[linkKey] || 0) + 1;
+                        }
+                    }
+                    
+                    // IMPORTANTE: Pausa de 100 milisegundos para que el servidor respire
+                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                } catch (e) {
+                    console.warn(`Fallo al cargar universidades de ${countryName}`);
+                }
+            }
+
+            // 4. Formatear para Sankey
+            const sankeyData = Object.keys(flowCounts).map(key => {
+                const [from, to] = key.split('|');
+                return [from, to, flowCounts[key]];
+            });
+
+            // 5. Dibujar la gráfica
+            if (sankeyData.length > 0) {
+                drawSankeyChart(sankeyData);
+                console.log("Sankey renderizado con éxito.");
+            } else {
+                console.warn("No se consiguieron cruzar datos para el Sankey.");
+            }
+
+        } catch (error) {
+            console.error("Error montando el diagrama de Sankey:", error);
+        }
+    }
+
+    // @ts-ignore
+    function drawSankeyChart(sankeyData) {
+        // @ts-ignore
+        Highcharts.chart('chart-universities-sankey', {
+            chart: { backgroundColor: 'transparent' },
+            title: { text: 'Flujo de Educación Superior a Fertilidad Juvenil' },
+            subtitle: { text: 'Relación entre volumen de universidades y tasas de fertilidad por país' },
+            tooltip: {
+                // @ts-ignore
+                nodeFormat: '{point.name}: <b>{point.sum}</b> países',
+                // @ts-ignore
+                nodeFormatter: function () {
+                    // @ts-ignore
+                    return `${this.name}: <b>${this.sum}</b> países`;
+                }
+            },
+            series: [{
+                keys: ['from', 'to', 'weight'],
+                // @ts-ignore
+                data: sankeyData,
+                type: 'sankey',
+                name: 'Flujo de Países',
+                nodePadding: 40, // Espacio entre los bloques
+                nodes: [
+                    // Le damos colores específicos a los nodos de fertilidad para que resalten
+                    { id: 'Fertilidad Alta (>70)', color: '#ef4444' }, // Rojo
+                    { id: 'Fertilidad Media (30-70)', color: '#eab308' }, // Amarillo
+                    { id: 'Fertilidad Baja (<30)', color: '#22c55e' }  // Verde
+                ]
+            }]
+        });
+    }
+
+
+// --- LÓGICA INTEGRACIÓN FINAL (PARLIAMENT CHART - WORLD BANK) ---
+    async function fetchAndDrawParliament() {
+        try {
+            // 1. Obtener tus datos de fertilidad
+            const resMine = await fetch(MY_API_URL);
+            const myData = await resMine.json();
+
+            // Extraer el dato más reciente por país
+            const latestFertility = {};
+            // @ts-ignore
+            myData.forEach(m => {
+                const c = m.country_name;
+                // @ts-ignore
+                if (!latestFertility[c] || latestFertility[c].year < m.year) {
+                    latestFertility[c] = m.fert_15_19;
+                }
+            });
+
+            // 2. Obtener datos del Banco Mundial (Trae un array donde la pos [1] son los datos)
+            const resWB = await fetch(WORLDBANK_LABOR_API);
+            const wbDataRaw = await resWB.json();
+            const wbData = wbDataRaw[1]; // El Banco Mundial devuelve [metadatos, datos_reales]
+
+            // 3. Contadores para nuestras "Bancadas"
+            const groups = {
+                baja: { count: 0, totalFert: 0, name: 'Baja Participación (<45%)', color: '#ef4444' },
+                media: { count: 0, totalFert: 0, name: 'Participación Media (45-60%)', color: '#eab308' },
+                alta: { count: 0, totalFert: 0, name: 'Alta Participación (>60%)', color: '#22c55e' }
+            };
+
+            // 4. Cruzar datos
+            // @ts-ignore
+            wbData.forEach(country => {
+                const name = country.country.value; // Nombre del país en el BM
+                const laborRate = country.value;    // % de mujeres trabajando
+
+                // @ts-ignore
+                if (laborRate !== null && latestFertility[name] !== undefined) {
+                    // @ts-ignore
+                    const fert = latestFertility[name];
+
+                    if (laborRate < 45) {
+                        groups.baja.count++;
+                        groups.baja.totalFert += fert;
+                    } else if (laborRate <= 60) {
+                        groups.media.count++;
+                        groups.media.totalFert += fert;
+                    } else {
+                        groups.alta.count++;
+                        groups.alta.totalFert += fert;
+                    }
+                }
+            });
+
+            // 5. Formatear para el Parliament Chart (Calculando el promedio de fertilidad)
+            const parliamentData = [
+                {
+                    name: groups.baja.name,
+                    y: groups.baja.count, // Número de escaños (países)
+                    color: groups.baja.color,
+                    avgFert: (groups.baja.totalFert / (groups.baja.count || 1)).toFixed(2)
+                },
+                {
+                    name: groups.media.name,
+                    y: groups.media.count,
+                    color: groups.media.color,
+                    avgFert: (groups.media.totalFert / (groups.media.count || 1)).toFixed(2)
+                },
+                {
+                    name: groups.alta.name,
+                    y: groups.alta.count,
+                    color: groups.alta.color,
+                    avgFert: (groups.alta.totalFert / (groups.alta.count || 1)).toFixed(2)
+                }
+            ];
+
+            // 6. Dibujar la gráfica
+            drawParliamentChart(parliamentData);
+            console.log("Cruce finalizado: Hemiciclo del Banco Mundial renderizado.");
+
+        } catch (error) {
+            console.error("Error montando el Parliament Chart:", error);
+        }
+    }
+
+    // @ts-ignore
+    function drawParliamentChart(data) {
+        // @ts-ignore
+        Highcharts.chart('chart-labor-parliament', {
+            chart: { type: 'item', backgroundColor: 'transparent' },
+            title: { text: 'El Hemiciclo de la Participación Femenina' },
+            subtitle: { text: 'Cada punto es un país. Mayor integración laboral equivale a menor fertilidad temprana.' },
+            legend: { labelFormat: '{name} <span style="opacity: 0.4">{y} países</span>' },
+            tooltip: {
+                headerFormat: '<span style="font-size: 13px"><b>{point.key}</b></span><br/>',
+                // Usamos la variable personalizada avgFert que creamos antes
+                pointFormat: '{series.name}: <b>{point.y} países</b><br/>Fertilidad Juvenil Media: <b>{point.avgFert}</b> nacimientos'
+            },
+            series: [{
+                name: 'Países',
+                keys: ['name', 'y', 'color', 'avgFert'],
+                // @ts-ignore
+                data: data,
+                dataLabels: { enabled: false },
+                // Configuración de la forma de hemiciclo (semicírculo)
+                center: ['50%', '88%'],
+                size: '170%',
+                startAngle: -100,
+                endAngle: 100
+            }]
+        });
+    }
+
+
 
 </script>
 
