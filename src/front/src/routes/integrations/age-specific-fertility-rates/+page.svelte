@@ -567,7 +567,7 @@
             for (const countryName of countries) {
                 try {
                     // Usamos http:// porque el certificado https de HipoLabs a veces falla
-                    const url = `https://universities.hipolabs.com/search?country=${encodeURIComponent(countryName)}`;
+                    const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
                     const response = await fetch(url);
                     
                     if (response.ok) {
