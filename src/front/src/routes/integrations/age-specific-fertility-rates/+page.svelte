@@ -72,15 +72,15 @@
             </div>
         </section>
 
-    <section class="card">
-        <div id="chart-universities-sankey" style="width: 100%; height: 500px;"></div>
-        <div class="description">
-            <h3>Integración 6: Flujo de Educación vs. Fertilidad</h3>
-            <p>
-                <strong>Diagrama de Sankey:</strong> Muestra el flujo de los países según su volumen de <strong>Universidades</strong> (API HipoLabs) hacia su nivel de <strong>Fertilidad Juvenil</strong>. El grosor de la línea representa la cantidad de países en ese flujo.
-            </p>
-        </div>
-    </section>
+<section class="card">
+    <div id="chart-scatter-analytics" style="width: 100%; height: 500px;"></div>
+    <div class="description">
+        <h3>Integración 6: Educación vs Fertilidad (Plan B)</h3>
+        <p>
+            Al cruzar la tasa de matriculación universitaria (API segura del Banco Mundial) con la tasa de fertilidad juvenil, observamos la tendencia sociológica real.
+        </p>
+    </div>
+</section>
 
 
     <section class="card">
@@ -540,87 +540,97 @@
     }
 
 
-// --- LÓGICA SANKEY: UNIVERSIDADES VS FERTILIDAD (VERSIÓN SEGURA) ---
-    async function fetchAndDrawUniversitiesSankey() {
+// --- LÓGICA SCATTER PLOT: EDUCACIÓN SUPERIOR (WORLD BANK) VS FERTILIDAD ---
+    async function fetchAndDrawScatterAnalytics() {
         try {
-            console.log("Cargando datos para el Sankey (esto tardará un poco más para no saturar la API)...");
+            console.log("Cargando analíticas con World Bank...");
 
             // 1. Obtener tus datos de fertilidad
-            const resMine = await fetch(MY_API_URL);
+            const resMine = await fetch('/api/v2/age-specific-fertility-rates');
             const myData = await resMine.json();
 
-            // 2. Extraer el dato más reciente por país
+            // Guardamos el dato más reciente por país
             const latestFertility = {};
-            // @ts-ignore
             myData.forEach(m => {
-                const c = m.country_name;
-                // @ts-ignore
+                const c = m.country_name || m.country;
                 if (!latestFertility[c] || latestFertility[c].year < m.year) {
                     latestFertility[c] = m.fert_15_19;
                 }
             });
 
-            const countries = Object.keys(latestFertility);
-            const flowCounts = {}; 
+            // 2. Llamada directa y segura a la API del Banco Mundial (Matriculación Universitaria)
+            // Indicator SE.TER.ENRR = Gross enrollment ratio, tertiary (%)
+            const wbRes = await fetch('https://api.worldbank.org/v2/country/all/indicator/SE.TER.ENRR?format=json&date=2020:2022&per_page=300');
+            const wbRaw = await wbRes.json();
+            const wbData = wbRaw[1]; // Los datos vienen en la segunda posición del array
 
-            // 3. Hacer fetch a HipoLabs UNO A UNO (Secuencial) para evitar el Connection Refused
-            for (const countryName of countries) {
-                try {
-                    // Usamos http:// porque el certificado https de HipoLabs a veces falla
-                    const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-                    const response = await fetch(url);
-                    
-                    if (response.ok) {
-                        const uniData = await response.json();
-                        const uniCount = uniData.length;
-                        // @ts-ignore
-                        const fertRate = latestFertility[countryName];
+            const scatterData = [];
 
-                        if (uniCount > 0 && fertRate !== undefined) {
-                            // Categorizar Universidades
-                            let uniCategory = "";
-                            if (uniCount < 10) uniCategory = "Pocas Univ. (<10)";
-                            else if (uniCount <= 40) uniCategory = "Univ. Medias (10-40)";
-                            else uniCategory = "Muchas Univ. (>40)";
+            // 3. Cruzar los datos
+            wbData.forEach(item => {
+                const countryName = item.country.value;
+                const enrollmentRate = item.value; // % de jóvenes en la universidad
 
-                            // Categorizar Fertilidad
-                            let fertCategory = "";
-                            if (fertRate < 30) fertCategory = "Fertilidad Baja (<30)";
-                            else if (fertRate <= 70) fertCategory = "Fertilidad Media (30-70)";
-                            else fertCategory = "Fertilidad Alta (>70)";
-
-                            const linkKey = `${uniCategory}|${fertCategory}`;
-                            flowCounts[linkKey] = (flowCounts[linkKey] || 0) + 1;
-                        }
-                    }
-                    
-                    // IMPORTANTE: Pausa de 100 milisegundos para que el servidor respire
-                    await new Promise(resolve => setTimeout(resolve, 100));
-
-                } catch (e) {
-                    console.warn(`Fallo al cargar universidades de ${countryName}`);
+                // Si el país tiene datos de universidad y también está en tu base de datos de fertilidad
+                if (enrollmentRate !== null && latestFertility[countryName] !== undefined) {
+                    scatterData.push({
+                        name: countryName,
+                        x: enrollmentRate,               // Eje X: % Universitarios
+                        y: Number(latestFertility[countryName]) // Eje Y: Fertilidad
+                    });
                 }
-            }
-
-            // 4. Formatear para Sankey
-            const sankeyData = Object.keys(flowCounts).map(key => {
-                const [from, to] = key.split('|');
-                return [from, to, flowCounts[key]];
             });
 
-            // 5. Dibujar la gráfica
-            if (sankeyData.length > 0) {
-                drawSankeyChart(sankeyData);
-                console.log("Sankey renderizado con éxito.");
+            // 4. Dibujar la gráfica si hay datos cruzados
+            if (scatterData.length > 0) {
+                Highcharts.chart('chart-scatter-analytics', {
+                    chart: {
+                        type: 'scatter',
+                        zoomType: 'xy',
+                        backgroundColor: 'transparent'
+                    },
+                    title: {
+                        text: 'Correlación: Acceso a Universidad vs Fertilidad Juvenil'
+                    },
+                    subtitle: {
+                        text: 'Datos educativos de la API del Banco Mundial'
+                    },
+                    xAxis: {
+                        title: { text: 'Tasa de Matriculación Universitaria (%)' },
+                        labels: { format: '{value} %' },
+                        gridLineWidth: 1
+                    },
+                    yAxis: {
+                        title: { text: 'Nacimientos (15-19 años)' }
+                    },
+                    tooltip: {
+                        headerFormat: '<b>{point.key}</b><br>',
+                        pointFormat: 'Universitarios: <b>{point.x}%</b><br>Fertilidad: <b>{point.y}</b> nacimientos'
+                    },
+                    plotOptions: {
+                        scatter: {
+                            marker: { radius: 5 },
+                            tooltip: { headerFormat: '<b>{point.key}</b><br>' }
+                        }
+                    },
+                    series: [{
+                        name: 'Países',
+                        color: 'rgba(153, 102, 255, 0.6)', // Un tono morado elegante
+                        data: scatterData
+                    }],
+                    credits: { enabled: false }
+                });
+                console.log("Gráfico renderizado con éxito.");
             } else {
-                console.warn("No se consiguieron cruzar datos para el Sankey.");
+                console.warn("No se encontraron coincidencias entre países.");
             }
 
         } catch (error) {
-            console.error("Error montando el diagrama de Sankey:", error);
+            console.error("Error montando el Scatter Plot:", error);
         }
     }
 
+    
     // @ts-ignore
     function drawSankeyChart(sankeyData) {
         // @ts-ignore
