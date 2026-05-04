@@ -72,15 +72,15 @@
             </div>
         </section>
 
-<section class="card">
-    <div id="chart-scatter-analytics" style="width: 100%; height: 500px;"></div>
-    <div class="description">
-        <h3>Integración 6: Educación vs Fertilidad (Plan B)</h3>
-        <p>
-            Al cruzar la tasa de matriculación universitaria (API segura del Banco Mundial) con la tasa de fertilidad juvenil, observamos la tendencia sociológica real.
-        </p>
-    </div>
-</section>
+    <section class="card">
+        <div id="chart-universities-sankey" style="width: 100%; height: 500px;"></div>
+        <div class="description">
+            <h3>Integración 6: Flujo Educación -> Fertilidad</h3>
+            <p>
+                Este **Sankey Chart** muestra cómo se distribuyen los países según su tasa de matriculación universitaria (izquierda) y su impacto en la fertilidad juvenil (derecha).
+            </p>
+        </div>
+    </section>
 
 
     <section class="card">
@@ -133,7 +133,7 @@
         await fetchAndMatchHappiness();
         await fetchAndMatchWine();
         await fetchAndMatchArea(); 
-        await fetchAndDrawUniversitiesSankey();
+        await fetchAndDrawSankey();
         await fetchAndDrawParliament();
 
         // Dibujar Fatalities si hay datos
@@ -540,96 +540,78 @@
     }
 
 
-// --- LÓGICA SCATTER PLOT: EDUCACIÓN SUPERIOR (WORLD BANK) VS FERTILIDAD ---
-    async function fetchAndDrawScatterAnalytics() {
-        try {
-            console.log("Cargando analíticas con World Bank...");
+async function fetchAndDrawSankey() {
+    try {
+        console.log("Generando Sankey con World Bank...");
 
-            // 1. Obtener tus datos de fertilidad
-            const resMine = await fetch('/api/v2/age-specific-fertility-rates');
-            const myData = await resMine.json();
+        // 1. Obtener tus datos (URL completa para evitar el 404)
+        const resMine = await fetch(MY_API_URL);
+        const myData = await resMine.json();
 
-            // Guardamos el dato más reciente por país
-            const latestFertility = {};
-            myData.forEach(m => {
-                const c = m.country_name || m.country;
-                if (!latestFertility[c] || latestFertility[c].year < m.year) {
-                    latestFertility[c] = m.fert_15_19;
-                }
-            });
-
-            // 2. Llamada directa y segura a la API del Banco Mundial (Matriculación Universitaria)
-            // Indicator SE.TER.ENRR = Gross enrollment ratio, tertiary (%)
-            const wbRes = await fetch('https://api.worldbank.org/v2/country/all/indicator/SE.TER.ENRR?format=json&date=2020:2022&per_page=300');
-            const wbRaw = await wbRes.json();
-            const wbData = wbRaw[1]; // Los datos vienen en la segunda posición del array
-
-            const scatterData = [];
-
-            // 3. Cruzar los datos
-            wbData.forEach(item => {
-                const countryName = item.country.value;
-                const enrollmentRate = item.value; // % de jóvenes en la universidad
-
-                // Si el país tiene datos de universidad y también está en tu base de datos de fertilidad
-                if (enrollmentRate !== null && latestFertility[countryName] !== undefined) {
-                    scatterData.push({
-                        name: countryName,
-                        x: enrollmentRate,               // Eje X: % Universitarios
-                        y: Number(latestFertility[countryName]) // Eje Y: Fertilidad
-                    });
-                }
-            });
-
-            // 4. Dibujar la gráfica si hay datos cruzados
-            if (scatterData.length > 0) {
-                Highcharts.chart('chart-scatter-analytics', {
-                    chart: {
-                        type: 'scatter',
-                        zoomType: 'xy',
-                        backgroundColor: 'transparent'
-                    },
-                    title: {
-                        text: 'Correlación: Acceso a Universidad vs Fertilidad Juvenil'
-                    },
-                    subtitle: {
-                        text: 'Datos educativos de la API del Banco Mundial'
-                    },
-                    xAxis: {
-                        title: { text: 'Tasa de Matriculación Universitaria (%)' },
-                        labels: { format: '{value} %' },
-                        gridLineWidth: 1
-                    },
-                    yAxis: {
-                        title: { text: 'Nacimientos (15-19 años)' }
-                    },
-                    tooltip: {
-                        headerFormat: '<b>{point.key}</b><br>',
-                        pointFormat: 'Universitarios: <b>{point.x}%</b><br>Fertilidad: <b>{point.y}</b> nacimientos'
-                    },
-                    plotOptions: {
-                        scatter: {
-                            marker: { radius: 5 },
-                            tooltip: { headerFormat: '<b>{point.key}</b><br>' }
-                        }
-                    },
-                    series: [{
-                        name: 'Países',
-                        color: 'rgba(153, 102, 255, 0.6)', // Un tono morado elegante
-                        data: scatterData
-                    }],
-                    credits: { enabled: false }
-                });
-                console.log("Gráfico renderizado con éxito.");
-            } else {
-                console.warn("No se encontraron coincidencias entre países.");
+        // Guardamos el dato más reciente por país
+        const latestFertility = {};
+        myData.forEach(m => {
+            const c = m.country_name || m.country;
+            if (!latestFertility[c] || latestFertility[c].year < m.year) {
+                latestFertility[c] = m.fert_15_19;
             }
+        });
 
-        } catch (error) {
-            console.error("Error montando el Scatter Plot:", error);
-        }
+        // 2. Obtener datos del Banco Mundial (Matriculación Universitaria)
+        const wbRes = await fetch('https://api.worldbank.org/v2/country/all/indicator/SE.TER.ENRR?format=json&date=2020:2022&per_page=300');
+        const wbRaw = await wbRes.json();
+        const wbData = wbRaw[1];
+
+        // 3. Crear el mapa de flujos (Agrupando datos)
+        // Estructura: { "Edu_Baja -> Fert_Alta": cantidad }
+        const flows = {};
+
+        wbData.forEach(item => {
+            const countryName = item.country.value;
+            const enrollment = item.value;
+            const fert = latestFertility[countryName];
+
+            if (enrollment !== null && fert !== undefined) {
+                // Categorizar Educación
+                let eduCat = enrollment < 30 ? 'Edu. Univ. Baja (<30%)' : 
+                             enrollment < 60 ? 'Edu. Univ. Media (30-60%)' : 'Edu. Univ. Alta (>60%)';
+                
+                // Categorizar Fertilidad
+                let fertCat = fert < 20 ? 'Fertilidad Baja (<20)' : 
+                              fert < 50 ? 'Fertilidad Media (20-50)' : 'Fertilidad Alta (>50)';
+
+                const key = `${eduCat}|${fertCat}`;
+                flows[key] = (flows[key] || 0) + 1;
+            }
+        });
+
+        // 4. Transformar a formato Highcharts [from, to, weight]
+        const sankeyData = Object.entries(flows).map(([key, count]) => {
+            const [from, to] = key.split('|');
+            return [from, to, count];
+        });
+
+        // 5. Dibujar
+        Highcharts.chart('chart-universities-sankey', {
+            title: { text: 'Relación: Educación Superior vs Fertilidad Juvenil' },
+            accessibility: { point: { valueDescriptionFormat: '{index}. {point.from} to {point.to}, {point.weight}.' } },
+            series: [{
+                keys: ['from', 'to', 'weight'],
+                data: sankeyData,
+                type: 'sankey',
+                name: 'Flujo de Países',
+                nodes: [
+                    { id: 'Edu. Univ. Alta (>60%)', color: '#10b981' },
+                    { id: 'Fertilidad Baja (<20)', color: '#3b82f6' },
+                    { id: 'Fertilidad Alta (>50)', color: '#ef4444' }
+                ]
+            }]
+        });
+
+    } catch (error) {
+        console.error("Error en el Sankey:", error);
     }
-
+}
     
     // @ts-ignore
     function drawSankeyChart(sankeyData) {
