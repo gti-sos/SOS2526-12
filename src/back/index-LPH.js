@@ -249,6 +249,17 @@ export function loadBackend(app) {
         });
     });
 
+    // Proxy - REST Countries (must be before /:country_code/:year)
+    app.get(BASE_URL_API + "/birth-death-growth-rates/integrations/rest-countries", async (req, res) => {
+        try {
+            const response = await fetch("https://restcountries.com/v3.1/all?fields=name,population,region,flags,cca2");
+            const data = await response.json();
+            res.json(data);
+        } catch (err) {
+            res.status(500).json({ message: "Error fetching REST Countries data" });
+        }
+    });
+
     app.get(BASE_URL_API + "/birth-death-growth-rates/:country_code/:year", (req, res) => {
         const country_code = req.params.country_code;
         const year = parseInt(req.params.year);
