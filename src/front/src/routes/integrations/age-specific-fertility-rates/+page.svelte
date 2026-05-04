@@ -24,7 +24,7 @@
                 <p>
                     Esta gráfica cruza mis datos de <strong>Fertilidad (15-19)</strong> con las 
                     <strong>Muertes Viales</strong> del Grupo 11. <br>
-                    <em>*Datos obtenidos a través de mi propio proxy (`/api/v2/proxy-sos-1`).</em>
+                    
                 </p>
             </div>
         </section>
