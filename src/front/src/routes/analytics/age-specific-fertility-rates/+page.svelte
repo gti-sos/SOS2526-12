@@ -7,59 +7,61 @@
 
     onMount(async () => {
         try {
-            const res = await fetch('/api/v2/birth-death-growth-rates');
+            // Tu API
+            const res = await fetch('/api/v2/age-specific-fertility-rates');
             const fullData = await res.json();
 
             if (fullData.length > 0) {
+                // Seleccionamos 10 aleatorios
                 const sample = fullData
                     .sort(() => Math.random() - 0.5)
                     .slice(0, 10);
 
-                const categories = sample.map(d =>
-                    `${d.country_name || d.country_code} (${d.year})`
-                );
-
                 loading = false;
 
+                // Formateamos los datos específicamente para un Pie Chart
+                // Las tartas necesitan un array de objetos { name, y }
+                const pieData = sample.map(d => ({
+                    name: `${d.country_name || d.country} (${d.year})`,
+                    y: Number(d.fert_15_19) || 0
+                }));
+
+                // Gráfica de Tarta (Pie Chart)
                 Highcharts.chart('container', {
-                    chart: { type: 'scatter' },
-                    title: { text: 'Tasas de Natalidad y Mortalidad por País' },
-                    xAxis: {
-                        categories,
-                        labels: { rotation: -45 }
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie',
+                        backgroundColor: 'transparent'
                     },
-                    yAxis: {
-                        title: { text: 'Tasa (por 1000 hab.)' }
+                    title: {
+                        text: 'Proporción de Fertilidad Juvenil en la Muestra'
+                    },
+                    subtitle: {
+                        text: 'Distribución comparativa de 10 países aleatorios'
                     },
                     tooltip: {
-                        formatter: function() {
-                            return `<b>${this.point.name}</b><br/>${this.series.name}: ${this.y} por 1000 hab.`;
+                        // Muestra el valor real y el porcentaje calculado
+                        pointFormat: '{series.name}: <b>{point.y} nacimientos</b> ({point.percentage:.1f}%)'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                // Muestra el nombre del país y su porcentaje fuera de la tarta
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                            }
                         }
                     },
-                    series: [
-                        {
-                            name: 'Natalidad',
-                            type: 'scatter',
-                            data: sample.map((d, i) => ({
-                                x: i,
-                                y: Number(d.crude_birth_rate) || 0,
-                                name: categories[i]
-                            })),
-                            color: '#2ecc71',
-                            marker: { symbol: 'circle', radius: 6 }
-                        },
-                        {
-                            name: 'Mortalidad',
-                            type: 'scatter',
-                            data: sample.map((d, i) => ({
-                                x: i,
-                                y: Number(d.crude_death_rate) || 0,
-                                name: categories[i]
-                            })),
-                            color: '#e74c3c',
-                            marker: { symbol: 'diamond', radius: 6 }
-                        }
-                    ],
+                    series: [{
+                        name: 'Fertilidad',
+                        colorByPoint: true,
+                        // @ts-ignore
+                        data: pieData
+                    }],
                     credits: { enabled: false }
                 });
             } else {
@@ -74,8 +76,8 @@
 </script>
 
 <main style="padding: 20px;">
-    <h2>Visualización Individual (LPH)</h2>
-    <p>Comparación de tasas de natalidad y mortalidad — gráfico de dispersión.</p>
+    <h2>Visualización Individual (Fertilidad)</h2>
+    <p>Comparación proporcional de la tasa de fertilidad en mujeres jóvenes mediante gráfico de sectores (tarta).</p>
 
     {#if loading}
         <p>Cargando datos...</p>
