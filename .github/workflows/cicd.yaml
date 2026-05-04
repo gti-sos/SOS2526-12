@@ -93,7 +93,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
         
       - name: Deploy to Hugging Face Spaces
-        if: github.event_name == 'push' 
+        if: false
         run: |
           git config user.email "ci@github.com"
           git config user.name "GitHub Actions"
