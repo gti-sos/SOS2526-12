@@ -8,7 +8,7 @@
         
         <li><a href="/analytics">Analíticas</a></li>
         <li><a href="/integrations">Integraciones</a></li>
-        <li><a href="/about">about</a></li>
+        <li><a href="/about">About</a></li>
     </ul>
 </nav>
 
