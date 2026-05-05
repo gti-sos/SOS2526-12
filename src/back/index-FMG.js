@@ -9,16 +9,17 @@ let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXijHX4D";
 function loadBackend(app) {
     app.use(cors());
 
-    // --- PROXY A UNA API PÚBLICA (RESTCOUNTRIES) ---
-    const PUBLIC_API_DOMAIN = "https://restcountries.com"; 
-
     app.use('/api/v2/proxy-sos-1', createProxyMiddleware({
-        target: PUBLIC_API_DOMAIN,
+        target: 'https://restcountries.com',
         changeOrigin: true,
         pathRewrite: {
-            // Cuando tu frontend pida /api/v2/proxy-sos-1, 
-            // el proxy pedirá a internet /v3.1/all (todos los países)
-            '^/api/v2/proxy-sos-1': '/v3.1/all?fields=name,area' 
+            '^/api/v2/proxy-sos-1': '/v3.1/all'  // Sin query params aquí
+        },
+        // Los query params van aquí:
+        on: {
+            proxyReq: (proxyReq) => {
+                proxyReq.path += '?fields=name,area';
+            }
         }
     }));
     
