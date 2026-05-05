@@ -112,7 +112,7 @@
     const WINE_API_URL = "https://sos2526-29.onrender.com/api/v1/wine-stats";
     
     // Construye la URL del proxy usando la misma base que tu API
-    const RESTCOUNTRIES_API_URL = "/api/v2/proxy-sos-1?fields=name,area";
+    const RESTCOUNTRIES_API_URL = "/api/v2/proxy-sos-1";
 
     // La API del Banco Mundial para el % de mujeres en la fuerza laboral
     const WORLDBANK_LABOR_API = "https://api.worldbank.org/v2/country/all/indicator/SL.TLF.CACT.FE.ZS?format=json&date=2022&per_page=300";

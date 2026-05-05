@@ -18,7 +18,7 @@ function loadBackend(app) {
         pathRewrite: {
             // Cuando tu frontend pida /api/v2/proxy-sos-1, 
             // el proxy pedirá a internet /v3.1/all (todos los países)
-            '^/api/v2/proxy-sos-1': '/v3.1/all' 
+            '^/api/v2/proxy-sos-1': '/v3.1/all?fields=name,area' 
         }
     }));
     
