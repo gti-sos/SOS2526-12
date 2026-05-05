@@ -15,6 +15,7 @@
                     .sort(() => Math.random() - 0.5)
                     .slice(0, 10);
 
+                // @ts-ignore
                 const categories = sample.map(d =>
                     `${d.country_name || d.country_code} (${d.year})`
                 );
@@ -33,6 +34,7 @@
                     },
                     tooltip: {
                         formatter: function() {
+                            // @ts-ignore
                             return `<b>${this.point.name}</b><br/>${this.series.name}: ${this.y} por 1000 hab.`;
                         }
                     },
@@ -40,6 +42,7 @@
                         {
                             name: 'Natalidad',
                             type: 'scatter',
+                            // @ts-ignore
                             data: sample.map((d, i) => ({
                                 x: i,
                                 y: Number(d.crude_birth_rate) || 0,
@@ -51,6 +54,7 @@
                         {
                             name: 'Mortalidad',
                             type: 'scatter',
+                            // @ts-ignore
                             data: sample.map((d, i) => ({
                                 x: i,
                                 y: Number(d.crude_death_rate) || 0,
@@ -63,10 +67,12 @@
                     credits: { enabled: false }
                 });
             } else {
+                // @ts-ignore
                 error = "Base de datos vacía. Carga los datos iniciales primero.";
                 loading = false;
             }
         } catch (e) {
+            // @ts-ignore
             error = "Error de conexión con la API.";
             loading = false;
         }

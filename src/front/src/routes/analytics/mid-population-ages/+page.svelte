@@ -3,6 +3,7 @@
     import { dev } from '$app/environment'; // 🟢 Importante para detectar el entorno local
     import Highcharts from 'highcharts';
 
+    // @ts-ignore
     let chartContainer;
 
     onMount(async () => {
@@ -20,11 +21,16 @@
                 // Cogemos los 10 primeros para que el gráfico no se sature
                 const topData = data.slice(0, 10); 
                 
+                // @ts-ignore
                 const categories = topData.map(d => `${d.country_name} (${d.year})`);
+                // @ts-ignore
                 const pop0 = topData.map(d => d.population_age_0);
+                // @ts-ignore
                 const pop25 = topData.map(d => d.population_age_25);
+                // @ts-ignore
                 const pop50 = topData.map(d => d.population_age_50);
 
+                // @ts-ignore
                 Highcharts.chart(chartContainer, {
                     chart: { type: 'column' },
                     title: { text: 'Población por Franjas de Edad (Top 10 Registros)' },

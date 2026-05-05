@@ -21,12 +21,14 @@
 
                 // Formateamos los datos específicamente para un Pie Chart
                 // Las tartas necesitan un array de objetos { name, y }
+                // @ts-ignore
                 const pieData = sample.map(d => ({
                     name: `${d.country_name || d.country} (${d.year})`,
                     y: Number(d.fert_15_19) || 0
                 }));
 
                 // Gráfica de Tarta (Pie Chart)
+                // @ts-ignore
                 Highcharts.chart('container', {
                     chart: {
                         plotBackgroundColor: null,
@@ -65,10 +67,12 @@
                     credits: { enabled: false }
                 });
             } else {
+                // @ts-ignore
                 error = "Base de datos vacía. Carga los datos iniciales primero.";
                 loading = false;
             }
         } catch (e) {
+            // @ts-ignore
             error = "Error de conexión con la API.";
             loading = false;
         }

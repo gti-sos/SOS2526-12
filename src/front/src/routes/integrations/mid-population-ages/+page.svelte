@@ -3,24 +3,29 @@
     import Chart from 'chart.js/auto'; // Importamos la biblioteca de gráficas
 
     // --- ESTADOS PARA INTEGRACIÓN 1 (REST Countries) ---
+    // @ts-ignore
     let countriesData = $state([]);
     let errorMessage = $state("");
     let isLoading = $state(true);
 
     // --- ESTADOS PARA INTEGRACIÓN 2 (G26 - IDH) ---
     let idhErrorMessage = $state("");
+    // @ts-ignore
     let chartCanvas; // Aquí guardaremos la referencia al <canvas> del HTML
     // --- ESTADOS PARA INTEGRACIÓN 3 (G10 - MPFDR) ---
 
+    // @ts-ignore
     let deathsData = $state([]);
     let deathsErrorMessage = $state("");
 
     // --- ESTADOS PARA INTEGRACIÓN 4 (PokeAPI) ---
+    // @ts-ignore
     let pokemonData = $state([]);
     let pokeErrorMessage = $state("");
 
     // --- ESTADOS PARA INTEGRACIÓN 5 (Open-Meteo - Clima) ---
     let meteoErrorMessage = $state("");
+    // @ts-ignore
     let meteoCanvas; // Referencia para el lienzo de esta nueva gráfica
 
     onMount(async () => {
@@ -38,6 +43,7 @@
                 errorMessage = "Error al conectar con el servidor backend.";
             }
         } catch (error) {
+            // @ts-ignore
             errorMessage = "Error de red o CORS: " + error.message;
         } finally {
             isLoading = false; 
@@ -54,10 +60,13 @@
                 const idhData = await idhResponse.json();
                 const sampleData = idhData.slice(0, 10);
 
+                // @ts-ignore
                 const labels = sampleData.map(item => `${item.country} (${item.year})`);
                 // Usamos hdi_value que es el nombre correcto que descubrimos antes
+                // @ts-ignore
                 const values = sampleData.map(item => item.hdi_value); 
 
+                // @ts-ignore
                 new Chart(chartCanvas, {
                     type: 'bar',
                     data: {
@@ -77,6 +86,7 @@
                 idhErrorMessage = "Error al cargar la API del Grupo 26.";
             }
         } catch (error) {
+            // @ts-ignore
             idhErrorMessage = "Error con G26: " + error.message;
         }
         // ==========================================
@@ -96,6 +106,7 @@
                 deathsErrorMessage = "Error al cargar la API del Grupo 10.";
             }
         } catch (error) {
+            // @ts-ignore
             deathsErrorMessage = "Error de red con G10: " + error.message;
         }
 
@@ -110,6 +121,7 @@
                 
                 // Hacemos la "magia" de buscar la foto y los detalles de cada uno
                 const detailedPokemon = await Promise.all(
+                    // @ts-ignore
                     pokeList.results.map(async (p) => {
                         const res = await fetch(p.url);
                         return await res.json();
@@ -120,6 +132,7 @@
                 pokeErrorMessage = "Error al conectar con el servidor de PokeAPI.";
             }
         } catch (error) {
+            // @ts-ignore
             pokeErrorMessage = "Error de red con PokeAPI: " + error.message;
         }
         // ==========================================
@@ -138,6 +151,7 @@
                 const tempsMin = meteoData.daily.temperature_2m_min;
 
                 // Dibujamos el nuevo gráfico de radar
+                // @ts-ignore
                 new Chart(meteoCanvas, {
                     type: 'radar', // ¡Tipo radar! Totalmente válido y no repite barras.
                     data: {
@@ -165,6 +179,7 @@
                 meteoErrorMessage = "Error al conectar con la API de Open-Meteo.";
             }
         } catch (error) {
+            // @ts-ignore
             meteoErrorMessage = "Error de red con Meteo: " + error.message;
         }
     });

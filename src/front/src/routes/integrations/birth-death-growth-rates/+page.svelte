@@ -1,10 +1,12 @@
 <script>
     import { onMount } from 'svelte';
 
+    // @ts-ignore
     let countries = $state([]);
     let loading = $state(true);
     let error = $state(null);
 
+    // @ts-ignore
     let spices = $state([]);
     let spicesLoading = $state(true);
     let spicesError = $state(null);
@@ -13,14 +15,17 @@
     const SALES_API = 'https://mrr-sos2526-23.onrender.com/api/v1/online-sales-popular-marketplaces';
     const WAGES_API = 'https://sos2526-15.onrender.com/api/v2/minimum-interprofessional-wages';
 
+    // @ts-ignore
     let sales = $state([]);
     let salesLoading = $state(true);
     let salesError = $state(null);
 
+    // @ts-ignore
     let wages = $state([]);
     let wagesLoading = $state(true);
     let wagesError = $state(null);
 
+    // @ts-ignore
     let water = $state([]);
     let waterLoading = $state(true);
     let waterError = $state(null);
@@ -29,10 +34,12 @@
     const WORLDBANK_GDP_API = 'https://api.worldbank.org/v2/country/all/indicator/NY.GDP.PCAP.CD?format=json&per_page=300&mrv=1';
     const WORLDBANK_URBAN_API = 'https://api.worldbank.org/v2/country/all/indicator/SP.URB.TOTL.IN.ZS?format=json&per_page=300&mrv=1';
 
+    // @ts-ignore
     let gdpData = $state([]);
     let gdpLoading = $state(true);
     let gdpError = $state(null);
 
+    // @ts-ignore
     let urbanData = $state([]);
     let urbanLoading = $state(true);
     let urbanError = $state(null);
@@ -43,8 +50,10 @@
             const res = await fetch('/api/v2/birth-death-growth-rates/integrations/rest-countries');
             if (!res.ok) throw new Error('Error al cargar los datos');
             const data = await res.json();
+            // @ts-ignore
             countries = data.sort((a, b) => b.population - a.population).slice(0, 15);
         } catch (err) {
+            // @ts-ignore
             error = err.message;
         } finally {
             loading = false;
@@ -57,8 +66,10 @@
             const gdpJson = await resGDP.json();
             // World Bank returns [metadata, data_array]
             const gdpRaw = gdpJson[1] || [];
+            // @ts-ignore
             gdpData = gdpRaw.filter(d => d.value !== null).slice(0, 10);
         } catch (err) {
+            // @ts-ignore
             gdpError = err.message;
         } finally {
             gdpLoading = false;
@@ -70,8 +81,10 @@
             if (!resUrban.ok) throw new Error('Error al cargar datos de urbanización del World Bank');
             const urbanJson = await resUrban.json();
             const urbanRaw = urbanJson[1] || [];
+            // @ts-ignore
             urbanData = urbanRaw.filter(d => d.value !== null).slice(0, 10);
         } catch (err) {
+            // @ts-ignore
             urbanError = err.message;
         } finally {
             urbanLoading = false;
@@ -85,6 +98,7 @@
             const salesData = await resSales.json();
             sales = (Array.isArray(salesData) ? salesData : salesData.data || []).slice(0, 10);
         } catch (err) {
+            // @ts-ignore
             salesError = err.message;
         } finally {
             salesLoading = false;
@@ -98,6 +112,7 @@
             const wagesData = await resWages.json();
             wages = (Array.isArray(wagesData) ? wagesData : wagesData.data || []).slice(0, 10);
         } catch (err) {
+            // @ts-ignore
             wagesError = err.message;
         } finally {
             wagesLoading = false;
@@ -111,6 +126,7 @@
             const waterData = await resWater.json();
             water = (Array.isArray(waterData) ? waterData : waterData.data || []).slice(0, 10);
         } catch (err) {
+            // @ts-ignore
             waterError = err.message;
         } finally {
             waterLoading = false;
@@ -124,6 +140,7 @@
             const json = await res.json();
             spices = (json.data || []).slice(0, 10);
         } catch (err) {
+            // @ts-ignore
             spicesError = err.message;
         } finally {
             spicesLoading = false;

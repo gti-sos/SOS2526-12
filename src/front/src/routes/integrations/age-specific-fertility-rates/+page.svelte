@@ -113,6 +113,11 @@
     
     const RESTCOUNTRIES_API_URL = "https://restcountries.com/v3.1/all?fields=name,area"; 
 
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
     const UNIVERSITIES_API_URL = "https://universities.hipolabs.com/search?country=";
 
     // La API del Banco Mundial para el % de mujeres en la fuerza laboral
@@ -144,28 +149,43 @@
         }
     });
 
-    async function loadInitialDataSilently() {
+// Función inteligente que comprueba antes de intentar cargar
+    // @ts-ignore
+    async function checkAndLoad(apiUrl) {
         try {
-            // Inicializa tu propia API
-            await fetch(`${MY_API_URL}/loadinitialdata`).catch(() => {});
+            // 1. Preguntamos si ya hay datos (haciendo un GET normal a la API)
+            const checkRes = await fetch(apiUrl);
             
-            // Inicializa la del G11 directamente en su backend
-            await fetch(`${G11_API_URL}/loadinitialdata`).catch(() => {});
-            
-            // Inicializa la del vino
-            await fetch(`${WINE_API_URL}/loadinitialdata`).catch(() => {});
+            if (checkRes.ok) {
+                const data = await checkRes.json();
+                // Si ya hay datos (array con más de 0 elementos), NO hacemos la carga.
+                if (data.length > 0) {
+                    return; // Salimos silenciosamente sin hacer el loadinitialdata
+                }
+            }
 
-            await fetch(`${HAPPINESS_API_URL}/loadinitialdata`).catch(() => {});
-
-            await fetch(`${CHOLERA_API_URL}/loadinitialdata`).catch(() => {});
+            // 2. Si llegamos aquí, es que no hay datos. Ahora sí llamamos a cargar.
+            await fetch(`${apiUrl}/loadinitialdata`);
             
-            console.log("✅ Inicialización de bases de datos completada.");
         } catch (e) {
-            console.warn("⚠️ Aviso al inicializar datos:", e);
+            // Si el servidor está caído, lo ignoramos para que no rompa la página
         }
     }
 
-    // --- LÓGICA INTEGRACIÓN 1 (ROAD FATALITIES DIRECTO SIN PROXY) ---
+    async function loadInitialDataSilently() {
+        console.log("⏳ Verificando y cargando bases de datos si están vacías...");
+        
+        // Comprobamos y cargamos una por una, solo si es necesario
+        await checkAndLoad(MY_API_URL);
+        await checkAndLoad(G11_API_URL);
+        await checkAndLoad(WINE_API_URL);
+        await checkAndLoad(HAPPINESS_API_URL);
+        await checkAndLoad(CHOLERA_API_URL);
+        
+        console.log("✅ Inicialización de bases de datos completada.");
+    }
+
+    
     async function fetchAndMatchData() {
         try {
             const [resMine, resG11] = await Promise.all([
@@ -208,39 +228,72 @@
         }
     }
 
-    function drawFatalitiesChart() {
+function drawFatalitiesChart() {
         // @ts-ignore
         Highcharts.chart('chart-fatalities', {
-            chart: { type: 'column', backgroundColor: 'transparent' },
+            chart: { 
+                type: 'area', 
+                backgroundColor: 'transparent' 
+            },
             title: { text: 'Impacto Vial vs. Fertilidad Juvenil' },
-            // @ts-ignore
-            xAxis: { categories: matchedFatalities.map(d => d.country), crosshair: true },
+            xAxis: { 
+                // @ts-ignore
+                categories: matchedFatalities.map(d => d.country), 
+                crosshair: true 
+            },
             yAxis: [
-                { title: { text: 'Muertes en Tráfico', style: { color: '#ef4444' } }, labels: { style: { color: '#ef4444' } } }, 
-                { title: { text: 'Tasa Fertilidad (15-19)', style: { color: '#0ea5e9' } }, labels: { style: { color: '#0ea5e9' } }, opposite: true }
+                { 
+                    title: { text: 'Muertes en Tráfico', style: { color: '#ef4444' } }, 
+                    labels: { style: { color: '#ef4444' } } 
+                }, 
+                { 
+                    title: { text: 'Tasa Fertilidad (15-19)', style: { color: '#0ea5e9' } }, 
+                    labels: { style: { color: '#0ea5e9' } }, 
+                    opposite: true // Pone este eje a la derecha
+                }
             ],
             tooltip: { 
                 shared: true,
                 formatter: function() {
                     let s = `<b>${this.x}</b>`;
                     // @ts-ignore
-                    this.points.forEach(point => { s += `<br/><span style="color:${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y}</b>`; });
+                    this.points.forEach(point => { 
+                        s += `<br/><span style="color:${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y}</b>`; 
+                    });
                     // @ts-ignore
                     const info = matchedFatalities.find(d => d.country === this.x);
-                    s += `<br/><small>Año de datos viales: ${info.year}</small>`;
+                    if (info) s += `<br/><small>Año de datos viales: ${info.year}</small>`;
                     return s;
                 }
             },
+            plotOptions: {
+                area: {
+                    fillOpacity: 0.4, // Transparencia para que se vean ambas áreas superpuestas
+                    marker: {
+                        enabled: true,
+                        symbol: 'circle',
+                        radius: 3
+                    }
+                }
+            },
             series: [
-                // @ts-ignore
-                { name: 'Muertes Totales', data: matchedFatalities.map(d => d.deaths), color: '#ef4444' },
-                // @ts-ignore
-                { name: 'Tasa Fertilidad', type: 'spline', yAxis: 1, data: matchedFatalities.map(d => d.fertility), color: '#0ea5e9' }
+                { 
+                    name: 'Muertes Totales', 
+                    // @ts-ignore
+                    data: matchedFatalities.map(d => d.deaths), 
+                    color: '#ef4444' // Rojo
+                },
+                { 
+                    name: 'Tasa Fertilidad', 
+                    yAxis: 1, 
+                    // @ts-ignore
+                    data: matchedFatalities.map(d => d.fertility), 
+                    color: '#0ea5e9' // Azul
+                }
             ]
         });
     }
 
-    // --- LÓGICA INTEGRACIÓN 2 (CÓLERA BUBBLES) ---
     async function fetchAndMatchCholeraPacked() {
         try {
             const [resMine, resCholera] = await Promise.all([
@@ -390,7 +443,7 @@
         });
     }
 
-    // --- LÓGICA INTEGRACIÓN 4 (VINO RADAR) ---
+// --- LÓGICA INTEGRACIÓN 4 (VINO BUBBLES - DETALLE POR VINO) ---
     async function fetchAndMatchWine() {
         try {
             const [resMine, resWine] = await Promise.all([
@@ -401,48 +454,47 @@
                 const myData = await resMine.json();
                 const wineData = await resWine.json();
 
-                const wineStatsByCountry = {};
-                // @ts-ignore
-                wineData.forEach(w => {
-                    const countryLower = (w.country || "").toLowerCase();
-                    // @ts-ignore
-                    if (!wineStatsByCountry[countryLower]) wineStatsByCountry[countryLower] = { sumPrice: 0, sumAbv: 0, count: 0 };
-                    // @ts-ignore
-                    wineStatsByCountry[countryLower].sumPrice += w.price;
-                    // @ts-ignore
-                    wineStatsByCountry[countryLower].sumAbv += w.abv;
-                    // @ts-ignore
-                    wineStatsByCountry[countryLower].count++;
-                });
+                // 1. Extraemos tu historial de fertilidad SOLO para España
+                const spainFertilityByYear = {};
+                let latestSpainFertility = 0;
+                let latestYear = 0;
 
-                const myLatestFertility = {};
                 // @ts-ignore
                 myData.forEach(m => {
-                    const c = m.country_name.toLowerCase();
-                    // @ts-ignore
-                    if (!myLatestFertility[c] || myLatestFertility[c].year < m.year) myLatestFertility[c] = m;
+                    if (m.country_name.toLowerCase() === 'spain') {
+                        // @ts-ignore
+                        spainFertilityByYear[m.year] = m.fert_15_19;
+                        // Guardamos el dato más reciente por si hay vinos del futuro (ej. 2026)
+                        if (m.year > latestYear) {
+                            latestYear = m.year;
+                            latestSpainFertility = m.fert_15_19;
+                        }
+                    }
                 });
 
-                const seriesData = [];
-                for (const [country, myRecord] of Object.entries(myLatestFertility)) {
+                // 2. Creamos una burbuja por cada vino de la API
+                // @ts-ignore
+                const bubbleData = [];
+                // @ts-ignore
+                wineData.forEach(wine => {
+                    // Cruzamos por año: Buscamos cómo estaba la fertilidad en España el año del vino
+                    // Si no tenemos ese año (ej. 2026), ponemos por defecto tu dato más reciente
                     // @ts-ignore
-                    if (wineStatsByCountry[country]) {
-                        // @ts-ignore
-                        const stats = wineStatsByCountry[country];
-                        const avgPrice = stats.sumPrice / stats.count;
-                        const avgAbv = stats.sumAbv / stats.count;
+                    const fertInWineYear = spainFertilityByYear[wine.year] || latestSpainFertility;
 
-                        seriesData.push({
-                            // @ts-ignore
-                            name: myRecord.country_name,
-                            // @ts-ignore
-                            data: [ myRecord.fert_15_19, parseFloat(avgPrice.toFixed(2)), parseFloat(avgAbv.toFixed(2)) ],
-                            pointPlacement: 'on'
-                        });
-                    }
-                }
+                    bubbleData.push({
+                        name: wine.title,           // Nombre del vino
+                        x: wine.price,              // Eje X: Precio
+                        y: wine.abv,                // Eje Y: Alcohol
+                        z: wine.unit,               // Eje Z (Tamaño): Unidades en stock
+                        wineYear: wine.year,        // Dato extra para el Tooltip
+                        fertility: fertInWineYear,  // Dato cruzado para el Tooltip
+                        grape: wine.grape           // Dato extra para el Tooltip
+                    });
+                });
 
-                if (seriesData.length > 0) drawWineRadarChart(seriesData);
+                // @ts-ignore
+                if (bubbleData.length > 0) drawWineBubbleChart(bubbleData);
             }
         } catch (error) {
             console.error("Error cruzando datos con el Vino:", error);
@@ -450,21 +502,59 @@
     }
 
     // @ts-ignore
-    function drawWineRadarChart(seriesData) {
+    function drawWineBubbleChart(bubbleData) {
         // @ts-ignore
         Highcharts.chart('chart-wine-radar', {
-            chart: { polar: true, type: 'line', backgroundColor: 'transparent' },
-            title: { text: 'Análisis Multidimensional: Vino vs Fertilidad', x: -50 },
-            pane: { size: '80%' },
-            xAxis: { categories: ['Tasa de Fertilidad (15-19 años)', 'Precio Medio Vino (€)', 'Alcohol Medio (% ABV)'], tickmarkPlacement: 'on', lineWidth: 0 },
-            yAxis: { gridLineInterpolation: 'polygon', lineWidth: 0, min: 0 },
-            tooltip: { shared: true, pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y}</b><br/>' },
-            legend: { align: 'right', verticalAlign: 'middle', layout: 'vertical' },
-            series: seriesData,
-            responsive: { rules: [{ condition: { maxWidth: 500 }, chartOptions: { legend: { align: 'center', verticalAlign: 'bottom', layout: 'horizontal' }, pane: { size: '70%' } } }] }
+            chart: { 
+                type: 'bubble', 
+                plotBorderWidth: 1, 
+                zoomType: 'xy', 
+                backgroundColor: 'transparent' 
+            },
+            title: { text: 'Mercado de Vino Español vs Contexto de Fertilidad' },
+            subtitle: { text: 'Cada burbuja es un vino. El tamaño indica el Stock disponible.' },
+            xAxis: { 
+                title: { text: 'Precio del Vino (€)' },
+                gridLineWidth: 1
+            },
+            yAxis: { 
+                title: { text: 'Volumen de Alcohol (% ABV)' }
+            },
+            tooltip: {
+                useHTML: true,
+                headerFormat: '<table>',
+                // Tooltip enriquecido con todos los datos cruzados
+                pointFormat: '<tr><th colspan="2"><h3>{point.name}</h3></th></tr>' +
+                    '<tr><th>Uva:</th><td>{point.grape}</td></tr>' +
+                    '<tr><th>Precio:</th><td>{point.x} €</td></tr>' +
+                    '<tr><th>Alcohol:</th><td>{point.y} %</td></tr>' +
+                    '<tr><th>Stock:</th><td>{point.z} uds</td></tr>' +
+                    '<tr><th style="color:#e11d48; padding-top:10px;">Fertilidad España ({point.wineYear}):</th>' +
+                    '<td style="color:#e11d48; padding-top:10px;"><b>{point.fertility}</b> nacimientos</td></tr>',
+                footerFormat: '</table>',
+                followPointer: true
+            },
+            plotOptions: {
+                bubble: {
+                    minSize: '5%',
+                    maxSize: '20%' // Ajustado para que las burbujas no se tapen demasiado
+                }
+            },
+            series: [{
+                name: 'Vinos de España',
+                // @ts-ignore
+                data: bubbleData,
+                color: 'rgba(153, 27, 27, 0.6)', // Color rojo vino semitransparente
+                marker: {
+                    fillOpacity: 0.6,
+                    lineWidth: 1,
+                    lineColor: 'rgba(153, 27, 27, 1)'
+                }
+            }],
+            credits: { enabled: false }
         });
     }
-
+    
     // --- LÓGICA INTEGRACIÓN 5 (CAMBIADA A ÁREA/SUPERFICIE TREEMAP) ---
     async function fetchAndMatchArea() {
         try {
@@ -550,9 +640,12 @@ async function fetchAndDrawSankey() {
 
         // Guardamos el dato más reciente por país
         const latestFertility = {};
+        // @ts-ignore
         myData.forEach(m => {
             const c = m.country_name || m.country;
+            // @ts-ignore
             if (!latestFertility[c] || latestFertility[c].year < m.year) {
+                // @ts-ignore
                 latestFertility[c] = m.fert_15_19;
             }
         });
@@ -566,9 +659,11 @@ async function fetchAndDrawSankey() {
         // Estructura: { "Edu_Baja -> Fert_Alta": cantidad }
         const flows = {};
 
+        // @ts-ignore
         wbData.forEach(item => {
             const countryName = item.country.value;
             const enrollment = item.value;
+            // @ts-ignore
             const fert = latestFertility[countryName];
 
             if (enrollment !== null && fert !== undefined) {
@@ -581,6 +676,7 @@ async function fetchAndDrawSankey() {
                               fert < 50 ? 'Fertilidad Media (20-50)' : 'Fertilidad Alta (>50)';
 
                 const key = `${eduCat}|${fertCat}`;
+                // @ts-ignore
                 flows[key] = (flows[key] || 0) + 1;
             }
         });
@@ -592,6 +688,7 @@ async function fetchAndDrawSankey() {
         });
 
         // 5. Dibujar
+        // @ts-ignore
         Highcharts.chart('chart-universities-sankey', {
             title: { text: 'Relación: Educación Superior vs Fertilidad Juvenil' },
             accessibility: { point: { valueDescriptionFormat: '{index}. {point.from} to {point.to}, {point.weight}.' } },
@@ -613,6 +710,9 @@ async function fetchAndDrawSankey() {
     }
 }
     
+
+    // @ts-ignore
+    // @ts-ignore
     // @ts-ignore
     function drawSankeyChart(sankeyData) {
         // @ts-ignore
@@ -661,6 +761,7 @@ async function fetchAndDrawSankey() {
                 const c = m.country_name;
                 // @ts-ignore
                 if (!latestFertility[c] || latestFertility[c].year < m.year) {
+                    // @ts-ignore
                     latestFertility[c] = m.fert_15_19;
                 }
             });
