@@ -111,17 +111,13 @@
     const HAPPINESS_API_URL = "https://sos2526-15.onrender.com/api/v2/happiness-indices";
     const WINE_API_URL = "https://sos2526-29.onrender.com/api/v1/wine-stats";
     
-    const RESTCOUNTRIES_API_URL = "https://restcountries.com/v3.1/all?fields=name,area"; 
-
-    // @ts-ignore
-    // @ts-ignore
-    // @ts-ignore
-    // @ts-ignore
-    // @ts-ignore
-    const UNIVERSITIES_API_URL = "https://universities.hipolabs.com/search?country=";
+    // Construye la URL del proxy usando la misma base que tu API
+    const RESTCOUNTRIES_API_URL = "/api/v2/proxy-sos-1?fields=name,area";
 
     // La API del Banco Mundial para el % de mujeres en la fuerza laboral
     const WORLDBANK_LABOR_API = "https://api.worldbank.org/v2/country/all/indicator/SL.TLF.CACT.FE.ZS?format=json&date=2022&per_page=300";
+
+    const API_matriculaUniv = 'https://api.worldbank.org/v2/country/all/indicator/SE.TER.ENRR?format=json&date=2020:2022&per_page=300';
 
     // @ts-ignore
     let matchedFatalities = [];
@@ -651,7 +647,7 @@ async function fetchAndDrawSankey() {
         });
 
         // 2. Obtener datos del Banco Mundial (Matriculación Universitaria)
-        const wbRes = await fetch('https://api.worldbank.org/v2/country/all/indicator/SE.TER.ENRR?format=json&date=2020:2022&per_page=300');
+        const wbRes = await fetch(API_matriculaUniv);
         const wbRaw = await wbRes.json();
         const wbData = wbRaw[1];
 
