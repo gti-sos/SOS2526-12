@@ -9,19 +9,16 @@ let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXijHX4D";
 function loadBackend(app) {
     app.use(cors());
 
-    app.use('/api/v2/proxy-sos-1', createProxyMiddleware({
-        target: 'https://restcountries.com',
-        changeOrigin: true,
-        pathRewrite: {
-            '^/api/v2/proxy-sos-1': '/v3.1/all'  // Sin query params aquí
-        },
-        // Los query params van aquí:
-        on: {
-            proxyReq: (proxyReq) => {
-                proxyReq.path += '?fields=name,area';
-            }
+    app.get('/api/v2/proxy-sos-1', async (req, res) => {
+        try {
+            const response = await fetch('https://restcountries.com/v3.1/all?fields=name,area');
+            const data = await response.json();
+            res.json(data);
+        } catch (error) {
+            console.error('Error proxy RestCountries:', error);
+            res.status(500).json({ error: 'Error al contactar RestCountries' });
         }
-    }));
+    });
     
     let initialData = [
  
