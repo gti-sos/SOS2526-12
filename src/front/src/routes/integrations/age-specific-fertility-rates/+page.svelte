@@ -102,11 +102,9 @@
 
     import { onMount } from "svelte";
 
-    // --- CONFIGURACIÓN DE ENDPOINTS ---
     const MY_API_URL = "https://sos2526-12.onrender.com/api/v2/age-specific-fertility-rates";
  
-    const G11_API_URL = "https://sos2526-11.onrender.com/api/v2/road-fatalities"; 
-    
+    const G11_API_URL = "https://sos2526-11.onrender.com/api/v2/road-fatalities";     
     const CHOLERA_API_URL = "https://soporte-sos.onrender.com/api/v1/cholera-stats"; 
     const HAPPINESS_API_URL = "https://sos2526-15.onrender.com/api/v2/happiness-indices";
     const WINE_API_URL = "https://sos2526-29.onrender.com/api/v1/wine-stats";
@@ -114,7 +112,6 @@
     // Construye la URL del proxy usando la misma base que tu API
     const RESTCOUNTRIES_API_URL = "/api/v2/proxy-sos-1";
 
-    // La API del Banco Mundial para el % de mujeres en la fuerza laboral
     const WORLDBANK_LABOR_API = "https://api.worldbank.org/v2/country/all/indicator/SL.TLF.CACT.FE.ZS?format=json&date=2022&per_page=300";
 
     const API_matriculaUniv = 'https://api.worldbank.org/v2/country/all/indicator/SE.TER.ENRR?format=json&date=2020:2022&per_page=300';
@@ -245,7 +242,7 @@ function drawFatalitiesChart() {
                 { 
                     title: { text: 'Tasa Fertilidad (15-19)', style: { color: '#0ea5e9' } }, 
                     labels: { style: { color: '#0ea5e9' } }, 
-                    opposite: true // Pone este eje a la derecha
+                    opposite: true 
                 }
             ],
             tooltip: { 
@@ -460,7 +457,7 @@ function drawFatalitiesChart() {
                     if (m.country_name.toLowerCase() === 'spain') {
                         // @ts-ignore
                         spainFertilityByYear[m.year] = m.fert_15_19;
-                        // Guardamos el dato más reciente por si hay vinos del futuro (ej. 2026)
+
                         if (m.year > latestYear) {
                             latestYear = m.year;
                             latestSpainFertility = m.fert_15_19;
@@ -683,7 +680,6 @@ async function fetchAndDrawSankey() {
             return [from, to, count];
         });
 
-        // 5. Dibujar
         // @ts-ignore
         Highcharts.chart('chart-universities-sankey', {
             title: { text: 'Relación: Educación Superior vs Fertilidad Juvenil' },
@@ -706,9 +702,6 @@ async function fetchAndDrawSankey() {
     }
 }
     
-
-    // @ts-ignore
-    // @ts-ignore
     // @ts-ignore
     function drawSankeyChart(sankeyData) {
         // @ts-ignore
@@ -743,7 +736,7 @@ async function fetchAndDrawSankey() {
     }
 
 
-// --- LÓGICA INTEGRACIÓN FINAL (PARLIAMENT CHART - WORLD BANK) ---
+// --- LÓGICA INTEGRACIÓN (PARLIAMENT CHART - WORLD BANK) ---
     async function fetchAndDrawParliament() {
         try {
             // 1. Obtener tus datos de fertilidad
@@ -867,7 +860,6 @@ async function fetchAndDrawSankey() {
     .container { max-width: 1000px; margin: 0 auto; padding: 0 1rem; display: flex; flex-direction: column; gap: 2rem; padding-bottom: 3rem;}
     .card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
     
-    /* CAMBIO: Se ha sustituido #chart-restcountries por #chart-area-treemap */
     #chart-fatalities, #chart-cholera, #chart-happiness-heatmap, #chart-wine-radar, #chart-area-treemap { width: 100%; height: 500px; }
     
     .description { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; }
