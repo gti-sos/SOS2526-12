@@ -50,6 +50,11 @@
 <main>
     <h1>Proyecto Grupo SOS2526-12</h1>
 
+    <p class="description">
+        Este proyecto es desarrollado por el Grupo 12 de SOS. Nuestro objetivo es la integración de diversas 
+        fuentes de datos mediante APIs para visualizar estadísticas globales.
+    </p>
+
     <a class="repo-link" href="https://github.com/gti-sos/SOS2526-12" target="_blank">
         🔗 Repositorio de GitHub del Equipo
     </a>
