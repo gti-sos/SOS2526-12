@@ -55,7 +55,7 @@
                         <a href="/api/v2/age-specific-fertility-rates/docs" target="_blank">Docs</a>
                     </td>
                     <td>
-                        <iframe width="250" height="140" src="https://youtu.be/0jUWPDm4aFQ" frameborder="0" allowfullscreen></iframe>
+                        <iframe width="250" height="140" src="https://www.youtube.com/watch?v=0jUWPDm4aFQ" frameborder="0" allowfullscreen></iframe>
                     </td>
                 </tr>
                 <tr>
