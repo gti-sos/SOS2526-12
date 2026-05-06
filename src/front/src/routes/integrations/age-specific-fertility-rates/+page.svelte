@@ -57,7 +57,7 @@
             <div class="description">
                 <h3>Integración 4: Perfil de Fertilidad vs. Consumo de Vino</h3>
                 <p>
-                    Gráfico de Radar (Araña) que compara el "perfil" de cada país cruzando mi <strong>Tasa de Fertilidad</strong> con el <strong>Precio Medio del Vino (€)</strong> y los <strong>Grados de Alcohol (ABV)</strong> de la API del Grupo 29.
+                    Gráfico que compara el "perfil" de cada país cruzando mi <strong>Tasa de Fertilidad</strong> con el <strong>Precio Medio del Vino (€)</strong> y los <strong>Grados de Alcohol (ABV)</strong> de la API del Grupo 29.
                 </p>
             </div>
         </section>
