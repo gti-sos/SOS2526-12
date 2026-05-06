@@ -55,7 +55,7 @@
                         <a href="/api/v2/age-specific-fertility-rates/docs" target="_blank">Docs</a>
                     </td>
                     <td>
-                        <iframe width="250" height="140" src="https://www.youtube.com/embed/TU_ID_AQUI" frameborder="0" allowfullscreen></iframe>
+                        <iframe width="250" height="140" src="https://youtu.be/0jUWPDm4aFQ" frameborder="0" allowfullscreen></iframe>
                     </td>
                 </tr>
                 <tr>
@@ -90,8 +90,8 @@
         <h2>Perfiles de GitHub de los Miembros</h2>
         <ul>
             <li><strong>Francisco Mediavilla García:</strong> <a href="https://github.com/CMediavilla16" target="_blank">@Francisco</a></li>
-            <li><strong>Lucca Pereira:</strong> <a href="https://github.com/TU_USUARIO" target="_blank">@Lucca</a></li>
-            <li><strong>Javier Jimenez:</strong> <a href="https://github.com/TU_USUARIO" target="_blank">@Javier</a></li>
+            <li><strong>Lucca Pereira:</strong> <a href="https://github.com/Lucca-Pereira-2" target="_blank">@Lucca</a></li>
+            <li><strong>Javier Jimenez:</strong> <a href="https://github.com/javier12012001" target="_blank">@Javier</a></li>
         </ul>
     </section>
 </main>
