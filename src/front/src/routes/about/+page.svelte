@@ -67,7 +67,7 @@
                         <a href="/api/v2/birth-death-growth-rates/docs" target="_blank">Docs</a>
                     </td>
                     <td>
-                        <iframe width="250" height="140" src="https://youtu.be/embed/b8FMQ9GPf60" frameborder="0" allowfullscreen></iframe>
+                        <iframe width="250" height="140" src="https://www.youtube.com/embed/b8FMQ9GPf60" frameborder="0" allowfullscreen></iframe>
                     </td>
                 </tr>
                 <tr>
