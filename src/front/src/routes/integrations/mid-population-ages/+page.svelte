@@ -67,15 +67,7 @@
             if (idhResponse.ok) {
                 let idhData = await idhResponse.json(); // Usamos 'let' para poder actualizarlo
 
-                // 🚩 LÓGICA DE AUTO-CARGA G26
-                if (idhData.length === 0) {
-                    console.log("Base de datos G26 vacía. Intentando inicializar...");
-                    const initRes = await fetch('https://sos2526-26.onrender.com/api/v2/countries-idh-per-years/loadInitialData');
-                    if (initRes.ok) {
-                        const retryRes = await fetch('https://sos2526-26.onrender.com/api/v2/countries-idh-per-years');
-                        idhData = await retryRes.json();
-                    }
-                }
+                
 
                 if (idhData.length > 0) {
                     const sampleData = idhData.slice(0, 10);
@@ -112,15 +104,7 @@
             if (deathsResponse.ok) {
                 let data = await deathsResponse.json();
 
-                // 🚩 LÓGICA DE AUTO-CARGA G10
-                if (data.length === 0) {
-                    console.log("Base de datos G10 vacía. Intentando inicializar...");
-                    const initRes = await fetch('https://sos2526-10.onrender.com/api/v2/deaths-by-risk-factors/loadInitialData');
-                    if (initRes.ok) {
-                        const retryRes = await fetch('https://sos2526-10.onrender.com/api/v2/deaths-by-risk-factors');
-                        data = await retryRes.json();
-                    }
-                }
+                
 
                 if (data.length > 0) {
                     deathsData = data.slice(0, 6); 
@@ -203,15 +187,7 @@
             if (litRes.ok) {
                 let litData = await litRes.json();
 
-                // 🚩 LÓGICA DE AUTO-CARGA G11
-                if (litData.length === 0) {
-                    console.log("Base de datos G11 vacía. Intentando inicializar...");
-                    const initRes = await fetch('https://sos2526-11.onrender.com/api/v2/literacy-rates/loadInitialData');
-                    if (initRes.ok) {
-                        const retryRes = await fetch('https://sos2526-11.onrender.com/api/v2/literacy-rates');
-                        litData = await retryRes.json();
-                    }
-                }
+                
 
                 if (litData.length > 0) {
                     const sampleData = litData.slice(0, 10);
@@ -256,15 +232,7 @@
             if (coffeeRes.ok) {
                 let coffeeJson = await coffeeRes.json();
 
-                // 🚩 LÓGICA DE AUTO-CARGA G20 (Ojo, los datos están dentro de .data)
-                if (!coffeeJson.data || coffeeJson.data.length === 0) {
-                    console.log("Base de datos G20 vacía. Intentando inicializar...");
-                    const initRes = await fetch('https://sos2526-20.onrender.com/api/v2/coffee-stats/loadInitialData');
-                    if (initRes.ok) {
-                        const retryRes = await fetch('https://sos2526-20.onrender.com/api/v2/coffee-stats');
-                        coffeeJson = await retryRes.json();
-                    }
-                }
+                
 
                 if (coffeeJson.data && coffeeJson.data.length > 0) {
                     const sampleData = coffeeJson.data.slice(0, 5);
@@ -306,15 +274,7 @@
             if (aidsRes.ok) {
                 let aidsData = await aidsRes.json();
 
-                // 🚩 LÓGICA DE AUTO-CARGA G21
-                if (aidsData.length === 0) {
-                    console.log("Base de datos G21 vacía. Intentando inicializar...");
-                    const initRes = await fetch('https://sos2526-21.onrender.com/api/v2/aids-deaths-stats/loadInitialData');
-                    if (initRes.ok) {
-                        const retryRes = await fetch('https://sos2526-21.onrender.com/api/v2/aids-deaths-stats');
-                        aidsData = await retryRes.json();
-                    }
-                }
+                
 
                 if (aidsData.length > 0) {
                     const sampleData = aidsData.slice(0, 5);

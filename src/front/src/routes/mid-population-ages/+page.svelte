@@ -248,6 +248,7 @@
         <div>
             <a href="/analytics/mid-population-ages" class="btn-nav">📊 Ver Gráfico</a>
             <a href="/analytics/mid-population-ages/map" class="btn-nav">🌍 Ver Mapa</a>
+            <a href="/analytics" class="btn-nav" style="background-color: #6f42c1;">📈 Ver Gráfica Grupal</a>
         </div>
     </div>
 

@@ -11,22 +11,22 @@ let DOCS_URL_V2 = "https://documenter.getpostman.com/view/52368982/2sBXigMtBS";
 export function loadBackend(app) {
 
     let initialRecords = [
-        { country_code: "AF", country_name: "Afghanistan", year: 1979, sex: "Male", max_age: 100, population_age_0: 318425, population_age_25: 127876, population_age_50: 49804, population_age_75: 9729, population_age_100: 2 },
-        { country_code: "AJ", country_name: "Azerbaijan", year: 1992, sex: "Female", max_age: 100, population_age_0: 108912, population_age_25: 67871, population_age_50: 31250, population_age_75: 4571, population_age_100: 3 },
-        { country_code: "AJ", country_name: "Azerbaijan", year: 1990, sex: "Female", max_age: 100, population_age_0: 107574, population_age_25: 68932, population_age_50: 31252, population_age_75: 4594, population_age_100: 8 },
-        { country_code: "AM", country_name: "Armenia", year: 1991, sex: "Female", max_age: 100, population_age_0: 37961, population_age_25: 31179, population_age_50: 19315, population_age_75: 4571, population_age_100: 37 },
-        { country_code: "AN", country_name: "Andorra", year: 1991, sex: "Female", max_age: 100, population_age_0: 37961, population_age_25: 31179, population_age_50: 19315, population_age_75: 4571, population_age_100: 37 },
-        { country_code: "AS", country_name: "Australia", year: 1986, sex: "Male", max_age: 100, population_age_0: 121872, population_age_25: 1367731, population_age_50: 76764, population_age_75: 32582, population_age_100: 163 },
+        { country_code: "AF", country_name: "Afghanistan", year: 1979, sex: "Male", max_age: 87, population_age_0: 4215, population_age_25: 8764, population_age_50: 4921, population_age_75: 2150, population_age_100: 12 },
+        { country_code: "AJ", country_name: "Azerbaijan", year: 1992, sex: "Female", max_age: 92, population_age_0: 3891, population_age_25: 6543, population_age_50: 7210, population_age_75: 1934, population_age_100: 27 },
+        { country_code: "AJ", country_name: "Azerbaijan", year: 1990, sex: "Female", max_age: 95, population_age_0: 4782, population_age_25: 6893, population_age_50: 5120, population_age_75: 2204, population_age_100: 33 },
+        { country_code: "AM", country_name: "Armenia", year: 1991, sex: "Female", max_age: 91, population_age_0: 6421, population_age_25: 3117, population_age_50: 7891, population_age_75: 2870, population_age_100: 54 },
+        { country_code: "AN", country_name: "Andorra", year: 1991, sex: "Female", max_age: 88, population_age_0: 5932, population_age_25: 4120, population_age_50: 6745, population_age_75: 2987, population_age_100: 41 },
+        { country_code: "AS", country_name: "Australia", year: 1986, sex: "Male", max_age: 99, population_age_0: 8721, population_age_25: 6345, population_age_50: 9987, population_age_75: 5421, population_age_100: 96 },
         { country_code: "BA", country_name: "Bahrain", year: 1982, sex: "Male", max_age: 96, population_age_0: 5313, population_age_25: 6093, population_age_50: 1394, population_age_75: 168, population_age_100: 0 },
-        { country_code: "BC", country_name: "Botswana", year: 1983, sex: "Male", max_age: 100, population_age_0: 20539, population_age_25: 6321, population_age_50: 2624, population_age_75: 991, population_age_100: 3 },
+        { country_code: "BC", country_name: "Botswana", year: 1983, sex: "Male", max_age: 93, population_age_0: 7542, population_age_25: 6321, population_age_50: 2624, population_age_75: 991, population_age_100: 8 },
         { country_code: "BD", country_name: "Bermuda", year: 1992, sex: "Male", max_age: 99, population_age_0: 427, population_age_25: 506, population_age_50: 324, population_age_75: 100, population_age_100: 0 },
-        { country_code: "BF", country_name: "Bahamas The", year: 1980, sex: "Male", max_age: 96, population_age_0: 2574, population_age_25: 17171, population_age_50: 628, population_age_75: 149, population_age_100: 0 },
-        { country_code: "AU", country_name: "Australia", year: 2022, sex: "Male", max_age: 100, population_age_0: 154300, population_age_25: 182500, population_age_50: 165400, population_age_75: 92100, population_age_100: 150 },
-        { country_code: "JP", country_name: "Japan", year: 2022, sex: "Female", max_age: 110, population_age_0: 410200, population_age_25: 560100, population_age_50: 820300, population_age_75: 650000, population_age_100: 42000 },
-        { country_code: "ES", country_name: "Spain", year: 2022, sex: "Male", max_age: 100, population_age_0: 2210000, population_age_25: 3150000, population_age_50: 3820000, population_age_75: 1250000, population_age_100: 4500 },
-        { country_code: "ES", country_name: "Spain", year: 2022, sex: "Female", max_age: 100, population_age_0: 2105000, population_age_25: 3050000, population_age_50: 3950000, population_age_75: 1680000, population_age_100: 14000 },
-        { country_code: "IT", country_name: "Italy", year: 2022, sex: "Male", max_age: 100, population_age_0: 2450000, population_age_25: 3420000, population_age_50: 4510000, population_age_75: 1820000, population_age_100: 3800 },
-        { country_code: "IT", country_name: "Italy", year: 2022, sex: "Female", max_age: 100, population_age_0: 2320000, population_age_25: 3310000, population_age_50: 4750000, population_age_75: 2350000, population_age_100: 15500 }
+        { country_code: "BF", country_name: "Bahamas The", year: 1980, sex: "Male", max_age: 96, population_age_0: 2574, population_age_25: 8171, population_age_50: 628, population_age_75: 149, population_age_100: 0 },
+        { country_code: "AU", country_name: "Australia", year: 2022, sex: "Male", max_age: 100, population_age_0: 1543, population_age_25: 1825, population_age_50: 6400, population_age_75: 9100, population_age_100: 150 },
+        { country_code: "JP", country_name: "Japan", year: 2022, sex: "Female", max_age: 98, population_age_0: 4102, population_age_25: 5601, population_age_50: 8300, population_age_75: 6500, population_age_100: 4200 },
+        { country_code: "ES", country_name: "Spain", year: 2022, sex: "Male", max_age: 100, population_age_0: 2100, population_age_25: 3500, population_age_50: 8200, population_age_75: 5400, population_age_100: 4500 },
+        { country_code: "ES", country_name: "Spain", year: 2022, sex: "Female", max_age: 100, population_age_0: 2050, population_age_25: 3050, population_age_50: 9500, population_age_75: 6800, population_age_100: 4000 },
+        { country_code: "IT", country_name: "Italy", year: 2022, sex: "Male", max_age: 97, population_age_0: 4500, population_age_25: 3420, population_age_50: 7100, population_age_75: 8200, population_age_100: 3800 },
+        { country_code: "IT", country_name: "Italy", year: 2022, sex: "Female", max_age: 99, population_age_0: 3200, population_age_25: 3310, population_age_50: 7500, population_age_75: 9300, population_age_100: 5500 }
     ];
     
     // ==========================================
