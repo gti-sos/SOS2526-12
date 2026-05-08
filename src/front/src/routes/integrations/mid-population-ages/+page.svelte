@@ -28,14 +28,25 @@
     // @ts-ignore
     let meteoCanvas; // Referencia para el lienzo de esta nueva gráfica
 
+    // --- ESTADOS PARA INTEGRACIÓN 6 (G11 - Literacy) ---
+    let litErrorMessage = $state("");
+    let litCanvas;
+
+    // --- ESTADOS PARA INTEGRACIÓN 7 (G20 - Café) ---
+    let coffeeErrorMessage = $state("");
+    let coffeeCanvas;
+
+
+    // --- ESTADOS PARA INTEGRACIÓN 8 (G21 - SIDA) ---
+    let aidsErrorMessage = $state("");
+    let aidsCanvas;
+
     onMount(async () => {
         // ==========================================
-        // CARGA DE INTEGRACIÓN 1: Proxy REST Countries
+        // CARGA DE INTEGRACIÓN 1: Proxy REST Countries (EXTERNA)
         // ==========================================
         try {
-            // 👇 AQUÍ ESTÁ EL CAMBIO 👇
             const response = await fetch('https://sos2526-12.onrender.com/api/v2/proxy/countries'); 
-            
             if (response.ok) {
                 const data = await response.json();
                 countriesData = data.slice(0, 15); 
@@ -43,85 +54,92 @@
                 errorMessage = "Error al conectar con el servidor backend.";
             }
         } catch (error) {
-            // @ts-ignore
             errorMessage = "Error de red o CORS: " + error.message;
         } finally {
             isLoading = false; 
         }
 
-        
         // ==========================================
-        // CARGA DE INTEGRACIÓN 2: G26 IDH 
+        // CARGA DE INTEGRACIÓN 2: G26 IDH (COMPAÑEROS)
         // ==========================================
         try {
             const idhResponse = await fetch('https://sos2526-26.onrender.com/api/v2/countries-idh-per-years');
-            
             if (idhResponse.ok) {
-                const idhData = await idhResponse.json();
-                const sampleData = idhData.slice(0, 10);
+                let idhData = await idhResponse.json(); // Usamos 'let' para poder actualizarlo
 
-                // @ts-ignore
-                const labels = sampleData.map(item => `${item.country} (${item.year})`);
-                // Usamos hdi_value que es el nombre correcto que descubrimos antes
-                // @ts-ignore
-                const values = sampleData.map(item => item.hdi_value); 
+                // 🚩 LÓGICA DE AUTO-CARGA G26
+                if (idhData.length === 0) {
+                    console.log("Base de datos G26 vacía. Intentando inicializar...");
+                    const initRes = await fetch('https://sos2526-26.onrender.com/api/v2/countries-idh-per-years/loadInitialData');
+                    if (initRes.ok) {
+                        const retryRes = await fetch('https://sos2526-26.onrender.com/api/v2/countries-idh-per-years');
+                        idhData = await retryRes.json();
+                    }
+                }
 
-                // @ts-ignore
-                new Chart(chartCanvas, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Índice de Desarrollo Humano (IDH)',
-                            data: values,
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: { responsive: true }
-                });
+                if (idhData.length > 0) {
+                    const sampleData = idhData.slice(0, 10);
+                    const labels = sampleData.map(item => `${item.country} (${item.year})`);
+                    const values = sampleData.map(item => item.hdi_value); 
 
+                    new Chart(chartCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Índice de Desarrollo Humano (IDH)',
+                                data: values,
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: { responsive: true }
+                    });
+                }
             } else {
                 idhErrorMessage = "Error al cargar la API del Grupo 26.";
             }
         } catch (error) {
-            // @ts-ignore
             idhErrorMessage = "Error con G26: " + error.message;
         }
+
         // ==========================================
-        // CARGA DE INTEGRACIÓN 3: G10 Muertes (Uso Textual - Fetch Directo)
+        // CARGA DE INTEGRACIÓN 3: G10 Muertes (COMPAÑEROS)
         // ==========================================
         try {
             const deathsResponse = await fetch('https://sos2526-10.onrender.com/api/v2/deaths-by-risk-factors');
             if (deathsResponse.ok) {
-                const data = await deathsResponse.json();
-                
-                // Hacemos un console.log para ver cómo han llamado a sus variables
-                console.log("Datos de G10:", data[0]);
-                
-                // Nos quedamos con 6 registros para hacer 6 tarjetas bonitas
-                deathsData = data.slice(0, 6); 
+                let data = await deathsResponse.json();
+
+                // 🚩 LÓGICA DE AUTO-CARGA G10
+                if (data.length === 0) {
+                    console.log("Base de datos G10 vacía. Intentando inicializar...");
+                    const initRes = await fetch('https://sos2526-10.onrender.com/api/v2/deaths-by-risk-factors/loadInitialData');
+                    if (initRes.ok) {
+                        const retryRes = await fetch('https://sos2526-10.onrender.com/api/v2/deaths-by-risk-factors');
+                        data = await retryRes.json();
+                    }
+                }
+
+                if (data.length > 0) {
+                    deathsData = data.slice(0, 6); 
+                }
             } else {
                 deathsErrorMessage = "Error al cargar la API del Grupo 10.";
             }
         } catch (error) {
-            // @ts-ignore
             deathsErrorMessage = "Error de red con G10: " + error.message;
         }
 
         // ==========================================
-        // CARGA DE INTEGRACIÓN 4: PokeAPI (Externa)
+        // CARGA DE INTEGRACIÓN 4: PokeAPI (EXTERNA)
         // ==========================================
         try {
-            // Pedimos los primeros 5 Pokémon
             const pokeRes = await fetch('https://pokeapi.co/api/v2/pokemon?limit=5');
             if (pokeRes.ok) {
                 const pokeList = await pokeRes.json();
-                
-                // Hacemos la "magia" de buscar la foto y los detalles de cada uno
                 const detailedPokemon = await Promise.all(
-                    // @ts-ignore
                     pokeList.results.map(async (p) => {
                         const res = await fetch(p.url);
                         return await res.json();
@@ -132,42 +150,37 @@
                 pokeErrorMessage = "Error al conectar con el servidor de PokeAPI.";
             }
         } catch (error) {
-            // @ts-ignore
             pokeErrorMessage = "Error de red con PokeAPI: " + error.message;
         }
+
         // ==========================================
-        // CARGA DE INTEGRACIÓN 5: Open-Meteo (Fetch Directo)
+        // CARGA DE INTEGRACIÓN 5: Open-Meteo (EXTERNA)
         // ==========================================
         try {
-            // URL configurada para pedir los próximos 7 días de Sevilla (Lat: 37.38, Lon: -5.98)
             const meteoRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.3828&longitude=-5.9732&daily=temperature_2m_max,temperature_2m_min&timezone=Europe%2FMadrid');
-            
             if (meteoRes.ok) {
                 const meteoData = await meteoRes.json();
                 
-                // Open-Meteo nos devuelve arrays separados para los días, y las temperaturas
-                const dias = meteoData.daily.time; // Ej: ["2024-05-01", "2024-05-02"...]
+                const dias = meteoData.daily.time; 
                 const tempsMax = meteoData.daily.temperature_2m_max;
                 const tempsMin = meteoData.daily.temperature_2m_min;
 
-                // Dibujamos el nuevo gráfico de radar
-                // @ts-ignore
                 new Chart(meteoCanvas, {
-                    type: 'radar', // ¡Tipo radar! Totalmente válido y no repite barras.
+                    type: 'radar', 
                     data: {
                         labels: dias,
                         datasets: [
                             {
                                 label: 'Temp Máxima (°C)',
                                 data: tempsMax,
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Rojo transparente
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
                                 borderColor: 'rgba(255, 99, 132, 1)',
                                 borderWidth: 2
                             },
                             {
                                 label: 'Temp Mínima (°C)',
                                 data: tempsMin,
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)', // Azul transparente
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
                                 borderColor: 'rgba(54, 162, 235, 1)',
                                 borderWidth: 2
                             }
@@ -179,8 +192,160 @@
                 meteoErrorMessage = "Error al conectar con la API de Open-Meteo.";
             }
         } catch (error) {
-            // @ts-ignore
             meteoErrorMessage = "Error de red con Meteo: " + error.message;
+        }
+
+        // ==========================================
+        // CARGA DE INTEGRACIÓN 6: G11 Literacy (COMPAÑEROS)
+        // ==========================================
+        try {
+            const litRes = await fetch('https://sos2526-11.onrender.com/api/v2/literacy-rates');
+            if (litRes.ok) {
+                let litData = await litRes.json();
+
+                // 🚩 LÓGICA DE AUTO-CARGA G11
+                if (litData.length === 0) {
+                    console.log("Base de datos G11 vacía. Intentando inicializar...");
+                    const initRes = await fetch('https://sos2526-11.onrender.com/api/v2/literacy-rates/loadInitialData');
+                    if (initRes.ok) {
+                        const retryRes = await fetch('https://sos2526-11.onrender.com/api/v2/literacy-rates');
+                        litData = await retryRes.json();
+                    }
+                }
+
+                if (litData.length > 0) {
+                    const sampleData = litData.slice(0, 10);
+                    const labels = sampleData.map(item => `${item.country || 'País'} (${item.year || 'Año'})`);
+                    const values = sampleData.map(item => item.total);
+
+                    new Chart(litCanvas, {
+                        type: 'scatter', // Tipo scatter
+                        data: {
+                            labels: labels, // Usamos tus etiquetas con el país y el año
+                            datasets: [{
+                                label: 'Tasa de Alfabetización',
+                                data: values,
+                                backgroundColor: 'rgba(75, 192, 192, 1)', // Puntos en verde agua
+                                borderColor: '#4bc0c0',
+                                pointRadius: 6, // Hacemos el punto más gordito para que se vea bien
+                                pointHoverRadius: 8
+                            }]
+                        },
+                        options: { 
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    type: 'category' // ¡ESTA ES LA MAGIA! Le decimos que use las etiquetas de texto
+                                }
+                            }
+                        }
+                    });
+                }
+            } else {
+                litErrorMessage = "Error al cargar la API del Grupo 11.";
+            }
+        } catch (error) {
+            litErrorMessage = "Error de red con G11: " + error.message;
+        }
+
+        // ==========================================
+        // CARGA DE INTEGRACIÓN 7: G20 Café (COMPAÑEROS)
+        // ==========================================
+        try {
+            const coffeeRes = await fetch('https://sos2526-20.onrender.com/api/v2/coffee-stats');
+            if (coffeeRes.ok) {
+                let coffeeJson = await coffeeRes.json();
+
+                // 🚩 LÓGICA DE AUTO-CARGA G20 (Ojo, los datos están dentro de .data)
+                if (!coffeeJson.data || coffeeJson.data.length === 0) {
+                    console.log("Base de datos G20 vacía. Intentando inicializar...");
+                    const initRes = await fetch('https://sos2526-20.onrender.com/api/v2/coffee-stats/loadInitialData');
+                    if (initRes.ok) {
+                        const retryRes = await fetch('https://sos2526-20.onrender.com/api/v2/coffee-stats');
+                        coffeeJson = await retryRes.json();
+                    }
+                }
+
+                if (coffeeJson.data && coffeeJson.data.length > 0) {
+                    const sampleData = coffeeJson.data.slice(0, 5);
+                    const labels = sampleData.map(item => `${item.country || 'País'} (${item.year || 'Año'})`);
+                    const values = sampleData.map(item => item.production); 
+
+                    new Chart(coffeeCanvas, {
+                        type: 'polarArea',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Datos de Café',
+                                data: values,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.6)',
+                                    'rgba(54, 162, 235, 0.6)',
+                                    'rgba(255, 206, 86, 0.6)',
+                                    'rgba(75, 192, 192, 0.6)',
+                                    'rgba(153, 102, 255, 0.6)'
+                                ]
+                            }]
+                        },
+                        options: { responsive: true }
+                    });
+                }
+            } else {
+                coffeeErrorMessage = "Error al cargar la API del Grupo 20.";
+            }
+        } catch (error) {
+            coffeeErrorMessage = "Error de red con G20: " + error.message;
+        }
+
+        // ==========================================
+        // CARGA DE INTEGRACIÓN 8: G21 SIDA (COMPAÑEROS)
+        // ==========================================
+        try {
+            // Nota: He usado v1 como confirmamos antes que funcionaba con su API
+            const aidsRes = await fetch('https://sos2526-21.onrender.com/api/v2/aids-deaths-stats');
+            if (aidsRes.ok) {
+                let aidsData = await aidsRes.json();
+
+                // 🚩 LÓGICA DE AUTO-CARGA G21
+                if (aidsData.length === 0) {
+                    console.log("Base de datos G21 vacía. Intentando inicializar...");
+                    const initRes = await fetch('https://sos2526-21.onrender.com/api/v2/aids-deaths-stats/loadInitialData');
+                    if (initRes.ok) {
+                        const retryRes = await fetch('https://sos2526-21.onrender.com/api/v2/aids-deaths-stats');
+                        aidsData = await retryRes.json();
+                    }
+                }
+
+                if (aidsData.length > 0) {
+                    const sampleData = aidsData.slice(0, 5);
+                    const labels = sampleData.map(item => `${item.country} (${item.year})`);                
+                    const values = sampleData.map(item => 
+                        (item.death_count_hiv_aids_under_5 || 0) + 
+                        (item.death_count_hiv_aids_5_14 || 0) + 
+                        (item.death_count_hiv_aids_15_49 || 0) + 
+                        (item.death_count_hiv_aids_50_69 || 0) + 
+                        (item.death_count_hiv_aids_70_plus || 0)
+                    );
+
+                    new Chart(aidsCanvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Muertes registradas',
+                                data: values,
+                                backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56', '#4bc0c0'],
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: { responsive: true }
+                    });
+                }
+            } else {
+                aidsErrorMessage = "Error al cargar la API del Grupo 21.";
+            }
+        } catch (error) {
+            aidsErrorMessage = "Error de red con G21: " + error.message;
         }
     });
 </script>
@@ -286,6 +451,7 @@
             </div>
         {/if}
     </section>
+
     <section class="integration-block">
         <h3>5. Integración con Open-Meteo (Clima 7 días)</h3>
         <p><strong>Tipo:</strong> Widget Gráfico (Chart.js - Radar) | <strong>API Externa:</strong> open-meteo.com</p>
@@ -296,6 +462,48 @@
             <!-- Lo metemos en un div un poco más pequeño (600px) para que el radar no ocupe toda la pantalla y se vea más estético -->
             <div style="max-width: 600px; margin: 0 auto;">
                 <canvas bind:this={meteoCanvas}></canvas>
+            </div>
+        {/if}
+    </section>
+
+    <section class="integration-block">
+        <h3>6. Integración con Grupo 11 (Alfabetización)</h3>
+        <p><strong>Tipo:</strong> Widget Gráfico (Chart.js - scatter) | <strong>API Compañeros:</strong> literacy-rates</p>
+
+        {#if litErrorMessage}
+            <p style="color: red;">{litErrorMessage}</p>
+        {:else}
+            <div style="max-width: 800px; margin: 0 auto;">
+                <canvas bind:this={litCanvas}></canvas>
+            </div>
+        {/if}
+    </section>
+
+
+
+    <section class="integration-block">
+        <h3>7. Integración con Grupo 20 (Estadísticas de Café)</h3>
+        <p><strong>Tipo:</strong> Widget Gráfico (Chart.js - Polar Area) | <strong>API Compañeros:</strong> coffee-stats</p>
+
+        {#if coffeeErrorMessage}
+            <p style="color: red;">{coffeeErrorMessage}</p>
+        {:else}
+            <div style="max-width: 500px; margin: 0 auto;">
+                <canvas bind:this={coffeeCanvas}></canvas>
+            </div>
+        {/if}
+    </section>
+
+
+    <section class="integration-block">
+        <h3>8. Integración con Grupo 21 (Muertes por SIDA)</h3>
+        <p><strong>Tipo:</strong> Widget Gráfico (Chart.js - Doughnut) | <strong>API Compañeros:</strong> aids-deaths-stats</p>
+
+        {#if aidsErrorMessage}
+            <p style="color: red;">{aidsErrorMessage}</p>
+        {:else}
+            <div style="max-width: 400px; margin: 0 auto;">
+                <canvas bind:this={aidsCanvas}></canvas>
             </div>
         {/if}
     </section>
