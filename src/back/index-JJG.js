@@ -55,45 +55,46 @@ export function loadBackend(app) {
         let offset = 0;
         let limit = Number.MAX_SAFE_INTEGER;
 
-        if (req.query.offset) { offset = parseInt(req.query.offset); }
-        if (req.query.limit) { limit = parseInt(req.query.limit); }
+        // Paginación
+        if (req.query.offset) offset = parseInt(req.query.offset);
+        if (req.query.limit) limit = parseInt(req.query.limit);
 
-        if (req.query.from || req.query.to) {
-            query.year = {};
-            if (req.query.from) { query.year.$gte = Number(req.query.from); }
-            if (req.query.to) { query.year.$lte = Number(req.query.to); }
+        // Búsqueda por país (Ignorando mayúsculas y minúsculas gracias a RegExp)
+        if (req.query.country_name) {
+            query.country_name = new RegExp(req.query.country_name, "i");
+        }
+        if (req.query.country_code) {
+            query.country_code = req.query.country_code;
         }
 
-        const operatorMap = { ">": "$gt", "<": "$lt", ">=": "$gte", "<=": "$lte" };
-        const operators = [">=", "<=", ">", "<"];
-
-        Object.keys(req.query).forEach(key => {
-            if (["from", "to", "offset", "limit"].includes(key)) return;
-            const value = req.query[key];
-            if (value === "" || value === undefined) return;
-
-            if (typeof value === "string" && value.includes("-")) {
-                const [min, max] = value.split("-");
-                query[key] = {};
-                if (min !== "") query[key]["$gte"] = isNaN(min) ? min : Number(min);
-                if (max !== "") query[key]["$lte"] = isNaN(max) ? max : Number(max);
-                return;
+        // Búsqueda por años (Exacto o Rango From/To)
+        if (req.query.year) {
+            // Si viene un rango separado por guion (ej: "1990-2020")
+            if (typeof req.query.year === "string" && req.query.year.includes("-")) {
+                const [min, max] = req.query.year.split("-");
+                query.year = {};
+                if (min) query.year.$gte = parseInt(min);
+                if (max) query.year.$lte = parseInt(max);
+            } 
+            // Si viene el símbolo >= (ej: ">=1990")
+            else if (typeof req.query.year === "string" && req.query.year.startsWith(">=")) {
+                query.year = { $gte: parseInt(req.query.year.replace(">=", "")) };
             }
-
-            for (const op of operators) {
-                if (typeof value === "string" && value.startsWith(op)) {
-                    const valStr = value.slice(op.length);
-                    const valParsed = isNaN(valStr) ? valStr : Number(valStr);
-                    if (!query[key] || typeof query[key] !== "object") query[key] = {};
-                    query[key][operatorMap[op]] = valParsed;
-                    return;
-                }
+            // Si viene el símbolo <= (ej: "<=2020")
+            else if (typeof req.query.year === "string" && req.query.year.startsWith("<=")) {
+                query.year = { $lte: parseInt(req.query.year.replace("<=", "")) };
             }
-
-            if (!query[key] || typeof query[key] !== "object") {
-                query[key] = isNaN(value) ? value : Number(value);
+            // Si es un año exacto normal
+            else {
+                query.year = parseInt(req.query.year);
             }
-        });
+        } 
+        
+        else if (req.query.from || req.query.to) {
+            query.year = {};
+            if (req.query.from) query.year.$gte = parseInt(req.query.from);
+            if (req.query.to) query.year.$lte = parseInt(req.query.to);
+        }
 
         db.find(query).skip(offset).limit(limit).exec((err, records) => {
             if (err) return res.status(500).json({ message: "Error en la base de datos" });
