@@ -18,7 +18,6 @@
             if (res.ok) {
                 const data = await res.json();
 
-                // Cogemos los 10 primeros para que el gráfico no se sature
                 const topData = data.slice(0, 10); 
                 
                 // @ts-ignore
@@ -33,7 +32,7 @@
                 // @ts-ignore
                 Highcharts.chart(chartContainer, {
                     chart: { type: 'column' },
-                    title: { text: 'Población por Franjas de Edad (Top 10 Registros)' },
+                    title: { text: 'Población por Franjas de Edad (10 Registros)' },
                     xAxis: { categories: categories },
                     yAxis: {
                         min: 0,
