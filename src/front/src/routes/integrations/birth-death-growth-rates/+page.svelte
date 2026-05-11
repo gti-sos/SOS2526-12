@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import Highcharts from 'highcharts';
 
-    let chartCountries, chartGdp, chartUrban, chartWages, chartWater;
+    let chartCountries, chartGdp, chartUrban, chartWages, chartWater, chartAgriculture;
 
     let spices = $state([]);
     let spicesLoading = $state(true);
@@ -26,6 +26,7 @@
         await import('highcharts/modules/dumbbell');
         await import('highcharts/modules/lollipop');
         await import('highcharts/modules/solid-gauge');
+        await import('highcharts/modules/variwide');
 
         // REST Countries
         try {
@@ -127,6 +128,38 @@
             }
         } catch (e) { console.error('Water error:', e); }
 
+        // Global Agriculture Climate Impacts (G22) — variwide chart
+        try {
+            await fetch('https://sos2526-22.onrender.com/api/v2/global-agriculture-climate-impacts/loadInitialData').catch(() => {});
+            const res = await fetch('/api/v2/birth-death-growth-rates/integrations/agriculture-climate');
+            if (res.ok) {
+                const data = await res.json();
+                const records = Array.isArray(data) ? data : data.data || [];
+                Highcharts.chart(chartAgriculture, {
+                    chart: { type: 'variwide' },
+                    title: { text: 'Agricultura y Clima: Temperatura vs Precipitación' },
+                    subtitle: { text: 'Ancho = Precipitación (mm), Altura = Temperatura (°C)' },
+                    xAxis: { type: 'category', title: { text: 'País — Cultivo' } },
+                    yAxis: { title: { text: 'Temperatura Media (°C)' } },
+                    tooltip: {
+                        pointFormat: 'Temperatura: <b>{point.y} °C</b><br/>Precipitación: <b>{point.z} mm</b><br/>Año: <b>{point.year}</b>'
+                    },
+                    series: [{
+                        name: 'Impacto agrícola',
+                        colorByPoint: true,
+                        data: records.map(r => ({
+                            name: `${r.country} — ${r.crop_type}`,
+                            y: r.average_temperature_c,
+                            z: r.total_precipitation_mm,
+                            year: r.year
+                        }))
+                    }],
+                    legend: { enabled: false },
+                    credits: { enabled: false }
+                });
+            }
+        } catch (e) { console.error('Agriculture climate error:', e); }
+
         // Spice Stats (G20) — table
         try {
             await fetch(`${SPICE_API}/loadInitialData`).catch(() => {});
@@ -177,6 +210,10 @@
     <h2>Integración: Drinking Water Services (G27)</h2>
     <p>Datos de acceso a agua potable obtenidos desde <strong>sos2526-27</strong> — Gráfico tipo <strong>Gauge</strong></p>
     <div bind:this={chartWater} class="chart"></div>
+
+    <h2>Integración: Global Agriculture Climate Impacts (G22)</h2>
+    <p>Datos de impacto climático en agricultura obtenidos desde <strong>sos2526-22</strong> — Gráfico tipo <strong>Variwide</strong></p>
+    <div bind:this={chartAgriculture} class="chart"></div>
 
     <h2>Integración: Spice Stats (G20)</h2>
     <p>Datos de comercio de especias obtenidos desde <strong>sos2526-20</strong></p>

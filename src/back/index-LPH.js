@@ -249,6 +249,17 @@ export function loadBackend(app) {
         });
     });
 
+    // Proxy - Global Agriculture Climate Impacts (G22)
+    app.get(BASE_URL_API + "/birth-death-growth-rates/integrations/agriculture-climate", async (req, res) => {
+        try {
+            const response = await fetch("https://sos2526-22.onrender.com/api/v2/global-agriculture-climate-impacts");
+            const data = await response.json();
+            res.json(data);
+        } catch (err) {
+            res.status(500).json({ message: "Error fetching agriculture climate data" });
+        }
+    });
+
     // Proxy - REST Countries (must be before /:country_code/:year)
     app.get(BASE_URL_API + "/birth-death-growth-rates/integrations/rest-countries", async (req, res) => {
         try {
