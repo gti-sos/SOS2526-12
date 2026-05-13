@@ -8,7 +8,7 @@ let DOC_URL= "https://documenter.getpostman.com/view/52304863/2sBXijHX4D";
 
 function loadBackend(app) {
     app.use(cors());
-
+ 
     app.get('/api/v2/proxy-sos-1', async (req, res) => {
         try {
             const response = await fetch('https://restcountries.com/v3.1/all?fields=name,area');
