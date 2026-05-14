@@ -14,7 +14,7 @@
     const COUNTRIES_API = 'https://restcountries.com/v3.1/all?fields=name,flags,area';
     const METEO_API    = 'https://api.open-meteo.com/v1/forecast?latitude=37.3828&longitude=-5.9732&daily=temperature_2m_max,temperature_2m_min&timezone=Europe%2FMadrid';
     const LITERACY_API = 'https://sos2526-11.onrender.com/api/v2/literacy-rates';
-    const UNIS_API      = 'https://corsproxy.io/?http://universities.hipolabs.com/search?country=';
+    const WORLDBANK_API = 'https://api.worldbank.org/v2/country/{code}/indicator/SP.POP.TOTL?format=json&date=2020&per_page=1';
     const AIDS_API     = 'https://sos2526-21.onrender.com/api/v2/aids-deaths-stats';
 
     // ==========================================
@@ -256,42 +256,72 @@
         } catch (e) { litError = e.message; }
         finally { litLoading = false; }
 
-        // --- 7. Universidades (Chart.js - PolarArea) ---
+        // --- 7. World Bank - Población Total (Chart.js - PolarArea) ---
         try {
-            // Buscamos 5 países que sepamos que tenemos en nuestra API
-            const paisesPrueba = Object.keys(myDataByCountry).slice(0, 5);
-            let unisResults = [];
+            // Mapa nombre->código ISO para World Bank API
+            const countryCodeMap = {
+                'spain': 'ESP', 'france': 'FRA', 'germany': 'DEU', 'italy': 'ITA',
+                'united kingdom': 'GBR', 'portugal': 'PRT', 'brazil': 'BRA',
+                'mexico': 'MEX', 'argentina': 'ARG', 'colombia': 'COL',
+                'china': 'CHN', 'japan': 'JPN', 'india': 'IND', 'usa': 'USA',
+                'united states': 'USA', 'canada': 'CAN', 'australia': 'AUS',
+                'russia': 'RUS', 'south korea': 'KOR', 'nigeria': 'NGA',
+                'egypt': 'EGY', 'south africa': 'ZAF', 'turkey': 'TUR',
+                'indonesia': 'IDN', 'pakistan': 'PAK', 'bangladesh': 'BGD',
+                'vietnam': 'VNM', 'thailand': 'THA', 'poland': 'POL',
+                'netherlands': 'NLD', 'sweden': 'SWE', 'norway': 'NOR',
+                'chile': 'CHL', 'peru': 'PER', 'venezuela': 'VEN',
+                'cuba': 'CUB', 'morocco': 'MAR', 'kenya': 'KEN',
+                'ethiopia': 'ETH', 'tanzania': 'TZA', 'ghana': 'GHA'
+            };
 
-            for (let pais of paisesPrueba) {
-                const res = await fetch(`${UNIS_API}${pais}`);
+            const myCountries = Object.keys(myDataByCountry);
+            let wbResults = [];
+
+            for (let pais of myCountries) {
+                const code = countryCodeMap[pais];
+                if (!code) continue;
+                const url = WORLDBANK_API.replace('{code}', code);
+                const res = await fetch(url);
                 if (res.ok) {
-                    const data = await res.json();
-                    unisResults.push({
-                        country: pais,
-                        uniCount: data.length // Contamos cuántas universidades devuelve la API para ese país
-                    });
+                    const json = await res.json();
+                    // World Bank returns [metadata, data_array]
+                    if (json[1] && json[1][0] && json[1][0].value) {
+                        wbResults.push({
+                            country: pais,
+                            population: json[1][0].value
+                        });
+                    }
                 }
+                if (wbResults.length >= 8) break; // Limitar peticiones
             }
 
-            if (unisResults.length > 0) {
+            if (wbResults.length > 0) {
                 new Chart(chartCanvasUnis, {
                     type: 'polarArea',
                     data: {
-                        labels: unisResults.map(item => item.country.toUpperCase()),
+                        labels: wbResults.map(item => item.country.toUpperCase()),
                         datasets: [{
-                            label: 'Número de Universidades',
-                            data: unisResults.map(item => item.uniCount),
-                            backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)']
+                            label: 'Población Total (2020)',
+                            data: wbResults.map(item => item.population),
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)',
+                                'rgba(153, 102, 255, 0.6)', 'rgba(255, 159, 64, 0.6)',
+                                'rgba(199, 199, 199, 0.6)', 'rgba(83, 102, 255, 0.6)'
+                            ]
                         }]
                     },
-                    options: { 
+                    options: {
                         responsive: true,
                         plugins: {
-                            title: { display: true, text: 'Número de Universidades por País' },
-                            subtitle: { display: true, text: 'Universidades totales en los países de mi API' }
+                            title: { display: true, text: 'Población Total por País (World Bank, 2020)' },
+                            subtitle: { display: true, text: 'Cruzado con países de mi API mid-population-ages' }
                         }
                     }
                 });
+            } else {
+                unisError = 'No se pudieron obtener datos del World Bank.';
             }
         } catch (e) { unisError = e.message; }
         finally { unisLoading = false; }
@@ -451,11 +481,11 @@
         <div class="chart-container-large"><canvas bind:this={chartCanvasLit}></canvas></div>
     </section>
 
-    <!-- Integración 7: Universidades -->
+    <!-- Integración 7: World Bank -->
     <section class="integration-block">
-        <h2>Integración 7: Universidades del Mundo</h2>
-        <p><strong>Tipo:</strong> Widget Gráfico (Chart.js - PolarArea) | <strong>API Externa:</strong> universities.hipolabs.com | <em>cruzado por país</em></p>
-        {#if unisLoading} <p>Calculando número de universidades por país...</p>
+        <h2>Integración 7: Población Total (World Bank)</h2>
+        <p><strong>Tipo:</strong> Widget Gráfico (Chart.js - PolarArea) | <strong>API Externa:</strong> api.worldbank.org | <em>cruzado por país con mi API</em></p>
+        {#if unisLoading} <p>Cargando datos de población del World Bank...</p>
         {:else if unisError} <p style="color: red;">Error: {unisError}</p>
         {/if}
         <div class="chart-container-small"><canvas bind:this={chartCanvasUnis}></canvas></div>
