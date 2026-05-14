@@ -39,6 +39,7 @@
     "@auth0/auth0-spa-js": "^2.19.0",
     "chart.js": "^4.5.1",
     "highcharts": "^12.6.0",
-    "leaflet": "^1.9.4"
+    "leaflet": "^1.9.4",
+    "magic-string": "^0.30.17"
   }
 }

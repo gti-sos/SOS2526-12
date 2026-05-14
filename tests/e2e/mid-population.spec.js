@@ -36,13 +36,13 @@ test.describe('Pruebas E2E - Frontend Gestión de Población', () => {
         await page.fill('input[placeholder="Cód. País"]', 'TEST');
         await page.fill('input[placeholder="País"]', nombrePaisUnico); 
         await page.fill('input[placeholder="Año"]', '2025');
-        await page.locator('select').selectOption('Male');
+        await page.locator('select', { hasText: 'Sexo...' }).selectOption('Male');
         await page.fill('input[placeholder="Edad Máx"]', '100');
-        await page.fill('input[placeholder*="Pob. 0"]', '10');
-        await page.fill('input[placeholder*="Pob. 25"]', '20');
-        await page.fill('input[placeholder*="Pob. 50"]', '30');
-        await page.fill('input[placeholder*="Pob. 75"]', '40');
-        await page.fill('input[placeholder*="Pob. 100"]', '50');
+        await page.fill('input[placeholder="Pob. 0"]', '10');
+        await page.fill('input[placeholder="Pob. 25"]', '20');
+        await page.fill('input[placeholder="Pob. 50"]', '30');
+        await page.fill('input[placeholder="Pob. 75"]', '40');
+        await page.fill('input[placeholder="Pob. 100"]', '50');
 
         await page.click('button:has-text("Añadir a la lista")');
         await expect(page.locator('.mensaje-creacion')).toBeVisible({ timeout: 15000 });
