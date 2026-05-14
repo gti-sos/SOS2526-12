@@ -67,6 +67,7 @@
     <h1>📈 Analíticas de Población (JJG)</h1>
     <div class="actions">
         <a href="/mid-population-ages" class="btn">🔙 Volver a la tabla</a>
+        <a href="/integrations/mid-population-ages" class="btn" style="background:#0d6efd;">🔗 Ver mis integraciones</a>
     </div>
     
     <div bind:this={chartContainer} class="chart"></div>

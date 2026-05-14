@@ -59,6 +59,10 @@
         🔗 Repositorio de GitHub del Equipo
     </a>
 
+    <a class="repo-link" href="https://youtu.be/3bKRetdRr48" target="_blank">
+        🎥 Vídeo D03 — Javier
+    </a>
+
     <table>
         <thead>
             <tr>

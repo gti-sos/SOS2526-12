@@ -2,7 +2,7 @@ import dataStore from 'nedb';
 
 
 let BASE_URL_API = "/api/v2";
-let db = new dataStore();
+let db = new dataStore({ filename: 'mid-population-ages.db', autoload: true });
 
 // --- AQUÍ DEFINIMOS LOS DOS ENLACES ---
 let DOCS_URL_V1 = "https://documenter.getpostman.com/view/52368982/2sBXqJKLmr"; 
@@ -33,16 +33,18 @@ export function loadBackend(app) {
     // 1. CARGA DE DATOS INICIALES (Versión Forzada)
     // ==========================================
     app.get(BASE_URL_API + "/mid-population-ages/loadInitialData", (req, res) => {
-        db.remove({}, { multi: true }, (err, numRemoved) => {
-            if (err) return res.status(500).json({ message: "Error al limpiar la base de datos" });
-            
+        db.count({}, (err, count) => {
+            if (err) return res.status(500).json({ message: "Error al consultar la base de datos" });
+            if (count > 0) {
+                return res.status(200).json({ message: `Ya hay ${count} registros, no se sobrescribe` });
+            }
             db.insert(initialRecords, (err, newDocs) => {
                 if (err) {
                     console.error(" Error al insertar:", err);
                     return res.status(500).json({ message: "Error al insertar datos" });
                 }
-                console.log(`✅ Base de datos reseteada. Cargados ${newDocs.length} registros iniciales.`);
-                res.status(201).json(newDocs.map(({ _id, ...rest }) => rest)); 
+                console.log(`✅ Base de datos cargada. ${newDocs.length} registros iniciales.`);
+                res.status(201).json(newDocs.map(({ _id, ...rest }) => rest));
             });
         });
     });
@@ -59,9 +61,10 @@ export function loadBackend(app) {
         if (req.query.offset) offset = parseInt(req.query.offset);
         if (req.query.limit) limit = parseInt(req.query.limit);
 
-        // Búsqueda por país (Ignorando mayúsculas y minúsculas gracias a RegExp)
+        // Búsqueda por país (Ignorando mayúsculas y minúsculas, escapando caracteres regex)
         if (req.query.country_name) {
-            query.country_name = new RegExp(req.query.country_name, "i");
+            const escaped = String(req.query.country_name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.country_name = new RegExp(escaped, "i");
         }
         if (req.query.country_code) {
             query.country_code = req.query.country_code;
@@ -95,6 +98,28 @@ export function loadBackend(app) {
             if (req.query.from) query.year.$gte = parseInt(req.query.from);
             if (req.query.to) query.year.$lte = parseInt(req.query.to);
         }
+
+        // Búsqueda por sexo (exacto)
+        if (req.query.sex) {
+            query.sex = req.query.sex;
+        }
+
+        // Búsqueda por campos numéricos (=, >=, <=, "min-max")
+        const numericFields = ['max_age', 'population_age_0', 'population_age_25', 'population_age_50', 'population_age_75', 'population_age_100'];
+        numericFields.forEach(field => {
+            const value = req.query[field];
+            if (value === undefined) return;
+            if (typeof value === "string" && /^\d+-\d+$/.test(value)) {
+                const [min, max] = value.split("-");
+                query[field] = { $gte: parseInt(min), $lte: parseInt(max) };
+            } else if (typeof value === "string" && value.startsWith(">=")) {
+                query[field] = { $gte: parseInt(value.slice(2)) };
+            } else if (typeof value === "string" && value.startsWith("<=")) {
+                query[field] = { $lte: parseInt(value.slice(2)) };
+            } else {
+                query[field] = parseInt(value);
+            }
+        });
 
         db.find(query).skip(offset).limit(limit).exec((err, records) => {
             if (err) return res.status(500).json({ message: "Error en la base de datos" });
@@ -246,24 +271,20 @@ export function loadBackend(app) {
 
     // ==========================================
     // 12. PROXY PARA INTEGRACIÓN EXTERNA (D03.B)
+    // disease.sh — estadísticas globales por país, incluye población.
     // ==========================================
-    app.get(BASE_URL_API + "/proxy/countries", async (req, res) => {
+    app.get(BASE_URL_API + "/proxy/disease-stats", async (req, res) => {
         try {
-            // 1. Definimos la URL de la API externa (REST Countries)
-            // Usamos una ruta específica para traer solo los campos que nos interesan (nombre, región, población) y que sea más rápido.
-            const urlExterna = "https://restcountries.com/v3.1/all?fields=name,region,population";
+            const urlExterna = "https://disease.sh/v3/covid-19/countries";
 
-            // 2. Hacemos la petición desde NUESTRO servidor
             const response = await fetch(urlExterna);
-            
+
             if (!response.ok) {
-                 return res.status(response.status).json({ message: "Error al acceder a la API externa" });
+                return res.status(response.status).json({ message: "Error al acceder a la API externa" });
             }
 
-            // 3. Obtenemos los datos en formato JSON
             const data = await response.json();
 
-            // 4. Se los enviamos de vuelta a nuestro frontend
             res.status(200).json(data);
 
         } catch (error) {

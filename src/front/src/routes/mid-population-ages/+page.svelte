@@ -18,8 +18,16 @@
 
     // Variables para el buscador (from / to)
     let searchCountry = $state("");
+    let searchCountryCode = $state("");
     let searchFrom = $state("");
     let searchTo = $state("");
+    let searchSex = $state("");
+    let searchMaxAge = $state("");
+    let searchPop0 = $state("");
+    let searchPop25 = $state("");
+    let searchPop50 = $state("");
+    let searchPop75 = $state("");
+    let searchPop100 = $state("");
 
     // APUNTAMOS A LA API V2
     let API = '/api/v2/mid-population-ages';
@@ -52,6 +60,10 @@
             params.append("country_name", country);
         }
 
+        if (searchCountryCode.trim()) {
+            params.append("country_code", searchCountryCode.trim());
+        }
+
         if (hasFrom || hasTo) {
             const fromYear = hasFrom ? Number(searchFrom) : null;
             const toYear = hasTo ? Number(searchTo) : null;
@@ -74,6 +86,14 @@
             }
         }
 
+        if (searchSex) params.append("sex", searchSex);
+        if (searchMaxAge.trim()) params.append("max_age", searchMaxAge.trim());
+        if (searchPop0.trim()) params.append("population_age_0", searchPop0.trim());
+        if (searchPop25.trim()) params.append("population_age_25", searchPop25.trim());
+        if (searchPop50.trim()) params.append("population_age_50", searchPop50.trim());
+        if (searchPop75.trim()) params.append("population_age_75", searchPop75.trim());
+        if (searchPop100.trim()) params.append("population_age_100", searchPop100.trim());
+
         const queryString = params.toString();
         const url = queryString ? `${API}?${queryString}` : API;
 
@@ -94,18 +114,29 @@
     // LIMPIAR BÚSQUEDA
     function limpiarBusqueda() {
         searchCountry = "";
+        searchCountryCode = "";
         searchFrom = "";
         searchTo = "";
+        searchSex = "";
+        searchMaxAge = "";
+        searchPop0 = "";
+        searchPop25 = "";
+        searchPop50 = "";
+        searchPop75 = "";
+        searchPop100 = "";
         getPopulations();
     }
 
     async function loadInitialData() {
         const res = await fetch(API + "/loadInitialData", { method: "GET" });
-        if (res.ok) {
+        if (res.status === 201) {
             getPopulations();
-            mostrarMensaje("✅ Se han restaurado los datos de prueba correctamente.", "exito");
+            mostrarMensaje("✅ Se han cargado los datos de prueba (la base estaba vacía).", "exito");
+        } else if (res.status === 200) {
+            getPopulations();
+            mostrarMensaje("ℹ️ Ya había datos cargados, no se han sobrescrito.", "exito");
         } else {
-            mostrarMensaje("❌ Error en nuestros servidores al restaurar los datos.", "error");
+            mostrarMensaje("❌ Error en nuestros servidores al cargar los datos.", "error");
         }
     }
 
@@ -255,8 +286,20 @@
     <div class="form-container" style="background-color: #e9ecef; justify-content: center;">
         <h3 style="width: 100%; text-align: center; margin-top: 0; margin-bottom: 15px; font-size: 1.2rem; color: #333;">🔍 Buscador</h3>
         <input type="text" placeholder="Buscar por País..." bind:value={searchCountry} />
+        <input type="text" placeholder="Cód. País (ej. ES)" bind:value={searchCountryCode} />
         <input type="number" placeholder="Año (Desde)" bind:value={searchFrom} />
         <input type="number" placeholder="Año (Hasta)" bind:value={searchTo} />
+        <select bind:value={searchSex}>
+            <option value="">Sexo (todos)</option>
+            <option value="Male">Hombre</option>
+            <option value="Female">Mujer</option>
+        </select>
+        <input type="text" placeholder="Edad máx (>=90)" bind:value={searchMaxAge} />
+        <input type="text" placeholder="Pob. 0 (>=5000)" bind:value={searchPop0} />
+        <input type="text" placeholder="Pob. 25 (>=5000)" bind:value={searchPop25} />
+        <input type="text" placeholder="Pob. 50 (>=5000)" bind:value={searchPop50} />
+        <input type="text" placeholder="Pob. 75 (>=5000)" bind:value={searchPop75} />
+        <input type="text" placeholder="Pob. 100 (>=5000)" bind:value={searchPop100} />
         <button class="btn-primary" onclick={getPopulations}>Buscar Registros</button>
         <button class="btn-warning" onclick={limpiarBusqueda}>Limpiar Búsqueda</button>
     </div>
